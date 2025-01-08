@@ -79,7 +79,6 @@ Make sure you have the following installed:
    ```bash
    pip install -r requirements.txt
    ```
-
 ---
 
 ## **Running the Application**
