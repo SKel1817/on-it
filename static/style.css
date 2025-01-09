@@ -1,4 +1,99 @@
+/* 
+Pale Green - #BDD4BC
+Moss Green - #4F5D2F
+Pale Blue - #C1D1E4
+Slate Blue - #545E75
+Dark Blue - #05172A
+(Alt Dark Blue - #143F6E)
+*/
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; 
+}
+
+html {
+    background: linear-gradient(to bottom, #BDD4BC 0%, #ffffff 100%);
+}
+
+#fRight {
+    float: right;
+}
+
+#fLeft {
+    float: left;
+}
+
+.nav {
+    margin: 1%;
+}
+
+.material-icons {
+    color: #143F6E;
+}
+
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    margin: auto;
+    height: 100vh;
+    align-items: center;
+    overflow-y: hidden;
+}
+
+
+.contentContainer {
+    padding: 2%;
+    height: 70%;
+    width: 50%;
+
+    border: ridge;
+    border-radius: 2%;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);  
+    
+    background-color: #ffffff;
+    text-align: center;
+
+    overflow-y: auto;
+}
+
+.contentContainer input {
+    width: auto;
+    padding: 1%;
+    text-align: center;
+}
+
+
+.loginContainer {
+    padding: 2%;
+    height: 40%;
+    width: 30%;
+
+    border: ridge;
+    border-radius: 2%;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);  
+    
+    background-color: #ffffff;
+    text-align: left;
+
+    overflow-y: auto;
+}
+
+.loginContainer form {
+    color: #143F6E;
+}
+
+.loginContainer input {
+    width: 95%;
+    padding: 2%;
+    margin: 2%;
 }
