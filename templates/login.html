@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>on-it</title>
-    <link rel="on-it icon" href="" type="image/x-icon" />
+    <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
     <link rel="stylesheet" href="../static/style.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script src="../static/script.js"></script>
@@ -14,6 +14,7 @@
     <nav class="nav">
       <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
       <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+      <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
     </nav>
 </header>
 
@@ -26,7 +27,7 @@
         <input type="password" id="password" name="password" required>
         <input type="submit" value="Login">
         <!-- Placeholder until we make a create an account page -->
-        <a href="{{ url_for('index') }}"><label>Create an Account</label></a> 
+        <a href="{{ url_for('acctCreate') }}"><label>Create an Account</label></a> 
       </form>
     </div>
   </body>
