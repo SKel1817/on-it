@@ -18,15 +18,17 @@
     </nav>
 </header>
 
-  <body class="body"> 
-    <div class="indexContainer">
-      <image src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" id="fLeft">
-        <br>
-      Welcome to on-it. 
-      <br>
-      Your one stop shop for all your CyberSecurity needs.
-      <br>
-      <a href="{{ url_for('audit') }}"><input type="submit" value="Start Audit"></a>
+  <body class="body">
+    <div class="loginContainer">
+      <form action="" method="">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <input type="submit" value="Login">
+        <!-- Placeholder until we make a create an account page -->
+        <a href="{{ url_for('acctCreate') }}"><label>Create an Account</label></a> 
+      </form>
     </div>
   </body>
 </html>
