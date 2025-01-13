@@ -1,0 +1,185 @@
+{
+  "CybersecurityAudit": {
+    "Step1": {
+      "Instruction": "Identify and classify all assets in the organization.",
+      "Explanation": "Begin by creating an inventory of all servers, applications, workstations, cloud services, devices, and network architecture within the business. Classify these assets based on their criticality and sensitivity to the organization's operations.",
+      "Example": {
+        "AssetID": "ASID12345",
+        "AccessLevel": "Admin-Only",
+        "Owner": "John Doe (IT Manager)"
+      }
+    },
+    "Step1a": {
+      "Instruction": "Identify and classify all servers.",
+      "Explanation": "A server is a computer that provides information to other computers. Web servers, database servers, file servers, and email servers need to be assessed.",
+      "Example": {
+        "AssetType": "Web Server",
+        "AssetName": "Apache Server",
+        "Criticality": "High",
+        "Classification": "Public"
+      }
+    },
+    "Step1b": {
+      "Instruction": "Identify and classify all applications.",
+      "Explanation": "An application is software that performs a specific function for the user. Common applications include Microsoft Excel, PowerPoint, or web browsers like Firefox.",
+      "Example": {
+        "AssetType": "Application",
+        "AssetName": "Excel",
+        "Criticality": "Medium",
+        "Classification": "Internal"
+      }
+    },
+    "Step1c": {
+      "Instruction": "Identify and classify all workstations.",
+      "Explanation": "Workstations include desktop computers, laptops, and tablets used by employees.",
+      "Example": {
+        "AssetType": "Workstation",
+        "AssetName": "Employee Laptop #1234",
+        "Criticality": "Medium",
+        "Classification": "Restricted"
+      }
+    },
+    "Step1d": {
+      "Instruction": "Identify and classify all cloud services.",
+      "Explanation": "Cloud services are computing resources delivered over the internet for storage or applications. Examples include Google Drive, Dropbox, AWS, or Google Cloud.",
+      "Example": {
+        "AssetType": "Cloud Service",
+        "AssetName": "AWS",
+        "Criticality": "High",
+        "Classification": "Confidential"
+      }
+    },
+    "Step1e": {
+      "Instruction": "Identify and classify all devices.",
+      "Explanation": "Devices can include mobile phones used for professional or personal reasons, as well as Internet of Things devices such as printers or cameras.",
+      "Example": {
+        "AssetType": "Device",
+        "AssetName": "iPhone 14",
+        "Criticality": "Medium",
+        "Classification": "Confidential"
+      }
+    },
+    "Step1f": {
+      "Instruction": "Identify and classify all network architecture.",
+      "Explanation": "Network architecture includes elements that prevent unauthorized access to network resources. Examples are firewalls, routers, switches, and VPN connections.",
+      "Example": {
+        "AssetType": "Firewall",
+        "AssetName": "Palo Alto Networks",
+        "Criticality": "High",
+        "Classification": "Restricted"
+      }
+    },
+    "Step2": {
+      "Instruction": "Perform a risk assessment. Take into account common vulnerabilities and threats that may impact assets.",
+      "Explanation": "It is important to assess possible vulnerabilities and threats to prioritize security measures and prevent future incidents.",
+      "Example": {
+        "RiskLevel": "High",
+        "ThreatType": "Privilege Escalation",
+        "VulnerabilityDescription": "Weak password policy",
+        "MitigationStatus": "Pending",
+        "Impact": "Data breach of customer records",
+        "Likelihood": "Likely"
+      }
+    },
+    "Step2a": {
+      "Instruction": "Assess vulnerabilities and threats in servers.",
+      "Explanation": "Common vulnerabilities in servers include unpatched software, weak authentication, and misconfigured firewalls. Threats could include ransomware and privilege escalation.",
+      "Example": {
+        "AssetType": "Server",
+        "AssetName": "Database Server I",
+        "Criticality": "High",
+        "Classification": "Confidential"
+      }
+    },
+    "Step2b": {
+      "Instruction": "Assess vulnerabilities and threats in applications.",
+      "Explanation": "Vulnerabilities include SQL injection, cross-site scripting, and improper input validation. Potential threats include data breaches.",
+      "Example": {
+        "AssetType": "Application",
+        "AssetName": "Internal HR System",
+        "Criticality": "High",
+        "Classification": "Confidential"
+      }
+    },
+    "Step2c": {
+      "Instruction": "Assess vulnerabilities and threats in workstations.",
+      "Explanation": "Vulnerabilities include outdated software and weak passwords. Potential threats include phishing, keylogging, ransomware, and malware.",
+      "Example": {
+        "AssetType": "Workstation",
+        "AssetName": "CEO Laptop",
+        "Criticality": "High",
+        "Classification": "Confidential"
+      }
+    },
+    "Step2d": {
+      "Instruction": "Assess vulnerabilities and threats in cloud services.",
+      "Explanation": "Vulnerabilities include insufficient access controls and insecure APIs. Threats include data breaches and denial of service.",
+      "Example": {
+        "AssetType": "Cloud Service",
+        "AssetName": "Dropbox Business Account",
+        "Criticality": "Medium",
+        "Classification": "Restricted"
+      }
+    },
+    "Step2e": {
+      "Instruction": "Assess vulnerabilities and threats in devices.",
+      "Explanation": "Vulnerabilities include weak app permissions and lack of two-factor authentication. Threats include theft of devices and ransomware.",
+      "Example": {
+        "AssetType": "Device",
+        "AssetName": "Smart Printer - Office 1",
+        "Criticality": "Low",
+        "Classification": "Internal"
+      }
+    },
+    "Step2f": {
+      "Instruction": "Assess vulnerabilities and threats in network architecture.",
+      "Explanation": "Vulnerabilities include open ports, weak encryption, and default configurations. Threats include denial-of-service attacks and eavesdropping.",
+      "Example": {
+        "AssetType": "Switch",
+        "AssetName": "Cisco Catalyst",
+        "Criticality": "Medium",
+        "Classification": "Internal"
+      }
+    },
+    "Step3": {
+      "Instruction": "Utilize vulnerability and scanning tools.",
+      "Explanation": "These tools automate the process of detecting known vulnerabilities. Once the tool provides an assessment, it becomes easier to see which assets are impacted.",
+      "Example": {
+        "VulnerabilityID": "CVE-2022-1234",
+        "Severity": "High",
+        "AffectedAsset": "Web Server",
+        "Remediation": "Apply the latest security patch"
+      }
+    },
+    "Step4": {
+      "Instruction": "Conduct a penetration test to evaluate defenses.",
+      "Explanation": "Simulate an attack to test the effectiveness of security measures. Document vulnerabilities exploited during the test and provide recommendations to address these issues.",
+      "Example": {
+        "VulnerabilityID": "CVE-2023-1234",
+        "Requirement": "SQL Injection",
+        "CurrentState": "Vulnerable",
+        "ActionPlan": "Implement prepared statements for database queries."
+      }
+    },
+    "Step5": {
+      "Instruction": "Create an incident response plan.",
+      "Explanation": "Develop a plan that outlines the steps to take in the event of a security breach for specific assets.",
+      "Example": {
+        "TestType": "Phishing Simulation",
+        "Findings": "20% of employees clicked on phishing emails.",
+        "Recommendation": "Implement mandatory phishing awareness training."
+      }
+    },
+    "Step6": {
+      "Instruction": "Create a continuous improvement plan for employees.",
+      "Explanation": "Implement training and awareness programs to educate employees with various access levels.",
+      "Example": {
+        "IncidentType": "Data Breach",
+        "Steps": "Identify affected systems, Notify stakeholders, Secure the breach, Conduct a forensic investigation",
+        "ContactInfo": "IT Security Team (security@company.com)"
+      }
+    }
+  }
+}
+
+
