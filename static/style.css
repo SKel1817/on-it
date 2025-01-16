@@ -207,32 +207,37 @@ datalist {
 @media (max-width: 768px) {
 
 .nav {
-display: flex;
-justify-content: space-around;
-align-items: center;
-padding: 10px;
-background-color: #BDD4BC;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+    background-color: #BDD4BC;
 }
 
 .material-icons {
-font-size: 24px;
-color: #143F6E;
+    font-size: 24px;
+    color: #143F6E;
 }
 
 .Hopper {
-width: 80%;
-max-width:280px;
-height: auto;
-margin: 0 auto 30px;
-display: block;
+    width: 80%;
+    max-width:280px;
+    height: auto;
+    margin: 0 auto 30px;
+    display: block;
 }
 
+
+
 .indexContainer {
-padding: 10px;
-font-size: 1.2em;
-text-align: center;
-width: 90%;
-margin: 0 auto;
+    padding: 10px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 1000;
+    color: #04340C;
+    font-size: clamp(1.5em, 3vw, 2.5em);
+    text-align: center;
+    width: 90%;
+    margin: 0 auto;
 }
 
 .indexContainer input[type= "submit"] {
