@@ -1,0 +1,15 @@
+{
+  "name": "on-it",
+  "version": "1.0.0",
+  "description": "Welcome to the on-it repository! Your Cybersecurity Solution. An application that guides small businesses through the steps of a cybersecurity audit. This guide will help you set up and run the Flask application on your local machine, whether you're using Windows or macOS.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^24.1.0"
+  }
+}
