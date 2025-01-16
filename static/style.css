@@ -201,3 +201,83 @@ datalist {
     justify-content: space-between;
     color:#000000;
   }
+
+/* mobile styling */
+
+@media (max-width: 768px) {
+
+.nav {
+display: flex;
+justify-content: space-around;
+align-items: center;
+padding: 10px;
+background-color: #BDD4BC;
+}
+
+.material-icons {
+font-size: 24px;
+color: #143F6E;
+}
+
+.Hopper {
+width: 80%;
+max-width:280px;
+height: auto;
+margin: 0 auto 30px;
+display: block;
+}
+
+.indexContainer {
+padding: 10px;
+font-size: 1.2em;
+text-align: center;
+width: 90%;
+margin: 0 auto;
+}
+
+.indexContainer input[type= "submit"] {
+display:inline-block;
+font-family: 'Playfair Display', serif;
+font-weight: 700;
+font-size: clamp(1.2em, 2vw, 1.5em);
+color: white;
+width:80%;
+max-width: 300px;
+padding: 15px 30px;
+background-color:  #376F26;
+border: none;
+border-radius: 8px;
+margin-top: 30px;
+cursor: pointer;
+box-shadow: 4px 4px 6px rgba(0,0,0,0.4);
+transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.indexContainer input[type="Submit"]:hover {
+background-color: #376F26;
+transform: scale(1.03);
+}
+
+/* smaller mobile devices */
+@media (max-width:480px) {
+.Hopper{
+width: 90%;
+}
+
+.indexContainer input[type="submit"] {
+font-size:1.2em;
+}
+}
+
+/* tablets */
+
+@media (min-width: 600px) and (max-width:768px) {
+.Hopper{
+width: 60%;
+}
+.indexContainer input[type="submit"]{
+font-size:1.5em;
+}
+}
+
+}
