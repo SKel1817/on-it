@@ -111,6 +111,10 @@ def report():
 def previous_audits():
     return render_template("previous_audits.html")
 
+@app.route("/learn")
+def learn():
+    return render_template("learn.html")
+
 
 if __name__ == "__main__":
     ensure_file_exists()
