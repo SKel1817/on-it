@@ -96,7 +96,7 @@ def audit():
     return render_template("audit.html")
 
 @app.route("/acctCreate")
-def acct_create():
+def acctCreate():
     return render_template("acctCreate.html")
 
 @app.route("/settings")
