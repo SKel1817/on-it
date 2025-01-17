@@ -7,3 +7,5 @@ __pycache__
 *.xml
 *.iml
 node_modules/
+/static/output.pdf
+/static/audit_response.pdf
