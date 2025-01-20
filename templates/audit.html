@@ -17,6 +17,8 @@
       <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
       <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
       <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+      <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
+      <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
     </nav>
 </header>
 
@@ -48,6 +50,25 @@
         <br>
         <input type="text" id="auditInput" placeholder="Enter Information Here">
         <input type="button" id="nextButton" value="Next Step">
+        <br>
+        <br>
+        <div class="auditHelp">
+          <button onclick="toggleHelp()">Need help? Click here for more information!</button>
+          <div id="helpContent" style="display: none;">
+            <br>
+              <p id="auditHelp">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi in sollicitudin purus. Cras gravida imperdiet ligula, facilisis lacinia erat porta at. Aliquam ac libero nec mauris pellentesque ultricies. Nulla facilisi. Maecenas ultrices urna vel lacinia pellentesque. Cras tempor lacus tortor. Nunc congue pretium risus, at dictum massa vehicula vel. Integer sit amet fringilla est. Integer congue sapien eros, sit amet pulvinar arcu mattis sit amet. Aenean ullamcorper lobortis purus, sed hendrerit nisl vestibulum at. Curabitur sed enim sapien. Suspendisse id imperdiet nisl.</p>
+          </div>
+        </div>
+        <script>
+          function toggleHelp() {
+              var helpContent = document.getElementById("helpContent");
+              if (helpContent.style.display === "none") {
+                  helpContent.style.display = "block";
+              } else {
+                  helpContent.style.display = "none";
+              }
+          }
+          </script>
       </div>
     </div>
   </body>
