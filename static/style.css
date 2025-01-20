@@ -417,8 +417,6 @@ datalist {
     color:#000000;
   }
 
-<<<<<<< Updated upstream
-=======
 /* learn.html Web Styling */
 
 .learnContainer {
@@ -492,7 +490,6 @@ datalist {
     margin: 2%;
 }
 
->>>>>>> Stashed changes
 /* mobile styling */
 
 @media (max-width: 768px) {
@@ -576,8 +573,4 @@ font-size:1.5em;
 }
 }
 
-<<<<<<< Updated upstream
 }
-=======
-}
->>>>>>> Stashed changes
