@@ -16,6 +16,16 @@ fetch(jsonPath)
     const steps = data.CybersecurityAudit;
     const stepKeys = Object.keys(steps);
 
+    // Map of radio button selections to steps
+    const stepMapping = {
+      "servers": "step1a",       // servers
+      "applications": "step1b",  // applications
+      "workstations": "step1c",  // workstations
+      "cloudServices": "step1d", // cloudServices
+      "devices": "step1e",       // devices
+      "networkArchitecture": "step1f"  // network architecture
+    };
+
     // Function to display a step
     function displayStep(stepIndex) {
       const step = steps[stepKeys[stepIndex]];
@@ -34,108 +44,97 @@ fetch(jsonPath)
 
       // Clear the input field
       document.getElementById("auditInput").value = "";
+
+      // Show the radio buttons only on step 1 (index 0)
+      const radioButtons = document.querySelectorAll('label, input[type="radio"]');
+      if (stepIndex === 0) {
+        radioButtons.forEach((elem) => {
+          elem.style.display = 'block'; // Show radio buttons
+        });
+
+        // Hide the input textbox during step 1
+        document.getElementById("auditInput").style.display = 'none';
+      } else {
+        radioButtons.forEach((elem) => {
+          elem.style.display = 'none'; // Hide radio buttons
+        });
+
+        // Show the input textbox for other steps
+        document.getElementById("auditInput").style.display = 'block';
+      }
     }
 
     // Initial step display
     displayStep(currentStepIndex);
 
-    // Handle "Next Step" button click
     document.getElementById("nextButton").addEventListener("click", () => {
-      const userInput = document.getElementById("auditInput").value.trim();
-
-      if (userInput) {
-        // Save the user response
-        const stepName = stepKeys[currentStepIndex];
-        const response = {
-          step: stepName,
-          answer: userInput
-        };
-
-        // Send the response to the backend
-        fetch("/save_response", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(response)
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error("Failed to save response.");
-            }
-            return res.json();
-          })
-          .then((data) => {
-            console.log(data.message);
-
-            // Move to the next step or finish
-            currentStepIndex++;
-            if (currentStepIndex < stepKeys.length) {
-              displayStep(currentStepIndex);
-            } else {
-              alert("You've completed all the steps! Responses saved.");
-              currentStepIndex = 0;
-              displayStep(currentStepIndex);
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("Failed to save the response. Please try again.");
-          });
+      // Get the selected radio button for each section
+      const selectedRadio = document.querySelector('input[type="radio"]:checked'); // Check which radio is selected
+    
+      if (selectedRadio) {
+        const selectedStep = stepMapping[selectedRadio.name]; // Get the corresponding step based on the radio button NAME
+        const stepIndex = stepKeys.indexOf(selectedStep); // Find the index of the associated step
+    
+        // Move to the next associated step or finish
+        if (stepIndex !== -1) {
+          displayStep(stepIndex);
+          currentStepIndex = stepIndex;
+        } else {
+          alert("No valid step found for the selected radio button.");
+        }
       } else {
-        alert("Please enter a response before proceeding.");
+        alert("Please select a valid option before proceeding.");
       }
     });
+    
   })
   .catch((error) => {
     console.error("There was a problem with the fetch operation:", error);
   });
 
+document.addEventListener('DOMContentLoaded', () => {
+  const dropdown = document.getElementById('frameworkDropdown');
+  const detailsDiv = document.getElementById('frameworkDetails');
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const dropdown = document.getElementById('frameworkDropdown');
-    const detailsDiv = document.getElementById('frameworkDetails');
-  
-    // Fetch the JSON data
-    fetch('/static/auditframeworks.json')
-      .then(response => response.json())
-      .then(data => {
-        const frameworks = data.frameworks;
-  
-        // Populate the dropdown menu
-        frameworks.forEach((framework, index) => {
-          const option = document.createElement('option');
-          option.value = index; // Use index as the value
-          option.textContent = framework.name;
-          dropdown.appendChild(option);
-        });
-  
-        // Add event listener for dropdown change
-        dropdown.addEventListener('change', (event) => {
-          const selectedIndex = event.target.value;
-          if (selectedIndex) {
-            const selectedFramework = frameworks[selectedIndex];
-            displayFrameworkDetails(selectedFramework);
-          } else {
-            detailsDiv.innerHTML = ''; // Clear details if no selection
-          }
-        });
-      })
-      .catch(error => console.error('Error fetching JSON:', error));
-  
-    // Function to display framework details
-    function displayFrameworkDetails(framework) {
-      detailsDiv.innerHTML = `
-        <h2>${framework.name}</h2>
-        <p><strong>Definition:</strong> ${framework.definition}</p>
-        <p><strong>How to Use:</strong></p>
-        <ul>${framework.how_to_use.map(step => `<li>${step}</li>`).join('')}</ul>
-        <p><strong>Advantages:</strong></p>
-        <ul>${framework.advantages.map(adv => `<li>${adv}</li>`).join('')}</ul>
-        <p><strong>Disadvantages:</strong></p>
-        <ul>${framework.disadvantages.map(disadv => `<li>${disadv}</li>`).join('')}</ul>
-        <p><strong>More Info:</strong> <a href="${framework.link}" target="_blank">Learn more</a></p>
-      `;
-    }
-  });
-  
+  // Fetch the JSON data
+  fetch('/static/auditframeworks.json')
+    .then(response => response.json())
+    .then(data => {
+      const frameworks = data.frameworks;
+
+      // Populate the dropdown menu
+      frameworks.forEach((framework, index) => {
+        const option = document.createElement('option');
+        option.value = index; // Use index as the value
+        option.textContent = framework.name;
+        dropdown.appendChild(option);
+      });
+
+      // Add event listener for dropdown change
+      dropdown.addEventListener('change', (event) => {
+        const selectedIndex = event.target.value;
+        if (selectedIndex) {
+          const selectedFramework = frameworks[selectedIndex];
+          displayFrameworkDetails(selectedFramework);
+        } else {
+          detailsDiv.innerHTML = ''; // Clear details if no selection
+        }
+      });
+    })
+    .catch(error => console.error('Error fetching JSON:', error));
+
+  // Function to display framework details
+  function displayFrameworkDetails(framework) {
+    detailsDiv.innerHTML = ` 
+      <h2>${framework.name}</h2>
+      <p><strong>Definition:</strong> ${framework.definition}</p>
+      <p><strong>How to Use:</strong></p>
+      <ul>${framework.how_to_use.map(step => `<li>${step}</li>`).join('')}</ul>
+      <p><strong>Advantages:</strong></p>
+      <ul>${framework.advantages.map(adv => `<li>${adv}</li>`).join('')}</ul>
+      <p><strong>Disadvantages:</strong></p>
+      <ul>${framework.disadvantages.map(disadv => `<li>${disadv}</li>`).join('')}</ul>
+      <p><strong>More Info:</strong> <a href="${framework.link}" target="_blank">Learn more</a></p>
+    `;
+  }
+});
