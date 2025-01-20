@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Audit Frameworks</title>
+<<<<<<< Updated upstream
   <script src="../static/script.js" defer></script>
   <!-- link style sheet-->
     <link rel="stylesheet" href="../static/style.css">
@@ -13,5 +14,35 @@
     <option value="">--Select a Framework--</option>
   </select>
   <div id="frameworkDetails"></div>
+=======
+  <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="../static/style.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <script src="../static/script.js" defer></script>
+</head>
+
+<header>
+  <nav class="nav">
+    <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
+    <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+    <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+    <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
+    <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
+  </nav>
+</header>
+
+<body>
+  <div class="learnContainer">
+    <h1>Select an Audit Framework</h1>
+    <select id="frameworkDropdown">
+      <option value="">--Select a Framework--</option>
+    </select>
+    <br>
+    <br>
+    <hr>
+    <br>
+    <div id="frameworkDetails"></div>
+  </div>
+>>>>>>> Stashed changes
 </body>
 </html>
