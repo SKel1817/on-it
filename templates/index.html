@@ -7,6 +7,7 @@
     <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
     <link rel="stylesheet" href="../static/style.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <script src="../static/script.js"></script>
   </head>
 
@@ -15,18 +16,21 @@
       <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
       <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
       <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+      <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
+      <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">learn</i></a>
     </nav>
 </header>
 
   <body class="body"> 
     <div class="indexContainer">
-      <image src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" id="fLeft">
+      <image src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" id="fLeft"> </image>
         <br>
-      Welcome to on-it. 
+      Welcome to on-it.
       <br>
       Your one stop shop for all your CyberSecurity needs.
       <br>
-      <a href="{{ url_for('audit') }}"><input type="submit" value="Start Audit"></a>
+        <a href="{{ url_for('audit') }}"><input type="submit" value="Start Audit"></a>
     </div>
   </body>
 </html>
+
