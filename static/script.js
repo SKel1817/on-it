@@ -18,12 +18,12 @@ fetch(jsonPath)
 
     // Map of radio button selections to steps
     const stepMapping = {
-      "servers": "step1a",       // servers
-      "applications": "step1b",  // applications
-      "workstations": "step1c",  // workstations
-      "cloudServices": "step1d", // cloudServices
-      "devices": "step1e",       // devices
-      "networkArchitecture": "step1f"  // network architecture
+      "servers": "Step1a",       // servers
+      "applications": "Step1b",  // applications
+      "workstations": "Step1c",  // workstations
+      "cloudServices": "Step1d", // cloudServices
+      "devices": "Step1e",       // devices
+      "networkArchitecture": "Step1f"  // network architecture
     };
 
     // Function to display a step
