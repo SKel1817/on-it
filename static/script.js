@@ -1,3 +1,4 @@
+// Path to your JSON file
 const jsonPath = "../static/auditsteps.json";
 
 // Variables to store user responses
@@ -149,3 +150,50 @@ fetch(jsonPath)
   .catch((error) => {
     console.error("There was a problem with the fetch operation:", error);
   });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const dropdown = document.getElementById('frameworkDropdown');
+  const detailsDiv = document.getElementById('frameworkDetails');
+
+// Fetch the JSON data
+  fetch('/static/auditframeworks.json')
+    .then(response => response.json())
+    .then(data => {
+      const frameworks = data.frameworks;
+
+      // Populate the dropdown menu
+      frameworks.forEach((framework, index) => {
+        const option = document.createElement('option');
+        option.value = index; // Use index as the value
+        option.textContent = framework.name;
+        dropdown.appendChild(option);
+      });
+
+      // Add event listener for dropdown change
+      dropdown.addEventListener('change', (event) => {
+        const selectedIndex = event.target.value;
+        if (selectedIndex) {
+          const selectedFramework = frameworks[selectedIndex];
+          displayFrameworkDetails(selectedFramework);
+        } else {
+          detailsDiv.innerHTML = ''; // Clear details if no selection
+        }
+      });
+    })
+    .catch(error => console.error('Error fetching JSON:', error));
+
+  // Function to display framework details
+  function displayFrameworkDetails(framework) {
+    detailsDiv.innerHTML = `
+      <h2>${framework.name}</h2>
+      <p><strong>Definition:</strong> ${framework.definition}</p>
+      <p><strong>How to Use:</strong></p>
+      <ul>${framework.how_to_use.map(step => `<li>${step}</li>`).join('')}</ul>
+      <p><strong>Advantages:</strong></p>
+      <ul>${framework.advantages.map(adv => `<li>${adv}</li>`).join('')}</ul>
+      <p><strong>Disadvantages:</strong></p>
+      <ul>${framework.disadvantages.map(disadv => `<li>${disadv}</li>`).join('')}</ul>
+      <p><strong>More Info:</strong> <a href="${framework.link}" target="_blank">Learn more</a></p>
+    `;
+  }
+});
