@@ -1,4 +1,3 @@
-// Path to your JSON file
 const jsonPath = "../static/auditsteps.json";
 
 // Variables to store user responses
@@ -68,9 +67,10 @@ fetch(jsonPath)
     // Initial step display
     displayStep(stepKeys[currentStepIndex]);
 
+    // Handle the "Next" button click
     document.getElementById("nextButton").addEventListener("click", () => {
+      // If the user is on the first step (Step1)
       if (currentStepIndex === 0) {
-        // On the first step, capture the user's selections
         const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
         selectedSteps = []; // Reset selected steps
 
@@ -79,31 +79,67 @@ fetch(jsonPath)
           const selectedValue = radio.value; // e.g., "Yes" or "No"
 
           if (selectedValue === "Yes" && stepMapping[selectedName]) {
-            selectedSteps.push(stepMapping[selectedName]); // Add the corresponding step to the selected steps
+            selectedSteps.push(stepMapping[selectedName]); // Add corresponding step for "Yes"
           }
         });
 
         if (selectedSteps.length > 0) {
-          currentStepIndex = 0; // Reset to the first step in the selected steps
-          displayStep(selectedSteps[currentStepIndex]);
+          currentStepIndex = 0; // Reset to the first substep
+          displayStep(selectedSteps[currentStepIndex]); // Display the first substep
         } else {
           alert("Please select at least one option with 'Yes' to proceed.");
         }
       } else {
-        // Handle subsequent steps
+        // Handle user input for subsequent steps
         const userInput = document.getElementById("auditInput").value.trim();
 
         if (userInput) {
-          // Logic for handling user input on other steps
-          console.log(`User response for ${selectedSteps[currentStepIndex]}: ${userInput}`);
+          // Prepare the response object
+          const stepName = selectedSteps[currentStepIndex];
+          const response = {
+            step: stepName,
+            answer: userInput
+          };
 
-          // Move to the next step in the selected sequence
-          if (currentStepIndex < selectedSteps.length - 1) {
-            currentStepIndex++;
-            displayStep(selectedSteps[currentStepIndex]);
-          } else {
-            alert("You have completed all the selected steps.");
-          }
+          // Log for debugging purposes
+          console.log(`Submitting response for ${stepName}: ${userInput}`);
+
+          // Send the response to the backend
+          fetch("/save_response", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(response)
+          })
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error("Failed to save response.");
+              }
+              return res.json();
+            })
+            .then((data) => {
+              console.log("Response saved:", data.message);
+
+              // Move to the next substep within the same section (1a -> 1b -> 1c, etc.)
+              if (currentStepIndex < selectedSteps.length - 1) {
+                currentStepIndex++;
+                displayStep(selectedSteps[currentStepIndex]);
+              } else {
+                // If all substeps in the current section are done, move to the next main step (2, 3, etc.)
+                const nextMainStepIndex = Math.floor(currentStepIndex / 6) + 1; // 6 steps per main step (e.g., Step1a to Step1f)
+                if (nextMainStepIndex < stepKeys.length) {
+                  currentStepIndex = nextMainStepIndex * 6; // Jump to the first substep of the next main step
+                  displayStep(stepKeys[currentStepIndex]);
+                } else {
+                  alert("You have completed all the steps.");
+                }
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Failed to save the response. Please try again.");
+            });
         } else {
           alert("Please enter a response before proceeding.");
         }
