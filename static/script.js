@@ -27,43 +27,32 @@ fetch(jsonPath)
       networkArchitecture: "Step1f",  // network architecture
     };
 
-    // Function to display a step
     function displayStep(stepKey) {
       const step = steps[stepKey];
-
+    
       // Update HTML with the step data
       document.getElementById("stepName").textContent = stepKey;
       document.getElementById("instruction").textContent = step.Instruction;
       document.getElementById("explanation").textContent = step.Explanation;
-
-      // Example content formatting
+    
       const exampleDiv = document.getElementById("example");
       exampleDiv.innerHTML = "<strong>Example:</strong><br>";
       for (const [key, value] of Object.entries(step.Example)) {
         exampleDiv.innerHTML += `${key}: ${value}<br>`;
       }
-
-      // Clear the input field
-      document.getElementById("auditInput").value = "";
-
-      // Show the radio buttons only on the first step (index 0)
-      const radioButtons = document.querySelectorAll('label, input[type="radio"]');
+    
+      document.getElementById("auditInput").value = ""; // Clear input field
+    
+      const radioOptions = document.getElementById("radioOptions");
       if (stepKey === "Step1") {
-        radioButtons.forEach((elem) => {
-          elem.style.display = "block"; // Show radio buttons
-        });
-
-        // Hide the input textbox during step 1
-        document.getElementById("auditInput").style.display = "none";
+        radioOptions.style.display = "block"; // Show radio buttons on Step1
+        document.getElementById("auditInput").style.display = "none"; // Hide input box
       } else {
-        radioButtons.forEach((elem) => {
-          elem.style.display = "none"; // Hide radio buttons
-        });
-
-        // Show the input textbox for other steps
-        document.getElementById("auditInput").style.display = "block";
+        radioOptions.style.display = "none"; // Hide radio buttons on other steps
+        document.getElementById("auditInput").style.display = "block"; // Show input box
       }
     }
+    
 
     // Initial step display
     displayStep(stepKeys[currentStepIndex]);
