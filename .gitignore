@@ -8,4 +8,4 @@ __pycache__
 *.iml
 node_modules/
 /static/output.pdf
-/static/audit_response.pdf
+/static/audit_responses.json
