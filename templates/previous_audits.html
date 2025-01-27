@@ -7,6 +7,7 @@
   <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
   <link rel="stylesheet" href="../static/style.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
 </head>
 
 <header>
@@ -19,7 +20,7 @@
   </nav>
 </header>
 
-<body>
+<body class="previousContainer">
   <div id="audit-list-container" class="auditListContainer">
     <h1>Previous Audits</h1>
     <br>
@@ -51,7 +52,7 @@
           const li = document.createElement("li");
           li.innerHTML = `
             <span>${date}</span>
-            <button onclick="viewReport('${date}')">View Report</button>
+            <button onclick="viewReport('${date}')"><i class="material-symbols-outlined">table_eye</i></button>
           `;
           auditList.appendChild(li);
         });
