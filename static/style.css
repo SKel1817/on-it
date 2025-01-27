@@ -293,9 +293,11 @@ datalist {
 .previousContainer button {
     max-width: 10%;
 
-    border: none;
-    background-color: #ffffff;
+    border: none; 
+    background-color: #ffffff; 
     color: #143F6E;
+
+    vertical-align: sub;
 }
 
 /* settings.html Web Styling */
