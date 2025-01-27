@@ -12,6 +12,7 @@ Dark Blue - #05172A
     margin: 0;
     padding: 0;
     box-sizing: border-box; 
+    font-family: 'Playfair Display' , serif;
 }
 
 html {
@@ -53,7 +54,7 @@ body {
     height: 40%;
     width: 100%;
 
-    font-size: 4em;
+    font-size: 3em;
     color: #143F6E;
 
     position: absolute;
@@ -287,6 +288,14 @@ datalist {
     text-align: left;
 
     overflow-y: auto;
+}
+
+.previousContainer button {
+    max-width: 10%;
+
+    border: none;
+    background-color: #ffffff;
+    color: #143F6E;
 }
 
 /* settings.html Web Styling */
