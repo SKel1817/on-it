@@ -9,3 +9,5 @@ __pycache__
 node_modules/
 /static/output.pdf
 /static/audit_responses.json
+/Database/.env
+/Database/temp.py
