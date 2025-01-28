@@ -7,17 +7,11 @@ import subprocess
 # import mariadb
 # from mariadb import Error
 # import sys
-# TO-DO general code logic:
-# - Fix Javascript so that way frontend calls flask for all fetching of JSON files
-# - Then Implement the JSON call in flask to fetch JSON data
-# - Test the JSON data to see if it is being fetched and working
 
-
-# TO-DO with Agron for Database Qureries and API
+# TO-DO for Database Qureries and API
 # - Change the JSON file to be the database
 # - Implement the database connection and queries
 # - Test the database connection and queries
-
 
 # Ideal workflow w/ current JSON logic no database:
 # - Javascript requests flask API
