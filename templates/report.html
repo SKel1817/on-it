@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cybersecurity Audit Report</title>
   <link rel="stylesheet" href="../static/report-style.css">
+  <script src="../static/script.js" defer></script>
 </head>
 <body>
   <div id="report-container">
     <h1>Cybersecurity Audit Report</h1>
     <table id="audit-header">
       <tr>
+        <!-- Fill in with USER and Audit Data information from database -->
         <td><strong>Date:</strong> <span id="report-date"></span></td>
         <td><strong>Auditor:</strong> <span id="auditor-name">John Doe</span></td>
         <td><strong>Department:</strong> <span id="department-name">IT Security</span></td>
@@ -30,70 +32,16 @@
         <!-- Steps will be dynamically inserted here -->
       </tbody>
     </table>
-    <button id="download-pdf" onclick="downloadPDF()">Download Report</button>
+    <button id="download-pdf" onclick="downloadPDF(document.getElementById('report-date').textContent)">
+      Download Report
+    </button>
   </div>
-
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const date = urlParams.get("date");
-    const responsesPath = "/static/audit_responses.json";
-    const stepsPath = "/static/auditsteps.json";
-
-    async function loadReport() {
-      try {
-        const responsesResponse = await fetch(responsesPath);
-        if (!responsesResponse.ok) throw new Error("Failed to load audit responses.");
-        const auditResponses = await responsesResponse.json();
-
-        const stepsResponse = await fetch(stepsPath);
-        if (!stepsResponse.ok) throw new Error("Failed to load audit steps.");
-        const auditSteps = await stepsResponse.json().then(data => data.CybersecurityAudit);
-
-        const filteredResponses = auditResponses.filter(item => item.date.startsWith(date));
-        if (filteredResponses.length === 0) {
-          document.getElementById("steps-body").innerHTML = `<tr><td colspan="3">No data found for this date.</td></tr>`;
-          return;
-        }
-
-        document.getElementById("report-date").textContent = date;
-
-        let stepsHTML = "";
-        filteredResponses.forEach((item) => {
-          const stepKey = item.responses.step;
-          const stepName = stepKey || "N/A";
-          const instruction = auditSteps[stepKey]?.Instruction || "Instruction not available";
-          const response = item.responses.answer || "No response provided";
-
-          stepsHTML += `
-            <tr>
-              <td>${stepName}</td>
-              <td>${instruction}</td>
-              <td>${response}</td>
-            </tr>
-          `;
-        });
-
-        document.getElementById("steps-body").innerHTML = stepsHTML;
-      } catch (error) {
-        console.error("Error loading report:", error);
-        document.getElementById("steps-body").innerHTML = `<tr><td colspan="3">Error loading report. Please try again later.</td></tr>`;
-      }
-    }
-
-    async function downloadPDF() {
-      const response = await fetch(`/generate_pdf?date=${encodeURIComponent(date)}`);
-      if (response.ok) {
-        const blob = await response.blob();
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `audit_${date.replace(/-/g, "_")}.pdf`;
-        link.click();
-      } else {
-        alert("Failed to download PDF. Please try again.");
-      }
-    }
-
-    loadReport();
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const date = urlParams.get("date");
+      loadReport(date);
+    });
   </script>
 </body>
 </html>
