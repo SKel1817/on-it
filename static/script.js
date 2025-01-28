@@ -142,7 +142,7 @@ function loadAudits() {
         const li = document.createElement("li");
         li.innerHTML = `
           <span>${date}</span>
-          <button onclick="viewReport('${date}')">View Report</button>
+          <button onclick="viewReport('${date}')"><i class="material-symbols-outlined">table_eye</i></button>
         `;
         auditList.appendChild(li);
       });
