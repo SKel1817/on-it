@@ -3,16 +3,65 @@ import os
 import json
 from datetime import datetime
 import subprocess
+# from dotenv import load_dotenv
+# import mariadb
+# from mariadb import Error
+# import sys
+# TO-DO general code logic:
+# - Fix Javascript so that way frontend calls flask for all fetching of JSON files
+# - Then Implement the JSON call in flask to fetch JSON data
+# - Test the JSON data to see if it is being fetched and working
+
+
+# TO-DO with Agron for Database Qureries and API
+# - Change the JSON file to be the database
+# - Implement the database connection and queries
+# - Test the database connection and queries
+
+
+# Ideal workflow w/ current JSON logic no database:
+# - Javascript requests flask API
+# - Flask API fetches JSON file and returns it to Javascript
+# - Javascript displays the JSON data on the frontend
+# - User interacts with the frontend and sends a POST request to Flask
+# - Flask API saves the POST request to the JSON file
+# - Repeat
 
 app = Flask(__name__)
+# Database connection 
+# Load preferences from .env
+# load_dotenv()
 
-# Path to the JSON file
+# # Set IP address
+# IP_ADDR = os.getenv("IP_ADDR") if os.getenv("IP_ADDR") else "localhost"
+
+# # Make connection to mariadb database using .env (DB_USER, DB_PASS, SCHEMA_NAME)
+# try:
+#     conn = mariadb.connect(
+#         user=os.getenv("DB_USER"),
+#         password=os.getenv("DB_PASS"),
+#         host=IP_ADDR,
+#         port=3306,
+#         database=os.getenv("SCHEMA_NAME")
+#     )
+#     cur = conn.cursor()
+# except Error as e:
+#     print(f"Error connecting to MariaDB Platform: {e}")
+#     sys.exit(1)
+
+
+
+# Path to the JSON file -- remove when database is connected
 RESPONSES_FILE = os.path.join("static", "audit_responses.json")
 REPORT_TEMPLATE = os.path.join("templates", "report.html")
 OUTPUT_PDF = os.path.join("static", "output.pdf")
 PUPPETEER_SCRIPT = os.path.join(os.getcwd(), "html_to_pdf.js")
 
+# all Database API Requests are here
 
+
+
+# function for generating the pdf
 @app.route("/generate_pdf", methods=["GET"])
 def generate_pdf():
     try:
@@ -35,14 +84,78 @@ def generate_pdf():
         return jsonify({"error": "Internal server error"}), 500
 
 
-
-# Function to ensure the file exists and is properly initialized
+# Function to ensure the file exists and is properly initialized -- remove once database is set up
 def ensure_file_exists():
     if not os.path.exists(RESPONSES_FILE):
         with open(RESPONSES_FILE, "w") as f:
             json.dump([], f)
 
+# API for fetching audit steps -- modify once database is set up
+@app.route("/get_audit_steps", methods=["GET"])
+def get_audit_steps():
+    try:
+        steps_file = os.path.join("static", "auditsteps.json")
+        with open(steps_file, "r") as f:
+            steps = json.load(f)
+        return jsonify(steps)
+    except Exception as e:
+        print(f"Error loading audit steps: {e}")
+        return jsonify({"error": "Failed to load audit steps."}), 500
 
+# API for fetching audit frameworks -- modify once database is set up  
+@app.route("/get_frameworks", methods=["GET"])
+def get_frameworks():
+    try:
+        frameworks_file = os.path.join("static", "auditframeworks.json")
+        with open(frameworks_file, "r") as f:
+            frameworks = json.load(f)
+        return jsonify(frameworks)
+    except Exception as e:
+        print(f"Error loading frameworks: {e}")
+        return jsonify({"error": "Failed to load frameworks."}), 500
+    
+# API for fetching audit dates -- modify once database is set up
+@app.route("/get_audit_dates", methods=["GET"])
+def get_audit_dates():
+    try:
+        responses_file = os.path.join("static", "audit_responses.json")
+        with open(responses_file, "r") as f:
+            responses = json.load(f)
+        # Extract unique dates
+        unique_dates = sorted({item["date"].split("T")[0] for item in responses})
+        return jsonify({"dates": unique_dates})
+    except Exception as e:
+        print(f"Error fetching audit dates: {e}")
+        return jsonify({"error": "Failed to load audit dates."}), 500
+
+# API for fetching report data -- modify once database is set up
+@app.route("/get_report_data", methods=["GET"])
+def get_report_data():
+    try:
+        date = request.args.get("date")
+        if not date:
+            return jsonify({"error": "Date is required"}), 400
+
+        responses_file = os.path.join("static", "audit_responses.json")
+        steps_file = os.path.join("static", "auditsteps.json")
+
+        with open(responses_file, "r") as f:
+            responses = json.load(f)
+
+        with open(steps_file, "r") as f:
+            steps = json.load(f).get("CybersecurityAudit", {})
+
+        filtered_responses = [
+            {"step": item["responses"]["step"], "answer": item["responses"]["answer"]}
+            for item in responses if item["date"].startswith(date)
+        ]
+
+        return jsonify({"responses": filtered_responses, "steps": steps})
+    except Exception as e:
+        print(f"Error fetching report data: {e}")
+        return jsonify({"error": "Failed to load report data."}), 500
+
+# modify once database set up, temp JOSN saving method
 @app.route("/save_response", methods=["POST"])
 def save_response():
     try:
@@ -62,7 +175,7 @@ def save_response():
         if not data or "step" not in data or "answer" not in data:
             return jsonify({"error": "Invalid data"}), 400
 
-        # Add the new response
+        # Add the new response -- remove / modify after this point
         new_entry = {
             "date": datetime.utcnow().isoformat(),
             "responses": {
@@ -71,8 +184,10 @@ def save_response():
             }
         }
         responses.append(new_entry)
+        # example database logic
+        # INSERT INTO bruh (date, step, answer) VALUES (now(), new_entry["responses"]["step"], new_entry["responses"]["answer"])
 
-        # Save the updated responses back to the file
+        # Save the updated responses back to the file -- remove
         with open(RESPONSES_FILE, "w") as f:
             json.dump(responses, f, indent=2)
 
@@ -82,7 +197,7 @@ def save_response():
         print("Error:", e)
         return jsonify({"error": "Internal server error"}), 500
 
-
+# pages logic
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -115,7 +230,7 @@ def previous_audits():
 def learn():
     return render_template("learn.html")
 
-
+# main loop to run the app
 if __name__ == "__main__":
     ensure_file_exists()
     app.run(debug=True)
