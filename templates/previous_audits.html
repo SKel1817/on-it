@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../static/style.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
+  <script src="../static/script.js" defer></script>
 </head>
 
 <header>
@@ -20,7 +21,7 @@
   </nav>
 </header>
 
-<body class="previousContainer">
+<body class="previousContainer" onload="loadAudits()">
   <div id="audit-list-container" class="auditListContainer">
     <h1>Previous Audits</h1>
     <br>
@@ -28,49 +29,5 @@
     <br>
     <ul id="audit-list"></ul>
   </div>
-  <script>
-    const responsesPath = "/static/audit_responses.json";
-
-    // Load previous audits from the JSON file
-    async function loadAudits() {
-      try {
-        const response = await fetch(responsesPath);
-        if (!response.ok) throw new Error("Failed to load audit responses.");
-        const auditData = await response.json();
-
-        const auditList = document.getElementById("audit-list");
-
-        // Get unique audit dates
-        const dates = [...new Set(auditData.map((item) => item.date.split("T")[0]))];
-
-        if (dates.length === 0) {
-          auditList.innerHTML = "<li>No audits found.</li>";
-          return;
-        }
-
-        dates.forEach((date) => {
-          const li = document.createElement("li");
-          li.innerHTML = `
-            <span>${date}</span>
-            <button onclick="viewReport('${date}')"><i class="material-symbols-outlined">table_eye</i></button>
-          `;
-          auditList.appendChild(li);
-        });
-      } catch (error) {
-        console.error("Error loading audits:", error);
-        const auditList = document.getElementById("audit-list");
-        auditList.innerHTML = "<li>Error loading audits. Please try again later.</li>";
-      }
-    }
-
-    // Redirect to report page with the selected date
-    function viewReport(date) {
-      const formattedDate = new Date(date).toISOString().split("T")[0];
-      window.location.href = `/report?date=${encodeURIComponent(formattedDate)}`;
-    }
-
-    // Load audits on page load
-    loadAudits();
-  </script>
 </body>
 </html>

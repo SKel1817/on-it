@@ -11,6 +11,7 @@ Welcome to the on-it repository! Your Cybersecurity Solution. An application tha
    - [For Windows](#for-windows)
    - [For macOS](#for-macos)
    - [Node.js Setup](#nodejs-setup)
+   - [Database](#database-setup)
 4. [Running the Application](#running-the-application)
 5. [Directory Structure](#directory-structure)
 6. [FAQ](#faq)
@@ -88,7 +89,11 @@ Make sure you have the following installed:
    ```bash
    pip install -r requirements.txt
    ```
+### Database Setup
+If you a part of the orginal group the way you can use the database is by going to the database folder
+In there there is a .env.example file, please copy that file and name it .env, then fill in the information provided to you by the backend team
 
+If you are not part of the orninal team, you will need to connect a database, we used a mariaDB database with MySQL, fill in with the proper credentials and then open the way you will be interacting with MySQL and run the onit-data.sql file in your database. That will create the schema of onit, all the tables and insert needed and some temp data. 
 ### Node.js Setup
 1. Navigate to the project directory:
    ```bash
