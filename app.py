@@ -3,10 +3,10 @@ import os
 import json
 from datetime import datetime
 import subprocess
-# from dotenv import load_dotenv
-# import mariadb
-# from mariadb import Error
-# import sys
+from dotenv import load_dotenv
+import mariadb
+from mariadb import Error
+import sys
 
 # TO-DO for Database Qureries and API
 # - Change the JSON file to be the database
@@ -24,24 +24,25 @@ import subprocess
 app = Flask(__name__)
 # Database connection 
 # Load preferences from .env
-# load_dotenv()
+load_dotenv()
 
-# # Set IP address
-# IP_ADDR = os.getenv("IP_ADDR") if os.getenv("IP_ADDR") else "localhost"
+# Set IP address
+IP_ADDR = os.getenv("IP_ADDR") if os.getenv("IP_ADDR") else "localhost"
+print(f"IP Address: {IP_ADDR}")
 
-# # Make connection to mariadb database using .env (DB_USER, DB_PASS, SCHEMA_NAME)
-# try:
-#     conn = mariadb.connect(
-#         user=os.getenv("DB_USER"),
-#         password=os.getenv("DB_PASS"),
-#         host=IP_ADDR,
-#         port=3306,
-#         database=os.getenv("SCHEMA_NAME")
-#     )
-#     cur = conn.cursor()
-# except Error as e:
-#     print(f"Error connecting to MariaDB Platform: {e}")
-#     sys.exit(1)
+# Make connection to mariadb database using .env (DB_USER, DB_PASS, SCHEMA_NAME)
+try:
+    conn = mariadb.connect(
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASS"),
+        host=IP_ADDR,
+        port=3306,
+        database=os.getenv("SCHEMA_NAME")
+    )
+    cur = conn.cursor()
+except Error as e:
+    print(f"Error connecting to MariaDB Platform: {e}")
+    sys.exit(1)
 
 
 
@@ -76,7 +77,33 @@ def generate_pdf():
     except Exception as e:
         print("Unexpected error:", e)
         return jsonify({"error": "Internal server error"}), 500
+# sample database querey select * from frameworks_table then return the data and print to console
+@app.route("/sample-get", methods=["GET"])
+def sample_get():
+    try:
+        cur.execute("SELECT * FROM frameworks_table")
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+        return jsonify(rows)
+    except Exception as e:
+        print(f"Error fetching user data: {e}")
+        return jsonify({"error": "Failed to load user data."}), 500
 
+# sample database querey insert into user_table then return the data and print to console
+@app.route("/sample-post", methods=["POST"])
+def sample_post():
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "Invalid data"}), 400
+        cur.execute("INSERT INTO user_table (username, password) VALUES (?, ?)", (data["username"], data["password"]))
+        conn.commit()
+        print(f"User {data['username']} added successfully!")
+        return jsonify({"message": "User added successfully!"}), 200
+    except Exception as e:
+        print(f"Error adding user: {e}")
+        return jsonify({"error": "Failed to add user."}), 500
 
 # Function to ensure the file exists and is properly initialized -- remove once database is set up
 def ensure_file_exists():
