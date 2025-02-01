@@ -1,0 +1,45 @@
+{
+  "title": "How to Do Basic Troubleshooting",
+  "content": [
+    "Typically those who work in IT don’t know what the issue is upon first glance. Research is necessary in order to narrow the scope of the problem.",
+    "Start by asking these questions:",
+    "- Is there an error code?",
+    "- Is the power on?",
+    "- Has it been updated recently?",
+    "- What device isn’t working properly?",
+    "- What is the model of the device?",
+    "After answering these questions, go to your preferred search engine (ie Google) and…",
+    "- Search the general issue to see if it is a common problem.",
+    "- Search the error code.",
+    "- Search the error code with the model of the device.",
+    "Take a look at the results that the search engine pulls. First, ensure you get your information from reliable sources.",
+    "Here are a few good places to start:",
+    "- StackOverFlow",
+    "- GeeksForGeeks",
+    "- ServerFault",
+    "Don’t be afraid to experiment with different solutions. Most changes can be reversed, so don’t be afraid of trial and error!",
+    "There are a few areas you should be careful when editing, including:",
+    "- Registry editor",
+    "- BIOS settings",
+    "- Device drivers",
+    "- Firewall settings",
+    "- Antivirus settings",
+    "After you identify necessary steps to take, keep in mind the #1 IT rule: reboot your machine before you try any other steps!",
+    "Another term for rebooting is restarting.",
+    "Another term for rebooting is 'turning off and turning back on.'",
+    "Once you begin your process of troubleshooting, make sure to document all changes you have made.",
+    "If you still encounter problems after following these steps, it is best to reach out to an IT professional! Provide them with all troubleshooting steps you have done in order to narrow down the issue for the IT professionals.",
+    "Wanna try out searching? Click here",
+    "What is the general issue?",
+    "Is there an error code?",
+    "Is the power on?",
+    "Has it been updated recently?",
+    "What device isn’t working properly?",
+    "What is the model of the device?",
+    "Let’s format the search with that information!"
+  ],
+  "next_page": "Search bar with web scraping"
+}
+
+
+

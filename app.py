@@ -191,6 +191,19 @@ def save_response():
         print("Error:", e)
         return jsonify({"error": "Internal server error"}), 500
 
+@app.route("/get_troubleshooting", methods=["GET"])
+def get_troubleshooting():
+    try:
+        troubleshooting_file = os.path.join("static", "troubleshooting.json")
+        with open(troubleshooting_file, "r") as f:
+            troubleshooting_data = json.load(f)
+        return jsonify(troubleshooting_data)
+    except Exception as e:
+        print(f"Error loading troubleshooting data: {e}")
+        return jsonify({"error": "Failed to load troubleshooting data."}), 500
+
+
+
 # pages logic
 @app.route("/")
 def index():
@@ -223,6 +236,11 @@ def previous_audits():
 @app.route("/learn")
 def learn():
     return render_template("learn.html")
+
+@app.route("/troubleshooting")
+def troubleshooting():
+    return render_template("troubleshooting.html")
+
 
 # main loop to run the app
 if __name__ == "__main__":
