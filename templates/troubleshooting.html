@@ -7,8 +7,6 @@
     <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
     <link rel="stylesheet" href="../static/style.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <!--Link json file-->
-    <link rel="troubleshooting" href="../static/troubleshooting.json" type="application/json" />
     <script src="../static/script.js"></script>
   </head>
 
@@ -22,40 +20,73 @@
     </nav>
 </header>
 
-  <body class="body"> 
-    <div class="auditContent">
-      <div class="auditHopper">
-        <image src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" height="100">
-      </div>
-      <div class="auditHopperSpeech">
-        <p>Hello and welcome to your troubleshooting page!</p>
-      </div>
-      <div class="auditContainer">
-      <div id="troubleshooting-container">
-      </div>
-      
-        <input type="text" id="auditInput" placeholder="Enter Information Here">
-        <input type="button" id="nextButton" value="Next Step">
-        <br>
-        <br>
-        <div class="auditHelp">
-          <button onclick="toggleHelp()">Need help? Click here for more information!</button>
-          <div id="helpContent" style="display: none;">
-            <br>
-              <p id="auditHelp">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi in sollicitudin purus. Cras gravida imperdiet ligula, facilisis lacinia erat porta at. Aliquam ac libero nec mauris pellentesque ultricies. Nulla facilisi. Maecenas ultrices urna vel lacinia pellentesque. Cras tempor lacus tortor. Nunc congue pretium risus, at dictum massa vehicula vel. Integer sit amet fringilla est. Integer congue sapien eros, sit amet pulvinar arcu mattis sit amet. Aenean ullamcorper lobortis purus, sed hendrerit nisl vestibulum at. Curabitur sed enim sapien. Suspendisse id imperdiet nisl.</p>
-          </div>
-        </div>
-        <script>
-          function toggleHelp() {
-              var helpContent = document.getElementById("helpContent");
-              if (helpContent.style.display === "none") {
-                  helpContent.style.display = "block";
-              } else {
-                  helpContent.style.display = "none";
-              }
-          }
-          </script>
-      </div>
+<body class="body">
+  <div class="auditContent">
+    <div class="auditHopper">
+      <img src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" height="100">
     </div>
-  </body>
+    <div class="auditHopperSpeech">
+      <p>Hello and welcome to your troubleshooting page!</p>
+    </div>
+    <div class="auditContainer">
+      <h2>How to Do Basic Troubleshooting</h2>
+      <p>Typically, those who work in IT don’t know what the issue is upon first glance. Research is necessary in order to narrow the scope of the problem.</p>
+      <br>
+      <br>
+      <h3>Start by asking these questions:</h3>
+      <ul>
+        <li>Is there an error code?</li>
+        <li>Is the power on?</li>
+        <li>Has it been updated recently?</li>
+        <li>What device isn’t working properly?</li>
+        <li>What is the model of the device?</li>
+      </ul>
+      <br>
+      <br>
+      <p>After answering these questions, go to your preferred search engine (i.e., Google) and search the following:</p>
+      <ul>
+        <li>Search the general issue to see if it is a common problem</li>
+        <li>Search the error code</li>
+        <li>Search the error code with the model of the device</li>
+      </ul>
+      <br>
+      <br>
+      <h3>Reviewing the Search Results</h3>
+      <p>Take a look at the results that the search engine pulls. First, ensure you get your information from reliable sources. Here are a few good places to start:</p>
+      <ul>
+        <li>StackOverflow</li>
+        <li>GeeksForGeeks</li>
+        <li>ServerFault</li>
+      </ul>
+
+      <p>Don’t be afraid to experiment with different solutions. Most changes can be reversed, so don’t be afraid of trial and error!</p>
+      <br>
+      <br>
+      <h3>Be Cautious When Editing Certain Areas</h3>
+      <p>There are a few areas you should be careful when editing:</p>
+      <ul>
+        <li>Registry editor</li>
+        <li>BIOS settings</li>
+        <li>Device drivers</li>
+        <li>Firewall settings</li>
+        <li>Antivirus settings</li>
+      </ul>
+      <br>
+      <br>
+
+      <p>After you identify necessary steps to take, keep in mind the #1 IT rule: reboot your machine before you try any other steps! Another term for rebooting is restarting or "turning off and turning back on."</p>
+
+      <h3>Documenting Your Process</h3>
+      <p>Once you begin your process of troubleshooting, make sure to document all changes you have made.</p>
+      <br>
+      <br>
+      <h3>If Problems Persist</h3>
+      <p>If you still encounter problems after following these steps, it is best to reach out to an IT professional. Provide them with all troubleshooting steps you have done to help narrow down the issue for the IT professionals.</p>
+      <br>
+      <br>
+      <h3>Try Searching</h3>
+      <p>Wanna try out searching? <a href="/search" target="_blank">Click here</a>.</p>
+    </div>
+  </div>
+</body>
 </html>

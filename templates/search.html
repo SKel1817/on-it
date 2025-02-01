@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>on-it</title>
+    <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  </head>
+
+<header>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
+      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+      <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+      <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
+      <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
+    </nav>
+</header>
+
+<body class="body">
+    <div class="searchContainer">
+      <h2>Try Out Searching!</h2>
+      <form action="/search_results" method="POST">
+        <input type="text" name="query" placeholder="Enter your search term..." required>
+        <input type="submit" value="Search">
+      </form>
+
+      <div id="searchResults"></div>
+    </div>
+  </body>
+</html>

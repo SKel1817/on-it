@@ -222,39 +222,6 @@ function downloadPDF(date) {
     });
 }
 
-// Function to fetch and display troubleshooting data - troubleshooting.html page
-function fetchTroubleshootingData() {
-  fetch("/get_troubleshooting")
-    .then(response => {
-      if (!response.ok) throw new Error("Failed to fetch troubleshooting data.");
-      return response.json();
-    })
-    .then(data => {
-      const container = document.getElementById("troubleshooting-container");
-      container.innerHTML = ""; // Clear previous content
-
-      data.forEach(issue => {
-        const issueDiv = document.createElement("div");
-        issueDiv.innerHTML = `
-          <h3>${issue.problem}</h3>
-          <p><strong>Cause:</strong> ${issue.cause}</p>
-          <p><strong>Solution:</strong> ${issue.solution}</p>
-          <hr>
-        `;
-        container.appendChild(issueDiv);
-      });
-    })
-    .catch(error => {
-      console.error("Error fetching troubleshooting data:", error);
-      document.getElementById("troubleshooting-container").innerHTML = "<p>Failed to load troubleshooting data.</p>";
-    });
-}
-
-// Call the function when the page loads
-document.addEventListener("DOMContentLoaded", fetchTroubleshootingData);
-
-
-
 // Initialize the page
 document.addEventListener("DOMContentLoaded", () => {
   fetchAuditSteps();

@@ -1,8 +1,11 @@
+from bs4 import BeautifulSoup
 from flask import Flask, render_template, request, jsonify, send_file
 import os
 import json
 from datetime import datetime
 import subprocess
+
+import requests
 # from dotenv import load_dotenv
 # import mariadb
 # from mariadb import Error
@@ -191,18 +194,39 @@ def save_response():
         print("Error:", e)
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route("/get_troubleshooting", methods=["GET"])
-def get_troubleshooting():
-    try:
-        troubleshooting_file = os.path.join("static", "troubleshooting.json")
-        with open(troubleshooting_file, "r") as f:
-            troubleshooting_data = json.load(f)
-        return jsonify(troubleshooting_data)
-    except Exception as e:
-        print(f"Error loading troubleshooting data: {e}")
-        return jsonify({"error": "Failed to load troubleshooting data."}), 500
 
+# Route to show the search input page
+@app.route('/search')
+def search_page():
+    return render_template('search.html')
 
+# Route to handle search and show results
+@app.route('/search_results', methods=['POST'])
+def search_results():
+    query = request.form['query']
+    search_results = google_search(query)  # Function to fetch results (defined below)
+    print(search_results) # Output the results to the console for debugging
+    
+    return render_template('search_results.html', results=search_results)
+
+def google_search(query):
+    url = f"https://www.google.com/search?q={query}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+    }
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, "html.parser")
+        search_results = []
+        for result in soup.find_all('div', class_='tF2Cxc'):
+            title = result.find('h3').text if result.find('h3') else None
+            link = result.find('a')['href'] if result.find('a') else None
+            snippet = result.find('span', class_='aCOpRe').text if result.find('span', class_='aCOpRe') else None
+            search_results.append({"title": title, "link": link, "snippet": snippet})
+        return search_results
+    else:
+        return []
 
 # pages logic
 @app.route("/")
