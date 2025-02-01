@@ -28,6 +28,14 @@
       </form>
 
       <div id="searchResults"></div>
+      <h2>Search Results</h2>
+      <form action="{{ url_for('display_search') }}" method="POST">
+      <p><strong>Error Code:</strong> {{ error_code }}</p>
+      <p><strong>Power Status:</strong> {{ power_status }}</p>
+      <p><strong>Updated Recently:</strong> {{ updated_recently }}</p>
+      <p><strong>Device Name:</strong> {{ device_name }}</p>
+      <p><strong>Device Model:</strong> {{ device_model }}</p>
+    </form>
     </div>
   </body>
 </html>

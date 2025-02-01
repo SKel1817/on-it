@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, redirect, render_template, request, jsonify, send_file, session, url_for
 import os
 import json
 from datetime import datetime
@@ -46,7 +46,8 @@ app = Flask(__name__)
 #     print(f"Error connecting to MariaDB Platform: {e}")
 #     sys.exit(1)
 
-
+#Flask secret key for session management, probably can remove later
+app.secret_key = 'your_secret_key_here'
 
 # Path to the JSON file -- remove when database is connected
 RESPONSES_FILE = os.path.join("static", "audit_responses.json")
@@ -195,38 +196,64 @@ def save_response():
         return jsonify({"error": "Internal server error"}), 500
 
 
-# Route to show the search input page
-@app.route('/search')
-def search_page():
-    return render_template('search.html')
-
-# Route to handle search and show results
 @app.route('/search_results', methods=['POST'])
 def search_results():
     query = request.form['query']
-    search_results = google_search(query)  # Function to fetch results (defined below)
-    print(search_results) # Output the results to the console for debugging
-    
-    return render_template('search_results.html', results=search_results)
+    search_results = google_search(query)
+
+    print(search_results)  # Debugging Output
+
+    return render_template('search_results.html', results=search_results, query=query)
 
 def google_search(query):
     url = f"https://www.google.com/search?q={query}"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
     }
+
     response = requests.get(url, headers=headers)
 
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        search_results = []
-        for result in soup.find_all('div', class_='tF2Cxc'):
-            title = result.find('h3').text if result.find('h3') else None
-            link = result.find('a')['href'] if result.find('a') else None
-            snippet = result.find('span', class_='aCOpRe').text if result.find('span', class_='aCOpRe') else None
-            search_results.append({"title": title, "link": link, "snippet": snippet})
-        return search_results
-    else:
+    if response.status_code != 200:
         return []
+
+    soup = BeautifulSoup(response.text, "html.parser")
+    search_results = []
+
+    for result in soup.select('div.MjjYud'):  # Updated selector
+        title_tag = result.select_one('h3')
+        link_tag = result.select_one('a')
+
+        if title_tag and link_tag:
+            title = title_tag.text
+            link = link_tag['href']
+            snippet = result.select_one('.VwiC3b').text if result.select_one('.VwiC3b') else "No description"
+
+            search_results.append({
+                "title": title,
+                "link": link,
+                "snippet": snippet
+            })
+
+    return search_results
+
+@app.route('/display_search', methods=['POST'])
+def display_search():
+    session['error_code'] = request.form.get('error_code')
+    session['power_status'] = request.form.get('power_status')
+    session['updated_recently'] = request.form.get('updated_recently')
+    session['device_name'] = request.form.get('device_name')
+    session['device_model'] = request.form.get('device_model')
+
+    return redirect(url_for('search_page'))
+
+@app.route('/search')
+def search_page():
+    return render_template('search.html', 
+                           error_code=session.get('error_code'), 
+                           power_status=session.get('power_status'), 
+                           updated_recently=session.get('updated_recently'), 
+                           device_name=session.get('device_name'), 
+                           device_model=session.get('device_model'))
 
 # pages logic
 @app.route("/")
