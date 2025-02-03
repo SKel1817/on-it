@@ -207,17 +207,16 @@ def search_results():
     return render_template('search_results.html', results=search_results, query=query)
 
 def duckduckgo_search(query):
-    """Scrapes DuckDuckGo search results without API and retries if needed."""
-    url = f"https://html.duckduckgo.com/html?q={query}"  # DuckDuckGo HTML-only page
+    """Scrapes DuckDuckGo Lite search results without API."""
+    url = f"https://lite.duckduckgo.com/lite?q={query}"  # DuckDuckGo Lite
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
     }
 
     print(f"Fetching: {url}")
-    
+
     response = requests.get(url, headers=headers)
 
-    # If request is not successful, print the status code
     if response.status_code != 200:
         print(f"Failed to fetch results: {response.status_code}")
         return []
@@ -228,31 +227,21 @@ def duckduckgo_search(query):
     print("First fetch complete. Checking results...")
     print(soup.prettify()[:1000])  # Print first 1000 characters to inspect structure
 
-    results = extract_results(soup)
-
-    # If no results, wait 2 seconds and retry (in case of temporary 202 response)
-    if not results:
-        print("No results found on first attempt. Retrying in 2 seconds...")
-        time.sleep(2)
-        response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(response.text, "html.parser")
-        results = extract_results(soup)
-
-    return results
+    return extract_results(soup)
 
 def extract_results(soup):
-    """Extracts search results from DuckDuckGo HTML page."""
+    """Extracts search results from DuckDuckGo Lite page."""
     search_results = []
 
-    for result in soup.select("div.result"):
-        title_tag = result.select_one("a.result__a")
+    for result in soup.select("tr"):
+        title_tag = result.select_one("a")
         link_tag = title_tag["href"] if title_tag else None
-        description_tag = result.select_one("div.result__snippet")
+        description_tag = result.find("td", class_="result-snippet")
 
         if title_tag and link_tag:
             search_results.append({
                 "title": title_tag.text.strip(),
-                "link": urljoin("https://duckduckgo.com", link_tag),
+                "link": urljoin("https://lite.duckduckgo.com", link_tag),
                 "snippet": description_tag.text.strip() if description_tag else "No description available."
             })
 
