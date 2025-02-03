@@ -196,57 +196,6 @@ def save_response():
         print("Error:", e)
         return jsonify({"error": "Internal server error"}), 500
 
-
-@app.route('/search_results', methods=['POST'])
-def search_results():
-    query = request.form['query']
-    search_results = duckduckgo_search(query)
-
-    print(search_results)  # Debugging Output
-
-    return render_template('search_results.html', results=search_results, query=query)
-
-def duckduckgo_search(query):
-    """Scrapes DuckDuckGo Lite search results without API."""
-    url = f"https://lite.duckduckgo.com/lite?q={query}"  # DuckDuckGo Lite
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
-    }
-
-    print(f"Fetching: {url}")
-
-    response = requests.get(url, headers=headers)
-
-    if response.status_code != 200:
-        print(f"Failed to fetch results: {response.status_code}")
-        return []
-
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    # Debugging: Print a part of the HTML structure to check
-    print("First fetch complete. Checking results...")
-    print(soup.prettify()[:1000])  # Print first 1000 characters to inspect structure
-
-    return extract_results(soup)
-
-def extract_results(soup):
-    """Extracts search results from DuckDuckGo Lite page."""
-    search_results = []
-
-    for result in soup.select("tr"):
-        title_tag = result.select_one("a")
-        link_tag = title_tag["href"] if title_tag else None
-        description_tag = result.find("td", class_="result-snippet")
-
-        if title_tag and link_tag:
-            search_results.append({
-                "title": title_tag.text.strip(),
-                "link": urljoin("https://lite.duckduckgo.com", link_tag),
-                "snippet": description_tag.text.strip() if description_tag else "No description available."
-            })
-
-    return search_results
-
 @app.route('/display_search', methods=['POST'])
 def display_search():
     session['error_code'] = request.form.get('error_code')
