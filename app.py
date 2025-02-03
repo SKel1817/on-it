@@ -126,14 +126,15 @@ def get_audit_steps():
         print(f"Error loading audit steps: {e}")
         return jsonify({"error": "Failed to load audit steps."}), 500
 
-# API for fetching audit frameworks -- modify once database is set up  
+# API for fetching audit frameworks from DB 
 @app.route("/get_frameworks", methods=["GET"])
 def get_frameworks():
     try:
-        frameworks_file = os.path.join("static", "auditframeworks.json")
-        with open(frameworks_file, "r") as f:
-            frameworks = json.load(f)
-        return jsonify(frameworks)
+        cur.execute("SELECT idauditsteps, Step, instruction, explanation, example FROM audit_steps_table")
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+        return jsonify(rows)
     except Exception as e:
         print(f"Error loading frameworks: {e}")
         return jsonify({"error": "Failed to load frameworks."}), 500
