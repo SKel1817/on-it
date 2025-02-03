@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>on-it</title>
+    <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="../static/script.js"></script>
+  </head>
+
+<header>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
+      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+      <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+      <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
+      <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
+    </nav>
+</header>
+
+<body class="body">
+  <div class="auditContent">
+    <div class="auditHopper">
+      <img src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" height="100">
+    </div>
+    <div class="auditHopperSpeech">
+      <p>Hello and welcome to your troubleshooting page!</p>
+    </div>
+    <div class="auditContainer">
+      <h2>How to Do Basic Troubleshooting</h2>
+      <p>Typically, those who work in IT don’t know what the issue is upon first glance. Research is necessary in order to narrow the scope of the problem.</p>
+      <br>
+      <br>
+      <h3>Start by asking these questions:</h3>
+      <ul>
+        <form action="{{ url_for('display_search') }}" method="POST">
+        <p>Is there an error code?</p>
+        <input type="text" name="error_code" id="error_code"><br><br>
+        <p>Is the power on?</p>
+        <input type="text" name="power_status" id="power_status"><br><br>
+        <p>Has it been updated recently?</p>
+        <input type="text" name="updated_recently" id="updated_recently"><br><br>
+        <p>What device isn’t working properly?</p>
+        <input type="text" name="device_name" id="device_name"><br><br>
+        <p>What is the model of the device?</p>
+        <input type="text" name="device_model" id="device_model"><br><br>
+      
+      </ul>
+      <br>
+      <br>
+      <p>After answering these questions, go to your preferred search engine (i.e., Google) and search the following:</p>
+      <ul>
+        <p>Search the general issue to see if it is a common problem</p>
+        <p>Search the error code</p>
+        <p>Search the error code with the model of the device</p>
+      </ul>
+      <br>
+      <br>
+      <h3>Reviewing the Search Results</h3>
+      <p>Take a look at the results that the search engine pulls. First, ensure you get your information from reliable sources. Here are a few good places to start:</p>
+      <ul>
+        <p>StackOverflow</p>
+        <p>GeeksForGeeks</p>
+        <p>ServerFault</p>
+      </ul>
+
+      <p>Don’t be afraid to experiment with different solutions. Most changes can be reversed, so don’t be afraid of trial and error!</p>
+      <br>
+      <br>
+      <h3>Be Cautious When Editing Certain Areas</h3>
+      <p>There are a few areas you should be careful when editing:</p>
+      <ul>
+        <p>Registry editor</p>
+        <p>BIOS settings</p>
+        <p>Device drivers</p>
+        <p>Firewall settings</p>
+        <p>Antivirus settings</p>
+      </ul>
+      <br>
+      <br>
+
+      <p>After you identify necessary steps to take, keep in mind the #1 IT rule: reboot your machine before you try any other steps! Another term for rebooting is restarting or "turning off and turning back on."</p>
+
+      <h3>Documenting Your Process</h3>
+      <p>Once you begin your process of troubleshooting, make sure to document all changes you have made.</p>
+      <br>
+      <br>
+      <h3>If Problems Persist</h3>
+      <p>If you still encounter problems after following these steps, it is best to reach out to an IT professional. Provide them with all troubleshooting steps you have done to help narrow down the issue for the IT professionals.</p>
+      <br>
+      <br>
+      <h3>Try Searching</h3>
+      <input type="submit" value="Click here to try out searching!">
+    </form>
+    </div>
+  </div>
+</body>
+</html>

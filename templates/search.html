@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>on-it</title>
+    <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  </head>
+
+<header>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
+      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+      <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+      <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
+      <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
+    </nav>
+</header>
+
+<body class="body">
+    <div class="searchContainer">
+      <div class="auditContent">
+        <div class="auditHopper">
+          <img src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" height="100">
+        </div>
+        <div class="auditHopperSpeech">
+          <p>Hello and welcome to your search page!</p>
+        </div>
+        <div class="auditContainer">
+          <div id="searchResults">
+            <h2>Information to input into search:</h2>
+            <br>
+            <form action="{{ url_for('display_search') }}" method="POST">
+            <p><strong>Error Code:</strong> {{ error_code }}</p>
+            <p><strong>Power Status:</strong> {{ power_status }}</p>
+            <p><strong>Updated Recently:</strong> {{ updated_recently }}</p>
+            <p><strong>Device Name:</strong> {{ device_name }}</p>
+            <p><strong>Device Model:</strong> {{ device_model }}</p>
+          </div>
+          </form>
+          <br>
+          <br>
+      <h2>Try Out Searching!</h2>
+      <form action="https://www.google.com/search" method="GET" target="_blank">
+        <input type="text" name="q" placeholder="Enter your search term..." required>
+        <input type="submit" value="Search">
+    </form>    
+    </div>
+      </div>
+    </div>
+  </body>
+</html>

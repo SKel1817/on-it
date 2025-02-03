@@ -144,18 +144,17 @@ body {
 /* login.html Web Styling */
 
 .loginContainer {
-    width: 500px;
-    padding: 25px;
-    padding: 25px;
-    border-radius: 15px;
+    width: 80%;
+    padding: 5%;
+    border-radius: 10%;
 
     font-family: 'Playfair Display', serif;
     font-weight: 700;
-    font-size: 25px;
+    font-size: 1.5rem;
     color: #143F6E;
 
     background-color: #ffffff;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0.5vw 1vw rgba(0, 0, 0, 0.1);
     
     position: absolute;
     top: 50%;
@@ -178,24 +177,24 @@ body {
 
 .loginContainer input {
     width: 90%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 2px solid #4F5D2F;
-    border-radius: 16px;
-    font-size: 20px;
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 0.2rem solid #4F5D2F;
+    border-radius: 1rem;
+    font-size: 1.2rem;
     background-color: #F8FBF4;
     color: #05172A;
-    box-shadow: inset 2px 2px 5px rgba(79, 93, 47, 0.2);
+     box-shadow: inset 0.15rem 0.15rem 0.4rem rgba(79, 93, 47, 0.2);
 }
 
 .loginContainer input[type="submit"] {
     width: 100%;
-    padding: 10px;
+    padding: 0.8rem;
     background: linear-gradient(to right,  #4F5D2F, #376F26);
     color: white;
     font-family: 'Playfair Display' , serif;
     font-weight: 700;
-    font-size: 30px;
+    font-size: 2rem;
     font-weight: bold;
     border: none;
     cursor: pointer;
@@ -339,12 +338,12 @@ datalist {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 10px;
+    padding: 2%;
     background-color: #BDD4BC;
 }
 
 .material-icons {
-    font-size: 24px;
+    font-size: 1.5rem;
     color: #143F6E;
 }
 
@@ -367,7 +366,7 @@ datalist {
     color:  #1B5E20;
     border-radius: 10%;
     text-align: center;
-    font-size: 100%;
+    font-size: 1rem;
     font-family: 'Playfair Display', serif;
     font-weight: 500;
     box-shadow: 0 2% 4% rgba(0, 0, 0, 0.1);
@@ -389,34 +388,40 @@ datalist {
     }
 
 .auditContainer {
-    width: 90%;
-    margin: 5% auto;
+    width: 100%;
+    max-width: 90vw;
+    margin: auto;
     padding: 5%;
     background-color:  #F1F8E9;
-    border: 1% solid  #A5D6A7;
+    border: 0.1rem solid  #A5D6A7;
     border-radius: 5%;
-     box-shadow: 0 2% 4% rgba(0, 0, 0, 0.2);
-     color: #1B5E20;;
+    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
+    color: #1B5E20;;
     text-align: center;
+
+    display: flex;
+        flex-direction: column;
+        align-items: center;
+
 }
 
 .auditContainer h2, .auditContainer h3 {
-    font-size: 120%;
+    font-size: 1.2rem;
     font-family: 'Playfair Display', serif;
     font-weight: 700;
     margin-bottom: 3%;
 }
 
 .auditContainer p {
-    font-size: 100%;
+    font-size: 1rem;
     font-family: 'Playfair Display', serif;
     margin: 5% 0;
 }
 
 #auditInput {
-    width: 80%;
-    padding: 2%;
-    font-size: 90%;
+    width: 85%;
+    padding: 3%;
+    font-size: 1rem;
     border: 1% solid #A5D6A7;
     border-radius: 5%;
     background-color: #ffffff;
@@ -481,7 +486,7 @@ datalist {
 
 /* home page */
 .indexContainer {
-    padding: 10px;
+    padding: 2%;
     font-family: 'Playfair Display', serif;
     font-weight: 1000;
     color: #04340C;
@@ -492,21 +497,21 @@ datalist {
 }
 
 .indexContainer input[type= "submit"] {
-display:inline-block;
-font-family: 'Playfair Display', serif;
-font-weight: 700;
-font-size: clamp(1.2em, 2vw, 1.5em);
-color: white;
-width:80%;
-max-width: 300px;
-padding: 15px 30px;
-background-color:  #376F26;
-border: none;
-border-radius: 8px;
-margin-top: 30px;
-cursor: pointer;
-box-shadow: 4px 4px 6px rgba(0,0,0,0.4);
-transition: background-color 0.3s ease, transform 0.2s ease;
+    display:inline-block;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: clamp(1.2em, 2vw, 1.5em);
+    color: white;
+    width:80%;
+    max-width: 300px;
+    padding: 1rem 2rem;
+    background-color:  #376F26;
+    border: none;
+    border-radius: 0.5rem;
+    margin-top: 2rem;
+    cursor: pointer;
+    box-shadow: 0.25rem 0.25rem 0.5rem rgba(0, 0, 0, 0.4);
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .indexContainer input[type="Submit"]:hover {
@@ -529,19 +534,19 @@ font-size:1.2em;
 
 @media (min-width: 600px) and (max-width:768px) {
 .Hopper{
-width: 60%;
+    width: 60%;
 }
 .indexContainer input[type="submit"]{
-font-size:1.5em;
+    font-size:1.5em;
 }
 }
 
 @media (max-width: 600px) {
     .loginContainer {
     width: 85%;
-    padding: 20px;
-    border-radius: 12px;
-    font-size: 18px;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 1.125rem;
     }
     }
     

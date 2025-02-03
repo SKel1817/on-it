@@ -1,12 +1,19 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from urllib.parse import parse_qs, urljoin, urlparse
+from bs4 import BeautifulSoup
+from flask import Flask, redirect, render_template, request, jsonify, send_file, session, url_for
 import os
 import json
-from datetime import datetime
+from datetime import datetime, time
 import subprocess
 from dotenv import load_dotenv
 import mariadb
 from mariadb import Error
 import sys
+import requests
+# from dotenv import load_dotenv
+# import mariadb
+# from mariadb import Error
+# import sys
 
 # TO-DO for Database Qureries and API
 # - Change the JSON file to be the database
@@ -44,7 +51,8 @@ except Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
     sys.exit(1)
 
-
+#Flask secret key for session management, probably can remove later
+app.secret_key = 'your_secret_key_here'
 
 # Path to the JSON file -- remove when database is connected
 RESPONSES_FILE = os.path.join("static", "audit_responses.json")
@@ -220,6 +228,25 @@ def save_response():
         print("Error:", e)
         return jsonify({"error": "Internal server error"}), 500
 
+@app.route('/display_search', methods=['POST'])
+def display_search():
+    session['error_code'] = request.form.get('error_code')
+    session['power_status'] = request.form.get('power_status')
+    session['updated_recently'] = request.form.get('updated_recently')
+    session['device_name'] = request.form.get('device_name')
+    session['device_model'] = request.form.get('device_model')
+
+    return redirect(url_for('search_page'))
+
+@app.route('/search')
+def search_page():
+    return render_template('search.html', 
+                           error_code=session.get('error_code'), 
+                           power_status=session.get('power_status'), 
+                           updated_recently=session.get('updated_recently'), 
+                           device_name=session.get('device_name'), 
+                           device_model=session.get('device_model'))
+
 # pages logic
 @app.route("/")
 def index():
@@ -252,6 +279,11 @@ def previous_audits():
 @app.route("/learn")
 def learn():
     return render_template("learn.html")
+
+@app.route("/troubleshooting")
+def troubleshooting():
+    return render_template("troubleshooting.html")
+
 
 # main loop to run the app
 if __name__ == "__main__":
