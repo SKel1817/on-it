@@ -3,32 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>on-it</title>
+    <title>Search</title>
     <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
     <link rel="stylesheet" href="../static/style.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
+    <script src="../static/script.js"></script>
   </head>
 
-<header>
+  <header>
     <nav class="nav">
       <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
       <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
       <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+      <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
       <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
       <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
     </nav>
-</header>
+  </header>
 
 <body class="body">
-    <div class="searchContainer">
-      <div class="auditContent">
-        <div class="auditHopper">
+    <div class="please">
+      <div class="searchContent">
+        <div class="searchHopper">
           <img src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" height="100">
         </div>
-        <div class="auditHopperSpeech">
+        <div class="searchHopperSpeech">
           <p>Hello and welcome to your search page!</p>
         </div>
-        <div class="auditContainer">
+        <div class="searchContainer">
           <div id="searchResults">
             <h2>Information to input into search:</h2>
             <br>
