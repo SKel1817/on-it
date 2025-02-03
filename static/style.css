@@ -310,6 +310,7 @@ datalist {
     width: 50%;
 
     border: ridge;
+    border-radius: 2em;
 
     position: absolute;
     top: 50%;
