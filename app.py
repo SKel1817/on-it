@@ -114,14 +114,15 @@ def generate_pdf():
         print("Unexpected error:", e)
         return jsonify({"error": "Internal server error"}), 500
 
-# API for fetching audit steps -- modify once database is set up
+# API for fetching audit steps from DB
 @app.route("/get_audit_steps", methods=["GET"])
 def get_audit_steps():
     try:
-        steps_file = os.path.join("static", "auditsteps.json")
-        with open(steps_file, "r") as f:
-            steps = json.load(f)
-        return jsonify(steps)
+        cur.execute("SELECT idauditsteps, Step, instruction, explanation, example FROM audit_steps_table")
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+        return jsonify(rows)
     except Exception as e:
         print(f"Error loading audit steps: {e}")
         return jsonify({"error": "Failed to load audit steps."}), 500
@@ -130,7 +131,7 @@ def get_audit_steps():
 @app.route("/get_frameworks", methods=["GET"])
 def get_frameworks():
     try:
-        cur.execute("SELECT idauditsteps, Step, instruction, explanation, example FROM audit_steps_table")
+        cur.execute("SELECT framework_id, name, definition, how_to_use, advantages, disadvantages, link FROM frameworks_table")
         rows = cur.fetchall()
         for row in rows:
             print(row)
