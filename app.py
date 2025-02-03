@@ -1,11 +1,9 @@
 from urllib.parse import parse_qs, urljoin, urlparse
-from bs4 import BeautifulSoup
 from flask import Flask, redirect, render_template, request, jsonify, send_file, session, url_for
 import os
 import json
 from datetime import datetime, time
 import subprocess
-
 import requests
 # from dotenv import load_dotenv
 # import mariadb
