@@ -1,10 +1,8 @@
-from urllib.parse import parse_qs, urljoin, urlparse
 from flask import Flask, redirect, render_template, request, jsonify, send_file, session, url_for
 import os
 import json
-from datetime import datetime, time
+from datetime import datetime
 import subprocess
-import requests
 # from dotenv import load_dotenv
 # import mariadb
 # from mariadb import Error
