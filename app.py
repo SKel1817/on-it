@@ -1,8 +1,9 @@
+from urllib.parse import parse_qs, urljoin, urlparse
 from bs4 import BeautifulSoup
 from flask import Flask, redirect, render_template, request, jsonify, send_file, session, url_for
 import os
 import json
-from datetime import datetime
+from datetime import datetime, time
 import subprocess
 
 import requests
@@ -199,39 +200,60 @@ def save_response():
 @app.route('/search_results', methods=['POST'])
 def search_results():
     query = request.form['query']
-    search_results = google_search(query)
+    search_results = duckduckgo_search(query)
 
     print(search_results)  # Debugging Output
 
     return render_template('search_results.html', results=search_results, query=query)
 
-def google_search(query):
-    url = f"https://www.google.com/search?q={query}"
+def duckduckgo_search(query):
+    """Scrapes DuckDuckGo search results without API and retries if needed."""
+    url = f"https://html.duckduckgo.com/html?q={query}"  # DuckDuckGo HTML-only page
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
     }
 
+    print(f"Fetching: {url}")
+    
     response = requests.get(url, headers=headers)
 
+    # If request is not successful, print the status code
     if response.status_code != 200:
+        print(f"Failed to fetch results: {response.status_code}")
         return []
 
     soup = BeautifulSoup(response.text, "html.parser")
+
+    # Debugging: Print a part of the HTML structure to check
+    print("First fetch complete. Checking results...")
+    print(soup.prettify()[:1000])  # Print first 1000 characters to inspect structure
+
+    results = extract_results(soup)
+
+    # If no results, wait 2 seconds and retry (in case of temporary 202 response)
+    if not results:
+        print("No results found on first attempt. Retrying in 2 seconds...")
+        time.sleep(2)
+        response = requests.get(url, headers=headers)
+        soup = BeautifulSoup(response.text, "html.parser")
+        results = extract_results(soup)
+
+    return results
+
+def extract_results(soup):
+    """Extracts search results from DuckDuckGo HTML page."""
     search_results = []
 
-    for result in soup.select('div.MjjYud'):  # Updated selector
-        title_tag = result.select_one('h3')
-        link_tag = result.select_one('a')
+    for result in soup.select("div.result"):
+        title_tag = result.select_one("a.result__a")
+        link_tag = title_tag["href"] if title_tag else None
+        description_tag = result.select_one("div.result__snippet")
 
         if title_tag and link_tag:
-            title = title_tag.text
-            link = link_tag['href']
-            snippet = result.select_one('.VwiC3b').text if result.select_one('.VwiC3b') else "No description"
-
             search_results.append({
-                "title": title,
-                "link": link,
-                "snippet": snippet
+                "title": title_tag.text.strip(),
+                "link": urljoin("https://duckduckgo.com", link_tag),
+                "snippet": description_tag.text.strip() if description_tag else "No description available."
             })
 
     return search_results
