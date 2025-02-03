@@ -7,10 +7,6 @@ from dotenv import load_dotenv
 import mariadb
 from mariadb import Error
 import sys
-# from dotenv import load_dotenv
-# import mariadb
-# from mariadb import Error
-# import sys
 
 # TO-DO for Database Qureries and API
 # - Change the JSON file to be the database
