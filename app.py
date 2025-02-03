@@ -53,30 +53,6 @@ OUTPUT_PDF = os.path.join("static", "output.pdf")
 PUPPETEER_SCRIPT = os.path.join(os.getcwd(), "html_to_pdf.js")
 
 # all Database API Requests are here
-
-
-
-# function for generating the pdf
-@app.route("/generate_pdf", methods=["GET"])
-def generate_pdf():
-    try:
-        # Get the requested date from the query parameters
-        date = request.args.get("date")
-        if not date:
-            return jsonify({"error": "Date parameter is missing"}), 400
-
-        # Call the Puppeteer script with the date as an argument
-        subprocess.run(["node", PUPPETEER_SCRIPT, date], check=True)
-
-        # Send the generated PDF file
-        return send_file(OUTPUT_PDF, as_attachment=True)
-
-    except subprocess.CalledProcessError as e:
-        print("Error generating PDF with Puppeteer:", e)
-        return jsonify({"error": "Failed to generate PDF"}), 500
-    except Exception as e:
-        print("Unexpected error:", e)
-        return jsonify({"error": "Internal server error"}), 500
 # sample database querey select * from frameworks_table then return the data and print to console
 @app.route("/sample-get", methods=["GET"])
 def sample_get():
@@ -110,6 +86,32 @@ def ensure_file_exists():
     if not os.path.exists(RESPONSES_FILE):
         with open(RESPONSES_FILE, "w") as f:
             json.dump([], f)
+
+# user login
+
+# create user 
+
+# function for generating the pdf
+@app.route("/generate_pdf", methods=["GET"])
+def generate_pdf():
+    try:
+        # Get the requested date from the query parameters
+        date = request.args.get("date")
+        if not date:
+            return jsonify({"error": "Date parameter is missing"}), 400
+
+        # Call the Puppeteer script with the date as an argument
+        subprocess.run(["node", PUPPETEER_SCRIPT, date], check=True)
+
+        # Send the generated PDF file
+        return send_file(OUTPUT_PDF, as_attachment=True)
+
+    except subprocess.CalledProcessError as e:
+        print("Error generating PDF with Puppeteer:", e)
+        return jsonify({"error": "Failed to generate PDF"}), 500
+    except Exception as e:
+        print("Unexpected error:", e)
+        return jsonify({"error": "Internal server error"}), 500
 
 # API for fetching audit steps -- modify once database is set up
 @app.route("/get_audit_steps", methods=["GET"])
@@ -183,7 +185,7 @@ def save_response():
         # Ensure the file exists and is initialized
         ensure_file_exists()
 
-        # Read the existing responses
+        # Read the existing responses -- can remove after database is set up
         with open(RESPONSES_FILE, "r") as f:
             try:
                 responses = json.load(f)
