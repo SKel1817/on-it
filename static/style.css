@@ -492,12 +492,53 @@ datalist {
     color: #143F6E;
 }
 
+/* index.html(homepage) */
+
 .Hopper {
-    width: 30%;
-    max-width:280px;
+    width: 50% !important;
+    max-width: 280px !important;
     height: auto;
-    margin: 0 auto 5%;
     display: block;
+    margin: 0 auto 1.5rem auto;
+    }
+
+.indexContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4%;
+    font-family: 'Playfair Display', serif;
+    font-weight: 1000;
+    color: #04340C;
+    font-size: clamp(1.5em, 3vw, 2.5em);
+    text-align: center;
+    width: 90%;
+    margin: 0 auto;
+}
+
+
+.indexContainer input[type= "submit"] {
+    display:inline-block;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: clamp(1.2em, 2vw, 1.5em);
+    color: white;
+    width:100%;
+    max-width: 300px;
+    padding: 1rem 2rem;
+    background-color:  #376F26;
+    border: none;
+    border-radius: 0.5rem;
+    margin-top: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0.25rem 0.25rem 0.5rem rgba(0, 0, 0, 0.4);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.indexContainer input[type="Submit"]:hover {
+background-color: #376F26;
+transform: scale(1.03);
 }
 
 /* audit page styling */
@@ -629,40 +670,7 @@ datalist {
      box-shadow: 0 2% 4% rgba(0, 0, 0, 0.1);
     }
 
-/* home page */
-.indexContainer {
-    padding: 2%;
-    font-family: 'Playfair Display', serif;
-    font-weight: 1000;
-    color: #04340C;
-    font-size: clamp(1.5em, 3vw, 2.5em);
-    text-align: center;
-    width: 90%;
-    margin: 0 auto;
-}
 
-.indexContainer input[type= "submit"] {
-    display:inline-block;
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    font-size: clamp(1.2em, 2vw, 1.5em);
-    color: white;
-    width:80%;
-    max-width: 300px;
-    padding: 1rem 2rem;
-    background-color:  #376F26;
-    border: none;
-    border-radius: 0.5rem;
-    margin-top: 2rem;
-    cursor: pointer;
-    box-shadow: 0.25rem 0.25rem 0.5rem rgba(0, 0, 0, 0.4);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.indexContainer input[type="Submit"]:hover {
-background-color: #376F26;
-transform: scale(1.03);
-}
 
 /* smaller mobile devices */
 @media (max-width:480px) {
@@ -673,6 +681,131 @@ width: 90%;
 .indexContainer input[type="submit"] {
 font-size:1.2em;
 }
+}
+
+/* accCreate.html */
+.accountContainer {
+    width: 90%;
+    max-width: 30rem;
+    padding: 5%;
+    border-radius: 1rem;
+    background-color: BDD4BC;
+    box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin: 5% auto;
+}
+
+.accountContainer label {
+    display: block;
+    font-weight: bold;
+    color: #4F5D2F;
+    margin-top: 0.5rem;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.accountContainer input[type="submit"] {
+    width: 100%;
+    padding: 1.2rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: linear-gradient(to right, #4F5D2F, #376F26);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    margin-top: 2rem;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, transform 0.2s ease;
+}
+
+.accountContainer input[type="submit"]:hover {
+    background: linear-gradient( to right,  #376F26, #143F6E);
+    transform: scale(1.03);
+    }
+
+.accountContainer a {
+    display: block;
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color:  #143F6E;
+    text-decoration: none;
+}
+
+.accountContainer a:hover {
+    text-decoration: underline;
+    color: #545E75;
+}
+
+.accountContainer input[type="range"] {
+    width: 100%;
+    margin: 1.5rem 0;
+    accent-color: #4F5D2F;
+}
+
+datalist {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #4F5D2F;
+}
+
+/* setting.html page */
+
+.settingsContainer {
+    width: 90%;
+    max-width: 30rem;
+    padding: 5%;
+    border-radius: 1rem;
+    background-color #ffffff;
+    box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin: 5% auto;
+}
+
+.settingsContainer label {
+    display: block;
+    font-weight: bold;
+    color: #4F5D2F;
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.settingsContainer input[type="submit"] {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+     background: linear-gradient(to right, #4F5D2F, #376F26);
+     color: white;
+     border: none;
+     border-radius: 0.5rem;
+     margin-top: 2rem;
+     cursor: pointer;
+     transition: background 0.3s ease-in-out, transform 0.2s ease;
+}
+
+.settingsContainer input[type="submit"]:hover {
+     background: linear-gradient(to right, #376F26, #143F6E);
+     transform: scale(1.03);
+}
+
+.settingsContainer input[type="range"] {
+    width: 100%;
+    margin: 1.5rem 0;
+    accent-color:  #4F5D2F;
+}
+
+datalist {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #4F5D2F;
 }
 
 /* tablets */
