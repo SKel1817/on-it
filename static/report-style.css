@@ -1,4 +1,12 @@
 /* General Styles */
+#fRight {
+    float: right;
+}
+
+#fLeft {
+    float: left;
+}
+
 body {
     font-family: 'Times New Roman', Times, serif;
     margin: 0;
@@ -6,6 +14,10 @@ body {
     background-color: #FFFFFF;
     color: #000000;
     line-height: 1.6;
+}
+
+.nav a{
+    color: #143F6E;
 }
 
 /* Report Container */
