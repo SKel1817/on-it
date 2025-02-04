@@ -15,8 +15,15 @@
 <header>
   <nav class="nav">
     <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
-    <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
-    <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+
+    {% if current_user.is_authenticated %}
+      <span class="nav-user">Welcome, {{ current_user.username }}!</span>
+      <a href="{{ url_for('logout') }}"><i class="material-icons" id="fRight">exit_to_app</i></a>
+      <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+    {% else %}
+      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+    {% endif %}
+    
     <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
     <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
     <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>

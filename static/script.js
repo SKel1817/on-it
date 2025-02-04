@@ -27,8 +27,9 @@ function create_user() {
       const password = document.getElementById("password").value;
       const passwordConf = document.getElementById("passwordConf").value;
 
-      if (password !== passwordConf) {
-        alert("Passwords do not match.");
+      // Validate password confirmation
+      if (!password || password !== passwordConf) {
+        alert("Passwords do not match. Please try again.");
         return;
       }
 
@@ -69,6 +70,51 @@ function create_user() {
   }
 }
 // login existing user -- to be made
+function login_user() {
+  console.log("login_user is running...");
+  const loginForm = document.getElementById("loginForm");
+  if (!loginForm) {
+    console.error("Login form not found!");
+    return;
+  }
+
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault(); // Prevent the default behavior
+    console.log("Form submission intercepted!");
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (!username || !password) {
+      console.error("Username or password is missing");
+      alert("Please fill in both username and password.");
+      return;
+    }
+
+    console.log("Sending login request to API...");
+    fetch("/login-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", // Ensure this is explicitly set
+      },
+      body: JSON.stringify({ username, password }), // Send JSON
+    });
+  //     .then((response) => {
+  //       if (!response.ok) {
+  //         throw new Error("Login failed");
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((data) => {
+  //       alert(data.message);
+  //       window.location.href = "/"; // Redirect after successful login
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error:", error);
+  //       alert("Login failed: " + error.message);
+  //     });
+  });
+}
 
 // update existing user account -- to be made
 
@@ -337,4 +383,5 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchAuditSteps();
   fetchFrameworks();
   create_user();
+  login_user();
 });

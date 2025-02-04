@@ -15,8 +15,15 @@
 <header>
   <nav class="nav">
     <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
-    <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
-    <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+
+    {% if current_user.is_authenticated %}
+      <span class="nav-user">Welcome, {{ current_user.username }}!</span>
+      <a href="{{ url_for('logout') }}"><i class="material-icons" id="fRight">exit_to_app</i></a>
+      <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
+    {% else %}
+      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+    {% endif %}
+    
     <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
     <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
     <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
@@ -25,16 +32,16 @@
 
 <body class="body">
   <div class="loginContainer">
-    <form action="" method="">
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" required>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
-      <input type="submit" value="Login">
-      <!-- Placeholder until we make a create an account page -->
-      <a href="{{ url_for('acctCreate') }}"><label>Create an Account</label></a>
+    <form id="loginForm" action="/login-user" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit" id="loginButton">Login</button>
+        <!-- Placeholder until we make a create an account page -->
+        <a href="{{ url_for('acctCreate') }}"><label>Create an Account</label></a>
     </form>
-  </div>
+</div>
 </body>
 
 </html>
