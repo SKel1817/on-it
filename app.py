@@ -60,6 +60,8 @@ def ensure_file_exists():
 # User Logic Start ------------------
 # user login -- To be done
 
+# Update current User details -- To be done
+
 # create user -- done
 @app.route("/create_user", methods=["POST"])
 def create_user():
