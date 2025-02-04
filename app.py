@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import mariadb
 from mariadb import Error
 import sys
+import bcrypt
 
 # TO-DO for Database Qureries and API
 # - Change the JSON file to be the database
@@ -54,7 +55,7 @@ OUTPUT_PDF = os.path.join("static", "output.pdf")
 PUPPETEER_SCRIPT = os.path.join(os.getcwd(), "html_to_pdf.js")
 
 # all Database API Requests are here
-# sample database querey select * from frameworks_table then return the data and print to console
+# sample database query select * from frameworks_table then return the data and print to console
 @app.route("/sample-get", methods=["GET"])
 def sample_get():
     try:
@@ -67,7 +68,7 @@ def sample_get():
         print(f"Error fetching user data: {e}")
         return jsonify({"error": "Failed to load user data."}), 500
 
-# sample database querey insert into user_table then return the data and print to console
+# sample database query insert into user_table then return the data and print to console
 @app.route("/sample-post", methods=["POST"])
 def sample_post():
     try:
@@ -91,6 +92,36 @@ def ensure_file_exists():
 # user login
 
 # create user 
+@app.route("/create_user", methods=["POST"])
+def create_user():
+    try:
+        data = request.json
+        # Validate input data
+        required_fields = ["first_name", "username", "email", "password", "familarity_with_audits", "role", "company", "business_indicator"]
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        existing_user = cur.fetchone()
+
+        if existing_user:
+            return jsonify({"error": "Username or email already exists"}), 409  # HTTP 409 Conflict
+        
+        # Hash the password using bcrypt
+        hashed_password = bcrypt.hashpw(data["password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        query = """
+        INSERT INTO user_table (first_name, username, email, password, familarity-with-audits, role, company, business_indicator)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cur.execute(query, 
+                    data["first_name"], data["username"], data["email"], hashed_password,
+                    data["familarity_with_audits"], data["role"], data["company"], data["business_indicator"]
+        )
+        conn.commit()
+        print(f"User {data['username']} added successfully!")
+        return jsonify({"message": "User added successfully!"}), 200
+    except Exception as e:
+        print(f"Error adding user: {e}")
+        return jsonify({"error": "Failed to add user."}), 500
 
 # function for generating the pdf
 @app.route("/generate_pdf", methods=["GET"])
@@ -114,26 +145,28 @@ def generate_pdf():
         print("Unexpected error:", e)
         return jsonify({"error": "Internal server error"}), 500
 
-# API for fetching audit steps -- modify once database is set up
+# API for fetching audit steps from DB
 @app.route("/get_audit_steps", methods=["GET"])
 def get_audit_steps():
     try:
-        steps_file = os.path.join("static", "auditsteps.json")
-        with open(steps_file, "r") as f:
-            steps = json.load(f)
-        return jsonify(steps)
+        cur.execute("SELECT idauditsteps, Step, instruction, explanation, example FROM audit_steps_table")
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+        return jsonify(rows)
     except Exception as e:
         print(f"Error loading audit steps: {e}")
         return jsonify({"error": "Failed to load audit steps."}), 500
 
-# API for fetching audit frameworks -- modify once database is set up  
+# API for fetching audit frameworks from DB 
 @app.route("/get_frameworks", methods=["GET"])
 def get_frameworks():
     try:
-        frameworks_file = os.path.join("static", "auditframeworks.json")
-        with open(frameworks_file, "r") as f:
-            frameworks = json.load(f)
-        return jsonify(frameworks)
+        cur.execute("SELECT framework_id, name, definition, how_to_use, advantages, disadvantages, link FROM frameworks_table")
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+        return jsonify(rows)
     except Exception as e:
         print(f"Error loading frameworks: {e}")
         return jsonify({"error": "Failed to load frameworks."}), 500
