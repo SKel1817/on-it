@@ -9,11 +9,6 @@ from mariadb import Error
 import sys
 import bcrypt
 
-# TO-DO for Database Qureries and API
-# - Change the JSON file to be the database
-# - Implement the database connection and queries
-# - Test the database connection and queries
-
 # Ideal workflow w/ current JSON logic no database:
 # - Javascript requests flask API
 # - Flask API fetches JSON file and returns it to Javascript
@@ -32,22 +27,19 @@ IP_ADDR = os.getenv("IP_ADDR") if os.getenv("IP_ADDR") else "localhost"
 print(f"IP Address: {IP_ADDR}")
 
 # Make connection to mariadb database using .env (DB_USER, DB_PASS, SCHEMA_NAME)
-try:
-    conn = mariadb.connect(
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASS"),
-        host=IP_ADDR,
-        port=3306,
-        database=os.getenv("SCHEMA_NAME")
-    )
-    cur = conn.cursor()
-except Error as e:
-    print(f"Error connecting to MariaDB Platform: {e}")
-    sys.exit(1)
-
-#Flask secret key for session management, probably can remove later
-app.secret_key = 'your_secret_key_here'
-
+def get_db_connection():
+    try:
+        conn = mariadb.connect(
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASS"),
+            host=IP_ADDR,
+            port=3306,
+            database=os.getenv("SCHEMA_NAME")
+        )
+        return conn
+    except Error as e:
+        print(f"Database connection error: {e}")
+        return None
 # Path to the JSON file -- remove when database is connected
 RESPONSES_FILE = os.path.join("static", "audit_responses.json")
 REPORT_TEMPLATE = os.path.join("templates", "report.html")
@@ -56,32 +48,32 @@ PUPPETEER_SCRIPT = os.path.join(os.getcwd(), "html_to_pdf.js")
 
 # all Database API Requests are here
 # sample database query select * from frameworks_table then return the data and print to console
-@app.route("/sample-get", methods=["GET"])
-def sample_get():
-    try:
-        cur.execute("SELECT * FROM frameworks_table")
-        rows = cur.fetchall()
-        for row in rows:
-            print(row)
-        return jsonify(rows)
-    except Exception as e:
-        print(f"Error fetching user data: {e}")
-        return jsonify({"error": "Failed to load user data."}), 500
+# @app.route("/sample-get", methods=["GET"])
+# def sample_get():
+#     try:
+#         cur.execute("SELECT * FROM frameworks_table")
+#         rows = cur.fetchall()
+#         for row in rows:
+#             print(row)
+#         return jsonify(rows)
+#     except Exception as e:
+#         print(f"Error fetching user data: {e}")
+#         return jsonify({"error": "Failed to load user data."}), 500
 
 # sample database query insert into user_table then return the data and print to console
-@app.route("/sample-post", methods=["POST"])
-def sample_post():
-    try:
-        data = request.json
-        if not data:
-            return jsonify({"error": "Invalid data"}), 400
-        cur.execute("INSERT INTO user_table (username, password) VALUES (?, ?)", (data["username"], data["password"]))
-        conn.commit()
-        print(f"User {data['username']} added successfully!")
-        return jsonify({"message": "User added successfully!"}), 200
-    except Exception as e:
-        print(f"Error adding user: {e}")
-        return jsonify({"error": "Failed to add user."}), 500
+# @app.route("/sample-post", methods=["POST"])
+# def sample_post():
+#     try:
+#         data = request.json
+#         if not data:
+#             return jsonify({"error": "Invalid data"}), 400
+#         cur.execute("INSERT INTO user_table (username, password) VALUES (?, ?)", (data["username"], data["password"]))
+#         conn.commit()
+#         print(f"User {data['username']} added successfully!")
+#         return jsonify({"message": "User added successfully!"}), 200
+#     except Exception as e:
+#         print(f"Error adding user: {e}")
+#         return jsonify({"error": "Failed to add user."}), 500
 
 # Function to ensure the file exists and is properly initialized -- remove once database is set up
 def ensure_file_exists():
@@ -96,32 +88,57 @@ def ensure_file_exists():
 def create_user():
     try:
         data = request.json
-        # Validate input data
-        required_fields = ["first_name", "username", "email", "password", "familarity_with_audits", "role", "company", "business_indicator"]
+
+        # Required fields for all users
+        required_fields = ["first_name", "last_name", "username", "email", "password", "familarity_with_audits", "business_indicator"]
+
+        # Validate the presence of required fields
         if not all(field in data for field in required_fields):
             return jsonify({"error": "Missing required fields"}), 400
+
+        # Validate and process `business_indicator`
+        business_indicator = int(data.get("business_indicator", 0))  # Default to 0 (No)
+        if business_indicator not in [0, 1]:
+            return jsonify({"error": "Invalid business indicator value"}), 400
+
+        # Set `role` and `company` to "N/A" if not a business
+        role = data.get("role", "N/A") if business_indicator == 1 else "N/A"
+        company = data.get("company", "N/A") if business_indicator == 1 else "N/A"
+
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        cur = conn.cursor()
+
+        # Check for duplicate username or email
+        cur.execute("SELECT username FROM user_table WHERE username=? OR email=?", (data["username"], data["email"]))
         existing_user = cur.fetchone()
 
         if existing_user:
-            return jsonify({"error": "Username or email already exists"}), 409  # HTTP 409 Conflict
-        
-        # Hash the password using bcrypt
+            cur.close()
+            conn.close()
+            return jsonify({"error": "Username or email already exists"}), 409
+
+        # Hash the password
         hashed_password = bcrypt.hashpw(data["password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-        query = """
-        INSERT INTO user_table (first_name, username, email, password, familarity-with-audits, role, company, business_indicator)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        cur.execute(query, 
-                    data["first_name"], data["username"], data["email"], hashed_password,
-                    data["familarity_with_audits"], data["role"], data["company"], data["business_indicator"]
-        )
+        # Insert user into the database
+        cur.execute("""
+            INSERT INTO user_table (first_name, last_name, username, email, password, familarity_with_audits, role, company, business_indicator)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (data["first_name"], data["last_name"], data["username"], data["email"], hashed_password,
+             data["familarity_with_audits"], role, company, business_indicator))
+
         conn.commit()
-        print(f"User {data['username']} added successfully!")
+        cur.close()
+        conn.close()
         return jsonify({"message": "User added successfully!"}), 200
+
     except Exception as e:
         print(f"Error adding user: {e}")
         return jsonify({"error": "Failed to add user."}), 500
+
 
 # function for generating the pdf
 @app.route("/generate_pdf", methods=["GET"])
@@ -145,35 +162,86 @@ def generate_pdf():
         print("Unexpected error:", e)
         return jsonify({"error": "Internal server error"}), 500
 
-# API for fetching audit steps from DB
+# API for fetching audit steps from DB -- works!!!!!
 @app.route("/get_audit_steps", methods=["GET"])
 def get_audit_steps():
     try:
-        cur.execute("SELECT idauditsteps, Step, instruction, explanation, example FROM audit_steps_table")
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+        
+        cur = conn.cursor()
+        cur.execute("SELECT Step, instruction, explanation, example FROM audit_steps_table")
         rows = cur.fetchall()
-        for row in rows:
-            print(row)
-        return jsonify(rows)
+        
+        audit_steps = {row[0]: {"Instruction": row[1], "Explanation": row[2], "Example": json.loads(row[3])} for row in rows}
+        
+        cur.close()
+        conn.close()
+        return jsonify({"CybersecurityAudit": audit_steps})
     except Exception as e:
         print(f"Error loading audit steps: {e}")
         return jsonify({"error": "Failed to load audit steps."}), 500
 
-# API for fetching audit frameworks from DB 
+
+# API for fetching audit frameworks from DB  -- works!
 @app.route("/get_frameworks", methods=["GET"])
 def get_frameworks():
     try:
-        cur.execute("SELECT framework_id, name, definition, how_to_use, advantages, disadvantages, link FROM frameworks_table")
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+        
+        cur = conn.cursor()
+        cur.execute("SELECT name, definition, how_to_use, advantages, disadvantages, link FROM frameworks_table")
         rows = cur.fetchall()
+        
+        frameworks = []
         for row in rows:
-            print(row)
-        return jsonify(rows)
+            try:
+                how_to_use = json.loads(row[2]) if row[2].startswith("[") else row[2].split(";")
+                advantages = json.loads(row[3]) if row[3].startswith("[") else row[3].split(";")
+                disadvantages = json.loads(row[4]) if row[4].startswith("[") else row[4].split(";")
+            except json.JSONDecodeError:
+                how_to_use, advantages, disadvantages = row[2].split(";"), row[3].split(";"), row[4].split(";")  # Fallback to list format
+
+            frameworks.append({
+                "name": row[0],
+                "definition": row[1],
+                "how_to_use": how_to_use,
+                "advantages": advantages,
+                "disadvantages": disadvantages,
+                "link": row[5]
+            })
+        
+        cur.close()
+        conn.close()
+        return jsonify({"frameworks": frameworks})
     except Exception as e:
         print(f"Error loading frameworks: {e}")
         return jsonify({"error": "Failed to load frameworks."}), 500
-    
 # API for fetching audit dates -- modify once database is set up
 @app.route("/get_audit_dates", methods=["GET"])
 def get_audit_dates():
+    # I think this might be the code for the audit dates:
+    # def get_audit_dates():
+    # try:
+    #     conn = get_db_connection()
+    #     if conn is None:
+    #         return jsonify({"error": "Database connection failed"}), 500
+        
+    #     cur = conn.cursor()
+    #     cur.execute("SELECT DISTINCT DATE(date) FROM audit_responses")
+    #     rows = cur.fetchall()
+        
+    #     dates = [row[0].strftime("%Y-%m-%d") for row in rows]
+        
+    #     cur.close()
+    #     conn.close()
+    #     return jsonify({"dates": dates})
+    # except Exception as e:
+    #     print(f"Error loading audit dates: {e}")
+    #     return jsonify({"error": "Failed to load audit dates."}), 500
     try:
         responses_file = os.path.join("static", "audit_responses.json")
         with open(responses_file, "r") as f:

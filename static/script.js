@@ -1,3 +1,6 @@
+//confirm it's running
+console.log("Script is running...");
+
 // Variable to store user repsonses
 let currentStepIndex = 0;
 
@@ -88,33 +91,52 @@ function fetchAuditSteps() {
 }
 // Function to fetch and display frameworks - learn.html page
 function fetchFrameworks() {
+  console.log("Fetching frameworks...");
+
   fetch("/get_frameworks")
-    .then(response => {
+    .then((response) => {
+      console.log("API Response Status:", response.status);
       if (!response.ok) throw new Error("Failed to fetch frameworks.");
       return response.json();
     })
-    .then(data => {
+    .then((data) => {
+      console.log("API Data Received:", data);
+
       const frameworks = data.frameworks;
       const dropdown = document.getElementById("frameworkDropdown");
       const detailsDiv = document.getElementById("frameworkDetails");
 
+      // Clear the dropdown first
+      dropdown.innerHTML = '<option value="">--Select a Framework--</option>';
+
+      // Populate the dropdown with framework names
       frameworks.forEach((framework, index) => {
+        console.log("Adding Framework to Dropdown:", framework.name);
+
         const option = document.createElement("option");
-        option.value = index;
-        option.textContent = framework.name;
+        option.value = index; // Index for reference
+        option.textContent = framework.name; // Set the option's display text to the framework name
         dropdown.appendChild(option);
       });
 
-      dropdown.addEventListener("change", event => {
+      // Handle dropdown selection
+      dropdown.addEventListener("change", (event) => {
         const selectedIndex = event.target.value;
         if (selectedIndex) {
           const selectedFramework = frameworks[selectedIndex];
+
+          const formatList = (items) =>
+            items.map((item) => `<li>${item.replace(/\n/g, " ")}</li>`).join("");
+
           detailsDiv.innerHTML = `
             <h2>${selectedFramework.name}</h2>
             <p><strong>Definition:</strong> ${selectedFramework.definition}</p>
-            <ul>${selectedFramework.how_to_use.map(step => `<li>${step}</li>`).join("")}</ul>
-            <ul>${selectedFramework.advantages.map(adv => `<li>${adv}</li>`).join("")}</ul>
-            <ul>${selectedFramework.disadvantages.map(disadv => `<li>${disadv}</li>`).join("")}</ul>
+            <h3>How to Use:</h3>
+            <ul>${formatList(selectedFramework.how_to_use)}</ul>
+            <h3>Advantages:</h3>
+            <ul>${formatList(selectedFramework.advantages)}</ul>
+            <h3>Disadvantages:</h3>
+            <ul>${formatList(selectedFramework.disadvantages)}</ul>
             <a href="${selectedFramework.link}" target="_blank">Learn more</a>
           `;
         } else {
@@ -122,7 +144,7 @@ function fetchFrameworks() {
         }
       });
     })
-    .catch(error => console.error("Error fetching frameworks:", error));
+    .catch((error) => console.error("Error fetching frameworks:", error));
 }
 
 // Function to Load previous audits and display them
@@ -222,8 +244,74 @@ function downloadPDF(date) {
     });
 }
 
+//Create User logic
+function create_user(){
+    console.log("Setting up form submission...");
+  
+    const form = document.getElementById("signup-form");
+    const businessYes = document.getElementById("businessYes");
+    const businessNo = document.getElementById("businessNo");
+    const businessFields = document.getElementById("businessFields");
+  
+    // Toggle business fields visibility
+    businessYes.addEventListener("change", () => {
+      businessFields.style.display = "block";
+    });
+  
+    businessNo.addEventListener("change", () => {
+      businessFields.style.display = "none";
+    });
+  
+    if (form) {
+      form.addEventListener("submit", (event) => {
+        event.preventDefault(); // Prevent default form submission
+  
+        const password = document.getElementById("password").value;
+        const passwordConf = document.getElementById("passwordConf").value;
+  
+        if (password !== passwordConf) {
+          alert("Passwords do not match.");
+          return;
+        }
+  
+        const isBusiness = document.querySelector("input[name='businessIndicator']:checked").value === "1";
+  
+        const formData = {
+          first_name: document.getElementById("fname").value,
+          last_name: document.getElementById("lname").value,
+          username: document.getElementById("username").value,
+          email: document.getElementById("email").value,
+          password: password,
+          familarity_with_audits: document.getElementById("slider").value,
+          business_indicator: isBusiness ? 1 : 0, // Store as 1 for Yes, 0 for No
+          role: isBusiness ? document.getElementById("role").value || "N/A" : "N/A",
+          company: isBusiness ? document.getElementById("company").value || "N/A" : "N/A",
+        };
+  
+        fetch("/create_user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.error) {
+              alert("Error: " + data.error);
+            } else {
+              alert("User created successfully!");
+              window.location.href = "/login"; // Redirect to login
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      });
+    } else {
+      console.error("Signup form not found!");
+    }
+  }
+  
 // Initialize the page
 document.addEventListener("DOMContentLoaded", () => {
   fetchAuditSteps();
   fetchFrameworks();
+  create_user();
 });
