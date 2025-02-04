@@ -16,7 +16,7 @@ body {
     line-height: 1.6;
 }
 
-.nav a{
+.nav a {
     color: #143F6E;
 }
 
@@ -113,7 +113,8 @@ button:hover {
 /* PDF Compatibility */
 @media print {
     button {
-        display: none; /* Hide the button in the PDF */
+        display: none;
+        /* Hide the button in the PDF */
     }
 
     #report-container {

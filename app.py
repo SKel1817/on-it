@@ -22,11 +22,14 @@ app = Flask(__name__)
 # Load preferences from .env
 load_dotenv()
 
+# secert key for session variables
+app.secret_key = 'your_unique_and_secret_key'
+
 # Set IP address
 IP_ADDR = os.getenv("IP_ADDR") if os.getenv("IP_ADDR") else "localhost"
 print(f"IP Address: {IP_ADDR}")
 
-# Make connection to mariadb database using .env (DB_USER, DB_PASS, SCHEMA_NAME)
+# Make connection to mariadb database using .env (DB_USER, DB_PASS, SCHEMA_NAME), will have to refrence everytime you want to make a query
 def get_db_connection():
     try:
         conn = mariadb.connect(
@@ -40,50 +43,24 @@ def get_db_connection():
     except Error as e:
         print(f"Database connection error: {e}")
         return None
+
+
 # Path to the JSON file -- remove when database is connected
 RESPONSES_FILE = os.path.join("static", "audit_responses.json")
 REPORT_TEMPLATE = os.path.join("templates", "report.html")
 OUTPUT_PDF = os.path.join("static", "output.pdf")
 PUPPETEER_SCRIPT = os.path.join(os.getcwd(), "html_to_pdf.js")
 
-# all Database API Requests are here
-# sample database query select * from frameworks_table then return the data and print to console
-# @app.route("/sample-get", methods=["GET"])
-# def sample_get():
-#     try:
-#         cur.execute("SELECT * FROM frameworks_table")
-#         rows = cur.fetchall()
-#         for row in rows:
-#             print(row)
-#         return jsonify(rows)
-#     except Exception as e:
-#         print(f"Error fetching user data: {e}")
-#         return jsonify({"error": "Failed to load user data."}), 500
-
-# sample database query insert into user_table then return the data and print to console
-# @app.route("/sample-post", methods=["POST"])
-# def sample_post():
-#     try:
-#         data = request.json
-#         if not data:
-#             return jsonify({"error": "Invalid data"}), 400
-#         cur.execute("INSERT INTO user_table (username, password) VALUES (?, ?)", (data["username"], data["password"]))
-#         conn.commit()
-#         print(f"User {data['username']} added successfully!")
-#         return jsonify({"message": "User added successfully!"}), 200
-#     except Exception as e:
-#         print(f"Error adding user: {e}")
-#         return jsonify({"error": "Failed to add user."}), 500
-
 # Function to ensure the file exists and is properly initialized -- remove once database is set up
 def ensure_file_exists():
     if not os.path.exists(RESPONSES_FILE):
         with open(RESPONSES_FILE, "w") as f:
             json.dump([], f)
+# API Database queries -------------------------------------------------------------
+# User Logic Start ------------------
+# user login -- To be done
 
-# user login
-
-# create user 
+# create user -- done
 @app.route("/create_user", methods=["POST"])
 def create_user():
     try:
@@ -138,31 +115,10 @@ def create_user():
     except Exception as e:
         print(f"Error adding user: {e}")
         return jsonify({"error": "Failed to add user."}), 500
+# User Logic End ------------------
 
-
-# function for generating the pdf
-@app.route("/generate_pdf", methods=["GET"])
-def generate_pdf():
-    try:
-        # Get the requested date from the query parameters
-        date = request.args.get("date")
-        if not date:
-            return jsonify({"error": "Date parameter is missing"}), 400
-
-        # Call the Puppeteer script with the date as an argument
-        subprocess.run(["node", PUPPETEER_SCRIPT, date], check=True)
-
-        # Send the generated PDF file
-        return send_file(OUTPUT_PDF, as_attachment=True)
-
-    except subprocess.CalledProcessError as e:
-        print("Error generating PDF with Puppeteer:", e)
-        return jsonify({"error": "Failed to generate PDF"}), 500
-    except Exception as e:
-        print("Unexpected error:", e)
-        return jsonify({"error": "Internal server error"}), 500
-
-# API for fetching audit steps from DB -- works!!!!!
+# Audit Logic Start ------------------
+# API for fetching audit steps from DB -- DONE
 @app.route("/get_audit_steps", methods=["GET"])
 def get_audit_steps():
     try:
@@ -183,44 +139,7 @@ def get_audit_steps():
         print(f"Error loading audit steps: {e}")
         return jsonify({"error": "Failed to load audit steps."}), 500
 
-
-# API for fetching audit frameworks from DB  -- works!
-@app.route("/get_frameworks", methods=["GET"])
-def get_frameworks():
-    try:
-        conn = get_db_connection()
-        if conn is None:
-            return jsonify({"error": "Database connection failed"}), 500
-        
-        cur = conn.cursor()
-        cur.execute("SELECT name, definition, how_to_use, advantages, disadvantages, link FROM frameworks_table")
-        rows = cur.fetchall()
-        
-        frameworks = []
-        for row in rows:
-            try:
-                how_to_use = json.loads(row[2]) if row[2].startswith("[") else row[2].split(";")
-                advantages = json.loads(row[3]) if row[3].startswith("[") else row[3].split(";")
-                disadvantages = json.loads(row[4]) if row[4].startswith("[") else row[4].split(";")
-            except json.JSONDecodeError:
-                how_to_use, advantages, disadvantages = row[2].split(";"), row[3].split(";"), row[4].split(";")  # Fallback to list format
-
-            frameworks.append({
-                "name": row[0],
-                "definition": row[1],
-                "how_to_use": how_to_use,
-                "advantages": advantages,
-                "disadvantages": disadvantages,
-                "link": row[5]
-            })
-        
-        cur.close()
-        conn.close()
-        return jsonify({"frameworks": frameworks})
-    except Exception as e:
-        print(f"Error loading frameworks: {e}")
-        return jsonify({"error": "Failed to load frameworks."}), 500
-# API for fetching audit dates -- modify once database is set up
+# API for fetching audit dates -- modify once database is set up (will be API for report dates) -- TO DO
 @app.route("/get_audit_dates", methods=["GET"])
 def get_audit_dates():
     # I think this might be the code for the audit dates:
@@ -253,7 +172,7 @@ def get_audit_dates():
         print(f"Error fetching audit dates: {e}")
         return jsonify({"error": "Failed to load audit dates."}), 500
 
-# API for fetching report data -- modify once database is set up
+# API for fetching report data -- modify once database is set up (will be API for report) -- TO DO
 @app.route("/get_report_data", methods=["GET"])
 def get_report_data():
     try:
@@ -280,7 +199,7 @@ def get_report_data():
         print(f"Error fetching report data: {e}")
         return jsonify({"error": "Failed to load report data."}), 500
 
-# modify once database set up, temp JOSN saving method
+# modify once database set up, temp JOSN saving method (Will be API for Save responses) -- TO DO
 @app.route("/save_response", methods=["POST"])
 def save_response():
     try:
@@ -321,7 +240,72 @@ def save_response():
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": "Internal server error"}), 500
+# Audit Logic End ------------------
 
+# API for fetching audit frameworks from DB  -- DONE
+@app.route("/get_frameworks", methods=["GET"])
+def get_frameworks():
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+        
+        cur = conn.cursor()
+        cur.execute("SELECT name, definition, how_to_use, advantages, disadvantages, link FROM frameworks_table")
+        rows = cur.fetchall()
+        
+        frameworks = []
+        for row in rows:
+            try:
+                how_to_use = json.loads(row[2]) if row[2].startswith("[") else row[2].split(";")
+                advantages = json.loads(row[3]) if row[3].startswith("[") else row[3].split(";")
+                disadvantages = json.loads(row[4]) if row[4].startswith("[") else row[4].split(";")
+            except json.JSONDecodeError:
+                how_to_use, advantages, disadvantages = row[2].split(";"), row[3].split(";"), row[4].split(";")  # Fallback to list format
+
+            frameworks.append({
+                "name": row[0],
+                "definition": row[1],
+                "how_to_use": how_to_use,
+                "advantages": advantages,
+                "disadvantages": disadvantages,
+                "link": row[5]
+            })
+        
+        cur.close()
+        conn.close()
+        return jsonify({"frameworks": frameworks})
+    except Exception as e:
+        print(f"Error loading frameworks: {e}")
+        return jsonify({"error": "Failed to load frameworks."}), 500
+# End of API Database queries -------------------------------------------------------------
+
+
+# function for generating the pdf 
+@app.route("/generate_pdf", methods=["GET"])
+def generate_pdf():
+    try:
+        # Get the requested date from the query parameters
+        date = request.args.get("date")
+        if not date:
+            return jsonify({"error": "Date parameter is missing"}), 400
+
+        # Call the Puppeteer script with the date as an argument
+        subprocess.run(["node", PUPPETEER_SCRIPT, date], check=True)
+
+        # Send the generated PDF file
+        return send_file(OUTPUT_PDF, as_attachment=True)
+
+    except subprocess.CalledProcessError as e:
+        print("Error generating PDF with Puppeteer:", e)
+        return jsonify({"error": "Failed to generate PDF"}), 500
+    except Exception as e:
+        print("Unexpected error:", e)
+        return jsonify({"error": "Internal server error"}), 500
+
+
+# search page logic
+# function to grab the search data from form
 @app.route('/display_search', methods=['POST'])
 def display_search():
     session['error_code'] = request.form.get('error_code')
@@ -332,6 +316,7 @@ def display_search():
 
     return redirect(url_for('search_page'))
 
+# function to display the search page with the variables
 @app.route('/search')
 def search_page():
     return render_template('search.html', 

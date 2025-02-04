@@ -1,10 +1,86 @@
 //confirm it's running
 console.log("Script is running...");
+// START of API DATABASE SUPPORTING LOGIC -------------------------------------------------------------------------------------
+//USER LOGIC -------------------------------------------------------------------------------------
+//Create User logic
+function create_user() {
+  console.log("Setting up form submission...");
 
+  const form = document.getElementById("signup-form");
+  const businessYes = document.getElementById("businessYes");
+  const businessNo = document.getElementById("businessNo");
+  const businessFields = document.getElementById("businessFields");
+
+  // Toggle business fields visibility
+  businessYes.addEventListener("change", () => {
+    businessFields.style.display = "block";
+  });
+
+  businessNo.addEventListener("change", () => {
+    businessFields.style.display = "none";
+  });
+
+  if (form) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault(); // Prevent default form submission
+
+      const password = document.getElementById("password").value;
+      const passwordConf = document.getElementById("passwordConf").value;
+
+      if (password !== passwordConf) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      const isBusiness = document.querySelector("input[name='businessIndicator']:checked").value === "1";
+
+      const formData = {
+        first_name: document.getElementById("fname").value,
+        last_name: document.getElementById("lname").value,
+        username: document.getElementById("username").value,
+        email: document.getElementById("email").value,
+        password: password,
+        familarity_with_audits: document.getElementById("slider").value,
+        business_indicator: isBusiness ? 1 : 0, // Store as 1 for Yes, 0 for No
+        role: isBusiness ? document.getElementById("role").value || "N/A" : "N/A",
+        company: isBusiness ? document.getElementById("company").value || "N/A" : "N/A",
+      };
+
+      fetch("/create_user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(formData),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            alert("Error: " + data.error);
+          } else {
+            alert("User created successfully!");
+            window.location.href = "/login"; // Redirect to login
+          }
+        })
+        .catch((error) => console.error("Error:", error));
+    });
+  } else {
+    console.error("Signup form not found!");
+  }
+}
+// login existing user -- to be made
+
+// update existing user account -- to be made
+
+
+// END OF USER LOGIC -------------------------------------------------------------------------------------
+
+
+//AUDIT LOGIC ------------------------------------------------------------------------------
 // Variable to store user repsonses
 let currentStepIndex = 0;
 
-// Fetch and process the information - audit.html page
+// Fetch and process the information - audit.html page -- Fixed and done with database now
 function fetchAuditSteps() {
   fetch("/get_audit_steps")
     .then(response => {
@@ -89,6 +165,109 @@ function fetchAuditSteps() {
       console.error("There was a problem with the fetch operation:", error);
     });
 }
+// END OF AUDIT LOGIC -------------------------------------------------------------------------------------
+
+// BEGIN OF REPORT LOGIC -------------------------------------------------------------------------------------
+// Function to Load previous audits and display them - start by loading the dates
+function loadAudits() {
+  fetch("/get_audit_dates")
+    .then(response => {
+      if (!response.ok) throw new Error("Failed to load audit dates.");
+      return response.json();
+    })
+    .then(data => {
+      const auditList = document.getElementById("audit-list");
+      if (data.dates.length === 0) {
+        auditList.innerHTML = "<li>No audits found.</li>";
+        return;
+      }
+      data.dates.forEach(date => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span>${date}</span>
+          <button onclick="viewReport('${date}')"><i class="material-symbols-outlined">table_eye</i></button>
+        `;
+        auditList.appendChild(li);
+      });
+    })
+    .catch(error => {
+      console.error("Error loading audits:", error);
+      const auditList = document.getElementById("audit-list");
+      auditList.innerHTML = "<li>Error loading audits. Please try again later.</li>";
+    });
+}
+
+// Redirect to the report page with the selected date - then redirect
+function viewReport(date) {
+  const formattedDate = new Date(date).toISOString().split("T")[0];
+  window.location.href = `/report?date=${encodeURIComponent(formattedDate)}`;
+}
+
+// Load the report for a specific date - load logic
+function loadReport(date) {
+  fetch(`/get_report_data?date=${encodeURIComponent(date)}`)
+    .then(response => {
+      if (!response.ok) throw new Error("Failed to load report data.");
+      return response.json();
+    })
+    .then(data => {
+      document.getElementById("report-date").textContent = date;
+
+      const stepsBody = document.getElementById("steps-body");
+      if (data.responses.length === 0) {
+        stepsBody.innerHTML = `<tr><td colspan="3">No data found for this date.</td></tr>`;
+        return;
+      }
+
+      let stepsHTML = "";
+      data.responses.forEach(item => {
+        const stepName = item.step || "N/A";
+        const instruction = data.steps[item.step]?.Instruction || "Instruction not available";
+        const response = item.answer || "No response provided";
+        stepsHTML += `
+          <tr>
+            <td>${stepName}</td>
+            <td>${instruction}</td>
+            <td>${response}</td>
+          </tr>
+        `;
+      });
+      stepsBody.innerHTML = stepsHTML;
+    })
+    .catch(error => {
+      console.error("Error loading report:", error);
+      const stepsBody = document.getElementById("steps-body");
+      stepsBody.innerHTML = `<tr><td colspan="3">Error loading report. Please try again later.</td></tr>`;
+    });
+}
+
+// Download the PDF - finally download
+function downloadPDF(date) {
+  if (!date) {
+    alert("Date is missing. Please select a valid audit date.");
+    return;
+  }
+
+  fetch(`/generate_pdf?date=${encodeURIComponent(date)}`)
+    .then(response => {
+      if (!response.ok) throw new Error("Failed to download PDF.");
+      return response.blob();
+    })
+    .then(blob => {
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `audit_${date.replace(/-/g, "_")}.pdf`;
+      link.click();
+    })
+    .catch(error => {
+      console.error("Error downloading PDF:", error);
+      alert("Failed to download PDF. Please try again.");
+    });
+}
+// END OF REPORT LOGIC -------------------------------------------------------------------------------------
+
+//FRAMEWORK LOGIC -------------------------------------------------------------------------------------
+
 // Function to fetch and display frameworks - learn.html page
 function fetchFrameworks() {
   console.log("Fetching frameworks...");
@@ -147,168 +326,12 @@ function fetchFrameworks() {
     .catch((error) => console.error("Error fetching frameworks:", error));
 }
 
-// Function to Load previous audits and display them
-function loadAudits() {
-  fetch("/get_audit_dates")
-    .then(response => {
-      if (!response.ok) throw new Error("Failed to load audit dates.");
-      return response.json();
-    })
-    .then(data => {
-      const auditList = document.getElementById("audit-list");
-      if (data.dates.length === 0) {
-        auditList.innerHTML = "<li>No audits found.</li>";
-        return;
-      }
-      data.dates.forEach(date => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <span>${date}</span>
-          <button onclick="viewReport('${date}')"><i class="material-symbols-outlined">table_eye</i></button>
-        `;
-        auditList.appendChild(li);
-      });
-    })
-    .catch(error => {
-      console.error("Error loading audits:", error);
-      const auditList = document.getElementById("audit-list");
-      auditList.innerHTML = "<li>Error loading audits. Please try again later.</li>";
-    });
-}
+// END OF FRAMEWORK LOGIC -------------------------------------------------------------------------------------
+// END OF API DATABASE SUPPORTING LOGIC -------------------------------------------------------------------------------------
 
-// Redirect to the report page with the selected date
-function viewReport(date) {
-  const formattedDate = new Date(date).toISOString().split("T")[0];
-  window.location.href = `/report?date=${encodeURIComponent(formattedDate)}`;
-}
+// general page script functions
 
-// Load the report for a specific date
-function loadReport(date) {
-  fetch(`/get_report_data?date=${encodeURIComponent(date)}`)
-    .then(response => {
-      if (!response.ok) throw new Error("Failed to load report data.");
-      return response.json();
-    })
-    .then(data => {
-      document.getElementById("report-date").textContent = date;
 
-      const stepsBody = document.getElementById("steps-body");
-      if (data.responses.length === 0) {
-        stepsBody.innerHTML = `<tr><td colspan="3">No data found for this date.</td></tr>`;
-        return;
-      }
-
-      let stepsHTML = "";
-      data.responses.forEach(item => {
-        const stepName = item.step || "N/A";
-        const instruction = data.steps[item.step]?.Instruction || "Instruction not available";
-        const response = item.answer || "No response provided";
-        stepsHTML += `
-          <tr>
-            <td>${stepName}</td>
-            <td>${instruction}</td>
-            <td>${response}</td>
-          </tr>
-        `;
-      });
-      stepsBody.innerHTML = stepsHTML;
-    })
-    .catch(error => {
-      console.error("Error loading report:", error);
-      const stepsBody = document.getElementById("steps-body");
-      stepsBody.innerHTML = `<tr><td colspan="3">Error loading report. Please try again later.</td></tr>`;
-    });
-}
-
-// Download the PDF
-function downloadPDF(date) {
-  if (!date) {
-    alert("Date is missing. Please select a valid audit date.");
-    return;
-  }
-
-  fetch(`/generate_pdf?date=${encodeURIComponent(date)}`)
-    .then(response => {
-      if (!response.ok) throw new Error("Failed to download PDF.");
-      return response.blob();
-    })
-    .then(blob => {
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `audit_${date.replace(/-/g, "_")}.pdf`;
-      link.click();
-    })
-    .catch(error => {
-      console.error("Error downloading PDF:", error);
-      alert("Failed to download PDF. Please try again.");
-    });
-}
-
-//Create User logic
-function create_user(){
-    console.log("Setting up form submission...");
-  
-    const form = document.getElementById("signup-form");
-    const businessYes = document.getElementById("businessYes");
-    const businessNo = document.getElementById("businessNo");
-    const businessFields = document.getElementById("businessFields");
-  
-    // Toggle business fields visibility
-    businessYes.addEventListener("change", () => {
-      businessFields.style.display = "block";
-    });
-  
-    businessNo.addEventListener("change", () => {
-      businessFields.style.display = "none";
-    });
-  
-    if (form) {
-      form.addEventListener("submit", (event) => {
-        event.preventDefault(); // Prevent default form submission
-  
-        const password = document.getElementById("password").value;
-        const passwordConf = document.getElementById("passwordConf").value;
-  
-        if (password !== passwordConf) {
-          alert("Passwords do not match.");
-          return;
-        }
-  
-        const isBusiness = document.querySelector("input[name='businessIndicator']:checked").value === "1";
-  
-        const formData = {
-          first_name: document.getElementById("fname").value,
-          last_name: document.getElementById("lname").value,
-          username: document.getElementById("username").value,
-          email: document.getElementById("email").value,
-          password: password,
-          familarity_with_audits: document.getElementById("slider").value,
-          business_indicator: isBusiness ? 1 : 0, // Store as 1 for Yes, 0 for No
-          role: isBusiness ? document.getElementById("role").value || "N/A" : "N/A",
-          company: isBusiness ? document.getElementById("company").value || "N/A" : "N/A",
-        };
-  
-        fetch("/create_user", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.error) {
-              alert("Error: " + data.error);
-            } else {
-              alert("User created successfully!");
-              window.location.href = "/login"; // Redirect to login
-            }
-          })
-          .catch((error) => console.error("Error:", error));
-      });
-    } else {
-      console.error("Signup form not found!");
-    }
-  }
-  
 // Initialize the page
 document.addEventListener("DOMContentLoaded", () => {
   fetchAuditSteps();
