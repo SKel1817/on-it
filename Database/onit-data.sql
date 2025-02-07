@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `onit`.`user_table` ;
 CREATE TABLE IF NOT EXISTS `onit`.`user_table` (
   `iduser_table` INT NOT NULL AUTO_INCREMENT,
   `first_name` VARCHAR(255) NOT NULL,
-  'last_name' VARCHAR(255) NULL,
+  `last_name` VARCHAR(255) NULL,
   `username` VARCHAR(255) NOT NULL,
   `email` VARCHAR(255) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
@@ -99,7 +99,7 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 --- Inserting data into the tables
 
 -- Inserting data into the user_table
-INSERT INTO `onit`.`user_table` (`first_name`, `username`, `email`, `password`, `familarity_with_audits`, `role`, `company`, `business_indicator`)
+INSERT INTO `onit`.`user_table` (`first_name`, `last_name`, `username`, `email`, `password`, `familarity_with_audits`, `role`, `company`, `business_indicator`)
 VALUES
 ('John','Doe', 'jdoe', 'jdoe@example.com', 'securepassword123', 5, 'Manager', 'ExampleCorp', 1);
 
