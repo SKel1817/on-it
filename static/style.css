@@ -537,8 +537,8 @@ datalist {
 }
 
 .indexContainer input[type="Submit"]:hover {
-background-color: #376F26;
-transform: scale(1.03);
+    background-color: #376F26;
+    transform: scale(1.03);
 }
 
 /* audit page styling */
@@ -578,7 +578,7 @@ transform: scale(1.03);
     max-width: 90vw;
     margin: auto;
     padding: 5%;
-    background-color:  #F1F8E9;
+    background-color: white;
     border: 0.1rem solid  #A5D6A7;
     border-radius: 5%;
     box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
@@ -586,8 +586,8 @@ transform: scale(1.03);
     text-align: center;
 
     display: flex;
-        flex-direction: column;
-        align-items: center;
+    flex-direction: column;
+    align-items: center;
 
 }
 
@@ -671,18 +671,6 @@ transform: scale(1.03);
     }
 
 
-
-/* smaller mobile devices */
-@media (max-width:480px) {
-.Hopper{
-width: 90%;
-}
-
-.indexContainer input[type="submit"] {
-font-size:1.2em;
-}
-}
-
 /* accCreate.html */
 .accountContainer {
     width: 90%;
@@ -762,7 +750,7 @@ datalist {
     background-color #ffffff;
     box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.2);
     text-align: center;
-    margin: 5% auto;
+    margin: 15% auto;
 }
 
 .settingsContainer label {
@@ -779,13 +767,13 @@ datalist {
     padding: 1rem;
     font-size: 1.2rem;
     font-weight: bold;
-     background: linear-gradient(to right, #4F5D2F, #376F26);
-     color: white;
-     border: none;
-     border-radius: 0.5rem;
-     margin-top: 2rem;
-     cursor: pointer;
-     transition: background 0.3s ease-in-out, transform 0.2s ease;
+    background: linear-gradient(to right, #4F5D2F, #376F26);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    margin-top: 2rem;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, transform 0.2s ease;
 }
 
 .settingsContainer input[type="submit"]:hover {
@@ -808,6 +796,176 @@ datalist {
     color: #4F5D2F;
 }
 
+/* troubleshooting.html */
+
+.troubleshootingContent {
+    margin-top: -35%;
+}
+
+.troubleshootingHopper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.troubleshootingHopperSpeech {
+     position: relative;
+     width: 130%;
+     margin: 5% auto;
+     padding: 5%;
+     background-color: #C8E6C9;
+     color:  #1B5E20;
+     border-radius: 2em;
+     text-align: center;
+     font-size: 1rem;
+     font-family: 'Playfair Display', serif;
+     font-weight: 500;
+     box-shadow: 0 2% 4% rgba(0, 0, 0, 0.1);
+}
+
+.troubleshootingHopperSpeech::after {
+    content: "";
+    position: absolute;
+    bottom: -15%;
+    left: 10%;
+    border-width: 10px 10px 0 10px;
+    border-style: solid;
+    border-color: #C8E6C9 transparent transparent transparent;
+}
+
+troubleshootingHopperSpeech p {
+    margin: auto;
+    line-height: 150%;
+}
+
+.troubleshootingContainer {
+    width: 103%;
+    max-width: 90vw;
+    margin: auto;
+    padding: 5%;
+    background-color: white;
+    border: 0.1rem solid  #A5D6A7;
+    border-radius: 5%;
+    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
+    color: #1B5E20;;
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.troubleshootingContainer input[type="text"] {
+    width: 85%;
+    padding: 3%;
+    font-size: 1rem;
+    border: 1% solid  #A5D6A7;
+    border-radius: 5%;
+    background-color: white;
+    color: #1B5E20;
+    font-family: 'Playfair Display' , serif;
+    margin: 2% 0;
+}
+
+.troubleshootingContainer input[type="submit"] {
+    width: 100%;
+    padding: 3%;
+    font-size: 1rem;
+    font-family: 'Playfair Display' , serif;
+    margin: 2% 0;
+    background: linear-gradient(to right, #66BB6A, #2E7D32);
+    transition: all 0.3s ease-in-out;
+    color: white;
+    border: none;
+    border-radius: 5%;
+    cursor: pointer;
+}
+
+.troubleshootingContainer input[type="submit"]:hover {
+     background: linear-gradient(to right, #43A047, #2E7D32);
+     transform: scale(1.05);
+}
+
+/* previous_audits.html */
+.auditListContainer {
+    width: 80%;
+    margin: auto;
+    padding: 5%;
+    background-color: white;
+    border: 0.1rem solid #A5D6A7;
+    border-radius: 5%;
+    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
+    color:  #1B5E20;
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.auditListContainer h1 {
+    font-size: 2rem;
+    color: #4F5D2F;
+    font-family: 'Playfair Display' , serif;
+    font-weight: 1000;
+    margin-bottom: 2%;
+}
+
+.auditListContainer ul {
+    width: 85%;
+    padding: 3%;
+    font-size: 1rem;
+    font-family: 'Playfair Display' , serif;
+    color: #4F5D2F;
+    font-weight: 800%;
+}
+
+/* learn.html framework page */
+.learnContainer {
+    width: 103%;
+    max-width: 90vw;
+    margin: auto;
+    padding: 5%;
+    background-color: white;
+    border: 0.1rem solid #A5D6A7;
+    border-radius: 5%;
+    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
+    color: #1B5E20;
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.learnContainer h1 {
+    font-size: 2rem;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: #4F5D2F;
+    margin-bottom: 3%;
+}
+
+.learnContainer select {
+    width: 85%;
+    padding: 3%;
+    font-size: 1rem;
+    border: 1% solid  #A5D6A7;
+    border-radius: 5%;
+    background-color: white;
+    font-family: 'Playfair Display' , serif;
+    margin: 2% 0;
+}
+
+#frameworkDetails {
+    width: 85%;
+    font-size: 1rem;
+    color: #4F5D2F;
+    padding: 3%;
+    background-color: white;
+    font-family: 'Playfair Display' , serif;
+    text-align: center;
+}
 /* tablets */
 
 @media (min-width: 600px) and (max-width:768px) {
