@@ -111,7 +111,7 @@ def ensure_file_exists():
 def user_login():
     # Ensure Content-Type is application/json
     if request.content_type != "application/json":
-        return jsonify({"error": "Unsupported Media Type. Please set Content-Type to application/json."}), 415
+        return jsonify({"error": "HAHA we are in app.py Unsupported Media Type. Please set Content-Type to application/json."}), 415
 
     try:
         # Parse JSON data
@@ -161,7 +161,7 @@ def user_login():
     except Exception as e:
         print(f"Error during login: {e}")
         return jsonify({"error": "An error occurred during login."}), 500
-# Update current User details -- To be done
+# Update current User details -- to be done
 @app.route("/update_user", methods=["POST"])
 @login_required
 def update_user():
@@ -266,6 +266,12 @@ def create_user():
         return jsonify({"error": "Failed to add user."}), 500
 # User Logic End ------------------
 
+#logout logic - Done
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 # Audit Logic Start ------------------
 # API for fetching audit steps from DB -- DONE
 @app.route("/get_audit_steps", methods=["GET"])

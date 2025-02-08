@@ -37,11 +37,15 @@
         <input type="text" id="username" name="username" required>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
-        <button type="submit" id="loginButton">Login</button>
+        <button type="button" id="loginButton">Login</button>
         <!-- Placeholder until we make a create an account page -->
         <a href="{{ url_for('acctCreate') }}"><label>Create an Account</label></a>
     </form>
 </div>
 </body>
-
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  login_user();
+});
+</script>
 </html>

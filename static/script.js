@@ -72,15 +72,15 @@ function create_user() {
 // login existing user -- to be made
 function login_user() {
   console.log("login_user is running...");
-  const loginForm = document.getElementById("loginForm");
-  if (!loginForm) {
-    console.error("Login form not found!");
+  const loginButton = document.getElementById("loginButton");
+  if (!loginButton) {
+    console.error("Login button not found!");
     return;
   }
 
-  loginForm.addEventListener("submit", function (e) {
-    e.preventDefault(); // Prevent the default behavior
-    console.log("Form submission intercepted!");
+  loginButton.addEventListener("click", function (e) {
+    // No need for e.preventDefault() here since we're not in a submit event.
+    console.log("Login button clicked!");
 
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
@@ -95,26 +95,27 @@ function login_user() {
     fetch("/login-user", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json", // Ensure this is explicitly set
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password }), // Send JSON
-    });
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         throw new Error("Login failed");
-  //       }
-  //       return response.json();
-  //     })
-  //     .then((data) => {
-  //       alert(data.message);
-  //       window.location.href = "/"; // Redirect after successful login
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error:", error);
-  //       alert("Login failed: " + error.message);
-  //     });
+      body: JSON.stringify({ username, password }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Login failed");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        alert(data.message);
+        window.location.href = "/"; // Redirect after successful login
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Login failed: " + error.message);
+      });
   });
 }
+
 
 // update existing user account -- to be made
 
@@ -163,15 +164,16 @@ function fetchAuditSteps() {
       // Handle "Next Step" button click - audit.html page, will need to be replaced with database logic 
       document.getElementById("nextButton").addEventListener("click", () => {
         const userInput = document.getElementById("auditInput").value.trim();
-
+      
         if (userInput) {
           // Save the user response
           const stepName = stepKeys[currentStepIndex];
+          // Use the keys that the backend expects
           const response = {
-            step: stepName,
-            answer: userInput
+            response_step: stepName,
+            response_answer: userInput
           };
-
+      
           // Send the response to the backend
           fetch("/save_response", {
               method: "POST",
@@ -206,6 +208,7 @@ function fetchAuditSteps() {
           alert("Please enter a response before proceeding.");
         }
       });
+      
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
@@ -378,10 +381,6 @@ function fetchFrameworks() {
 // general page script functions
 
 
-// Initialize the page
-document.addEventListener("DOMContentLoaded", () => {
-  fetchAuditSteps();
-  fetchFrameworks();
-  create_user();
-  login_user();
-});
+// Initialize the page don in each html file 
+
+
