@@ -116,6 +116,10 @@ button:hover {
         display: none; /* Hide the button in the PDF */
     }
 
+    a {
+        display: none; /* Hide the links in the PDF */
+    }
+
     #report-container {
         margin: 0;
         padding: 0;
