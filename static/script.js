@@ -5,7 +5,6 @@ console.log("Script is running...");
 //Create User logic
 function create_user() {
   console.log("Setting up form submission...");
-
   const form = document.getElementById("signup-form");
   const businessYes = document.getElementById("businessYes");
   const businessNo = document.getElementById("businessNo");
@@ -41,6 +40,7 @@ function create_user() {
         username: document.getElementById("username").value,
         email: document.getElementById("email").value,
         password: password,
+        password_conf: passwordConf, // <<–– Added field
         familarity_with_audits: document.getElementById("slider").value,
         business_indicator: isBusiness ? 1 : 0, // Store as 1 for Yes, 0 for No
         role: isBusiness ? document.getElementById("role").value || "N/A" : "N/A",
@@ -69,7 +69,7 @@ function create_user() {
     console.error("Signup form not found!");
   }
 }
-// login existing user -- to be made
+// login existing user -- done
 function login_user() {
   console.log("login_user is running...");
   const loginButton = document.getElementById("loginButton");
@@ -126,10 +126,9 @@ function login_user() {
 //AUDIT LOGIC ------------------------------------------------------------------------------
 // Variable to store user repsonses
 let currentStepIndex = 0;
+let selectedSteps = []; 
+let combinedSteps = []; // Will store the combined sequence
 
-let selectedSteps = []; // Array to store the sequence of steps for "Yes" selections
-
-// Fetch and process the information - audit.html page -- Fixed and done with database now
 function fetchAuditSteps() {
   fetch("/get_audit_steps")
     .then(response => {
@@ -140,6 +139,7 @@ function fetchAuditSteps() {
       const steps = data.CybersecurityAudit;
       const stepKeys = Object.keys(steps);
 
+      // Mapping for decision radio buttons:
       const stepMapping = {
         servers: "Step1a",
         applications: "Step1b",
@@ -148,21 +148,25 @@ function fetchAuditSteps() {
         devices: "Step1e",
         networkArchitecture: "Step1f",
       };
-  
+
+      // Function to display a step
       function displayStep(stepKey) {
         const step = steps[stepKey];
         document.getElementById("stepName").textContent = stepKey;
         document.getElementById("instruction").textContent = step.Instruction;
         document.getElementById("explanation").textContent = step.Explanation;
-  
+
+        // Example output:
         const exampleDiv = document.getElementById("example");
         exampleDiv.innerHTML = "<strong>Example:</strong><br>";
         for (const [key, value] of Object.entries(step.Example)) {
           exampleDiv.innerHTML += `${key}: ${value}<br>`;
         }
-  
+
+        // Clear the input field
         document.getElementById("auditInput").value = "";
-  
+
+        // Show radio options only for the decision step (Step1)
         const radioOptions = document.getElementById("radioOptions");
         if (stepKey === "Step1") {
           radioOptions.style.display = "block";
@@ -172,10 +176,12 @@ function fetchAuditSteps() {
           document.getElementById("auditInput").style.display = "block";
         }
       }
-  
-      displayStep(stepKeys[currentStepIndex]);
-  
+
+      // Start by displaying the decision step ("Step1")
+      displayStep("Step1");
+
       document.getElementById("nextButton").addEventListener("click", () => {
+        // If we're at the decision step, gather the radio selections.
         if (currentStepIndex === 0) {
           const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
           selectedSteps = [];
@@ -186,20 +192,26 @@ function fetchAuditSteps() {
               selectedSteps.push(stepMapping[selectedName]);
             }
           });
-  
+
           if (selectedSteps.length > 0) {
+            // Build the remaining steps.
+            // Assume that the decision step ("Step1") and all sub-steps (Step1a...Step1f) are only for routing.
+            const decisionSubSteps = Object.values(stepMapping);
+            const remainingSteps = stepKeys.filter(key => key !== "Step1" && !decisionSubSteps.includes(key));
+            // Combine the selected steps with the remaining steps.
+            combinedSteps = selectedSteps.concat(remainingSteps);
             currentStepIndex = 0;
-            displayStep(selectedSteps[currentStepIndex]);
+            displayStep(combinedSteps[currentStepIndex]);
           } else {
             alert("Please select at least one option with 'Yes' to proceed.");
           }
         } else {
+          // For subsequent steps, save the response and move to the next step.
           const userInput = document.getElementById("auditInput").value.trim();
-                if (userInput) {
-            const stepName = selectedSteps[currentStepIndex];
-          // Use the keys that the backend expects
+          if (userInput) {
+            const stepName = combinedSteps[currentStepIndex];
             const response = { response_step: stepName, response_answer: userInput };
-        
+
             fetch("/save_response", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -213,26 +225,24 @@ function fetchAuditSteps() {
             })
             .then((data) => {
               console.log(data.message);
-              // Move to the next step or finish
               currentStepIndex++;
-              if (currentStepIndex < stepKeys.length) {
-                displayStep(currentStepIndex);
+              if (currentStepIndex < combinedSteps.length) {
+                displayStep(combinedSteps[currentStepIndex]);
               } else {
                 alert("You've completed all the steps! Responses saved.");
                 currentStepIndex = 0;
-                displayStep(currentStepIndex);
+                // Optionally, navigate elsewhere or restart.
               }
             })
             .catch((error) => {
               console.error("Error:", error);
               alert("Failed to save the response. Please try again.");
             });
-        } else {
-          alert("Please enter a response before proceeding.");
+          } else {
+            alert("Please enter a response before proceeding.");
+          }
         }
-      }
       });
-    
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
