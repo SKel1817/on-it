@@ -32,63 +32,103 @@
   </nav>
 </header>
 
-<body class="body">
-  <div class="auditContent">
-    <div class="auditHopper">
-      <image src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" height="100">
-    </div>
-    <div class="auditHopperSpeech">
-      <p>Hello and welcome to your audit, follow the instructions below and insert the proper information!</p>
-    </div>
-    <div class="auditContainer">
-      <!-- take the json file and dynamically have it display information  -->
-      <!-- Step name-->
-      <h2 id="stepName"></h2>
-      <br>
-      <br>
-      <!--Instruction-->
-      <h3 id="instruction"></h3>
-      <br>
-      <br>
-      <!--Explanation-->
-      <p id="explanation"></p>
-      <br>
-      <br>
-      <!--Example-->
-      <p id="example"></p>
-      <br>
-      <br>
-      <input type="text" id="auditInput" placeholder="Enter Information Here">
-      <input type="button" id="nextButton" value="Next Step">
-      <br>
-      <br>
-      <div class="auditHelp">
-        <button onclick="toggleHelp()">Need help? Click here for more information!</button>
-        <div id="helpContent" style="display: none;">
-          <br>
-          <p id="auditHelp">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi in sollicitudin purus. Cras
-            gravida imperdiet ligula, facilisis lacinia erat porta at. Aliquam ac libero nec mauris pellentesque
-            ultricies. Nulla facilisi. Maecenas ultrices urna vel lacinia pellentesque. Cras tempor lacus tortor. Nunc
-            congue pretium risus, at dictum massa vehicula vel. Integer sit amet fringilla est. Integer congue sapien
-            eros, sit amet pulvinar arcu mattis sit amet. Aenean ullamcorper lobortis purus, sed hendrerit nisl
-            vestibulum at. Curabitur sed enim sapien. Suspendisse id imperdiet nisl.</p>
-        </div>
+  <body class="body"> 
+    <div class="auditContent">
+      <div class="auditHopper">
+        <image src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" height="100">
       </div>
-      <script>
-        function toggleHelp() {
-          var helpContent = document.getElementById("helpContent");
-          if (helpContent.style.display === "none") {
-            helpContent.style.display = "block";
-          } else {
-            helpContent.style.display = "none";
+      <div class="auditHopperSpeech">
+        <p>Hello and welcome to your audit, follow the instructions below and insert the proper information!</p>
+      </div>
+      <div class="auditContainer">
+        <!-- take the json file and dynamically have it display information  -->
+        <!-- Step name-->
+        <h2 id="stepName"></h2>
+        <br>
+        <br>
+        <!--Instruction-->
+        <h3 id="instruction"></h3>
+        <br>
+        <br>
+        <!--Explanation-->
+        <p id="explanation"></p>
+        <br>
+        <br>
+        <!--Example-->
+        <p id="example"></p>
+        <br>
+        <br>
+        <div id="radioOptions">
+          <label for="yes_no_radio_server">Do you have servers ?</label>
+          <p>
+          <input type="radio" name="servers" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="servers" value="No">No</input>
+          </p>
+          <br>
+          <label for="yes_no_radio_applications">Do you have applications ?</label>
+          <p>
+          <input type="radio" name="applications" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="applications" value="No">No</input>
+          </p>
+          <br>
+          <label for="yes_no_radio_workstations">Do you have workstations ?</label>
+          <p>
+          <input type="radio" name="workstations" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="workstations" value="No">No</input>
+          </p>
+          <br>
+          <label for="yes_no_radio_cloudServices">Do you have cloud services ?</label>
+          <p>
+          <input type="radio" name="cloudServices" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="cloudServices" value="No">No</input>
+          </p>
+          <br>
+          <label for="yes_no_radio_devices">Do you have devices ?</label>
+          <p>
+          <input type="radio" name="devices" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="devices" value="No">No</input>
+          </p>
+          <br>
+          <label for="yes_no_radio_networkArchitecture">Do you have network architecture ?</label>
+          <p>
+          <input type="radio" name="networkArchitecture" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="networkArchitecture" value="No">No</input>
+          </p>
+        </div>
+        <input type="text" id="auditInput" placeholder="Enter Information Here">
+        <input type="button" id="nextButton" value="Next Step">
+        <br>
+        <br>
+        <div class="auditHelp">
+          <button onclick="toggleHelp()">Need help? Click here for more information!</button>
+          <div id="helpContent" style="display: none;">
+            <br>
+              <p id="auditHelp">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi in sollicitudin purus. Cras gravida imperdiet ligula, facilisis lacinia erat porta at. Aliquam ac libero nec mauris pellentesque ultricies. Nulla facilisi. Maecenas ultrices urna vel lacinia pellentesque. Cras tempor lacus tortor. Nunc congue pretium risus, at dictum massa vehicula vel. Integer sit amet fringilla est. Integer congue sapien eros, sit amet pulvinar arcu mattis sit amet. Aenean ullamcorper lobortis purus, sed hendrerit nisl vestibulum at. Curabitur sed enim sapien. Suspendisse id imperdiet nisl.</p>
+          </div>
+        </div>
+        <script>
+          function toggleHelp() {
+              var helpContent = document.getElementById("helpContent");
+              if (helpContent.style.display === "none") {
+                  helpContent.style.display = "block";
+              } else {
+                  helpContent.style.display = "none";
+              }
           }
-        }
-        document.addEventListener("DOMContentLoaded", () => {
-          fetchAuditSteps();
-       });
-      </script>
+          </script>
+      </div>
     </div>
-  </div>
-</body>
-
+  </body>
 </html>

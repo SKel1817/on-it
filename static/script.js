@@ -127,6 +127,10 @@ function login_user() {
 // Variable to store user repsonses
 let currentStepIndex = 0;
 
+let selectedSteps = []; // Array to store the sequence of steps for "Yes" selections
+
+let selectedSteps = []; // Array to store the sequence of steps for "Yes" selections
+
 // Fetch and process the information - audit.html page -- Fixed and done with database now
 function fetchAuditSteps() {
   fetch("/get_audit_steps")
@@ -138,49 +142,70 @@ function fetchAuditSteps() {
       const steps = data.CybersecurityAudit;
       const stepKeys = Object.keys(steps);
 
-      // Function to display a step
-      function displayStep(stepIndex) {
-        const step = steps[stepKeys[stepIndex]];
-
-        // Update HTML with the step data
-        document.getElementById("stepName").textContent = stepKeys[stepIndex];
+      const stepMapping = {
+        servers: "Step1a",
+        applications: "Step1b",
+        workstations: "Step1c",
+        cloudServices: "Step1d",
+        devices: "Step1e",
+        networkArchitecture: "Step1f",
+      };
+  
+      function displayStep(stepKey) {
+        const step = steps[stepKey];
+        document.getElementById("stepName").textContent = stepKey;
         document.getElementById("instruction").textContent = step.Instruction;
         document.getElementById("explanation").textContent = step.Explanation;
-
-        // Example content formatting
+  
         const exampleDiv = document.getElementById("example");
         exampleDiv.innerHTML = "<strong>Example:</strong><br>";
         for (const [key, value] of Object.entries(step.Example)) {
           exampleDiv.innerHTML += `${key}: ${value}<br>`;
         }
-
-        // Clear the input field
+  
         document.getElementById("auditInput").value = "";
+  
+        const radioOptions = document.getElementById("radioOptions");
+        if (stepKey === "Step1") {
+          radioOptions.style.display = "block";
+          document.getElementById("auditInput").style.display = "none";
+        } else {
+          radioOptions.style.display = "none";
+          document.getElementById("auditInput").style.display = "block";
+        }
       }
-
-      // Initial step display
-      displayStep(currentStepIndex);
-
-      // Handle "Next Step" button click - audit.html page, will need to be replaced with database logic 
+  
+      displayStep(stepKeys[currentStepIndex]);
+  
       document.getElementById("nextButton").addEventListener("click", () => {
-        const userInput = document.getElementById("auditInput").value.trim();
-      
-        if (userInput) {
-          // Save the user response
-          const stepName = stepKeys[currentStepIndex];
+        if (currentStepIndex === 0) {
+          const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
+          selectedSteps = [];
+          selectedRadios.forEach((radio) => {
+            const selectedName = radio.name;
+            const selectedValue = radio.value;
+            if (selectedValue === "Yes" && stepMapping[selectedName]) {
+              selectedSteps.push(stepMapping[selectedName]);
+            }
+          });
+  
+          if (selectedSteps.length > 0) {
+            currentStepIndex = 0;
+            displayStep(selectedSteps[currentStepIndex]);
+          } else {
+            alert("Please select at least one option with 'Yes' to proceed.");
+          }
+        } else {
+          const userInput = document.getElementById("auditInput").value.trim();
+                if (userInput) {
+            const stepName = selectedSteps[currentStepIndex];
           // Use the keys that the backend expects
-          const response = {
-            response_step: stepName,
-            response_answer: userInput
-          };
-      
-          // Send the response to the backend
-          fetch("/save_response", {
+            const response = { response_step: stepName, response_answer: userInput };
+        
+            fetch("/save_response", {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(response)
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(response),
             })
             .then((res) => {
               if (!res.ok) {
