@@ -128,10 +128,8 @@ function login_user() {
 // Global variables for navigation
 // Global variables for navigation
 let currentStepIndex = 0;
-let combinedSteps1 = []; // For decision branch of Step1
-let combinedSteps2 = []; // For decision branch of Step2
-let decision1Complete = false; // Flag for Step1 decision processed
-let decision2Complete = false; // Flag for Step2 decision processed
+let combinedSteps = []; // Will store the full branch: Step1 selections, Step2 equivalents, then remaining steps.
+let decisionComplete = false; // Flag to indicate the decision step has been processed
 
 function fetchAuditSteps() {
   fetch("/get_audit_steps")
@@ -143,7 +141,8 @@ function fetchAuditSteps() {
       const steps = data.CybersecurityAudit;
       const stepKeys = Object.keys(steps);
 
-      // Define mapping for Step1 decision branch (adjust keys as needed)
+      // Mapping for decision radio buttons for Step1.
+      // (These keys come from the radio button names for Step1.)
       const step1Mapping = {
         servers: "Step1a",
         applications: "Step1b",
@@ -153,7 +152,7 @@ function fetchAuditSteps() {
         networkArchitecture: "Step1f",
       };
 
-      // Define mapping for Step2 decision branch (adjust keys as needed)
+      // Also define what keys belong to Step2 decisions so we can filter them later.
       const step2Mapping = {
         servers: "Step2a",
         applications: "Step2b",
@@ -170,7 +169,7 @@ function fetchAuditSteps() {
         document.getElementById("instruction").textContent = step.Instruction;
         document.getElementById("explanation").textContent = step.Explanation;
 
-        // Display the example details
+        // Display example output
         const exampleDiv = document.getElementById("example");
         exampleDiv.innerHTML = "<strong>Example:</strong><br>";
         for (const [key, value] of Object.entries(step.Example)) {
@@ -180,7 +179,8 @@ function fetchAuditSteps() {
         // Clear the input field
         document.getElementById("auditInput").value = "";
 
-        // Show radio options if this is a decision step (Step1 or Step2)
+        // For decision steps (Step1 or Step2) show radio options.
+        // Since we are only using a decision for Step1, we show them only when the current step is Step1.
         const radioOptions = document.getElementById("radioOptions");
         if (stepKey === "Step1" || stepKey === "Step2") {
           radioOptions.style.display = "block";
@@ -191,15 +191,15 @@ function fetchAuditSteps() {
         }
       }
 
-      // Start by displaying the first decision step ("Step1")
+      // Start by displaying the decision step "Step1"
       displayStep("Step1");
 
       document.getElementById("nextButton").addEventListener("click", () => {
-        // Get the current step name from the UI
+        // Get current step from the UI.
         const currentStep = document.getElementById("stepName").textContent;
 
-        // Process decision branch for Step1
-        if (currentStep === "Step1" && !decision1Complete) {
+        // If we're at the decision step ("Step1") and haven't processed it yet:
+        if (currentStep === "Step1" && !decisionComplete) {
           const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
           let selectedSteps1 = [];
           selectedRadios.forEach((radio) => {
@@ -211,66 +211,29 @@ function fetchAuditSteps() {
           });
 
           if (selectedSteps1.length > 0) {
-            // Build remaining steps: assume the decision step and its substeps are only for routing.
-            const decisionSubSteps1 = Object.values(step1Mapping);
-            const remainingSteps = stepKeys.filter(key => key !== "Step1" && !decisionSubSteps1.includes(key));
-            combinedSteps1 = selectedSteps1.concat(remainingSteps);
-            decision1Complete = true;
+            // Automatically compute corresponding Step2 substeps by replacing "Step1" with "Step2"
+            const selectedSteps2 = selectedSteps1.map(step => step.replace("Step1", "Step2"));
+            // Build remaining steps:
+            // Filter out decision steps and their substeps (both for Step1 and Step2)
+            const decisionSubSteps = Object.values(step1Mapping).concat(Object.values(step2Mapping));
+            const remainingSteps = stepKeys.filter(key => key !== "Step1" && key !== "Step2" && !decisionSubSteps.includes(key));
+            // Combined branch: first process the selected Step1 substeps, then the corresponding Step2 substeps, then any remaining steps.
+            combinedSteps = selectedSteps1.concat(selectedSteps2).concat(remainingSteps);
+            decisionComplete = true;
             currentStepIndex = 0;
-            displayStep(combinedSteps1[currentStepIndex]);
-            return; // Exit event handler here.
+            displayStep(combinedSteps[currentStepIndex]);
           } else {
             alert("Please select at least one option with 'Yes' for Step1 to proceed.");
-            return;
           }
-        }
-        // Process decision branch for Step2
-        else if (currentStep === "Step2" && !decision2Complete) {
-          const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
-          let selectedSteps2 = [];
-          selectedRadios.forEach((radio) => {
-            const selectedName = radio.name;
-            const selectedValue = radio.value;
-            if (selectedValue === "Yes" && step2Mapping[selectedName]) {
-              selectedSteps2.push(step2Mapping[selectedName]);
-            }
-          });
-
-          if (selectedSteps2.length > 0) {
-            const decisionSubSteps2 = Object.values(step2Mapping);
-            const remainingSteps = stepKeys.filter(key => key !== "Step2" && !decisionSubSteps2.includes(key));
-            combinedSteps2 = selectedSteps2.concat(remainingSteps);
-            decision2Complete = true;
-            currentStepIndex = 0;
-            displayStep(combinedSteps2[currentStepIndex]);
-            return;
-          } else {
-            alert("Please select at least one option with 'Yes' for Step2 to proceed.");
-            return;
-          }
-        }
-        // For all non-decision steps (or when a decision branch is active), save response and move on.
-        else {
+        } else {
+          // For non-decision steps (or after processing the decision), save the response and move to the next step.
           const userInput = document.getElementById("auditInput").value.trim();
           if (!userInput) {
             alert("Please enter a response before proceeding.");
             return;
           }
-          // Determine which branch we are in:
-          let currentBranch;
-          // If Step1 decision branch is complete and we're not at Step2 decision yet:
-          if (decision1Complete && !decision2Complete) {
-            currentBranch = combinedSteps1;
-          }
-          // If Step2 decision branch is complete, use that branch.
-          else if (decision2Complete) {
-            currentBranch = combinedSteps2;
-          }
-          // Fallback to using the original flow.
-          else {
-            currentBranch = stepKeys;
-          }
-          const stepName = currentBranch[currentStepIndex];
+          // Determine the current branch (we are using combinedSteps here)
+          const stepName = combinedSteps[currentStepIndex];
           const response = { response_step: stepName, response_answer: userInput };
 
           fetch("/save_response", {
@@ -287,11 +250,11 @@ function fetchAuditSteps() {
             .then((data) => {
               console.log(data.message);
               currentStepIndex++;
-              if (currentStepIndex < currentBranch.length) {
-                displayStep(currentBranch[currentStepIndex]);
+              if (currentStepIndex < combinedSteps.length) {
+                displayStep(combinedSteps[currentStepIndex]);
               } else {
                 alert("You've completed all the steps! Responses saved.");
-                // Optionally, reset flags and indexes if you want to restart the flow.
+                // Optionally reset flags/indexes if you want to restart the flow.
               }
             })
             .catch((error) => {
