@@ -125,9 +125,11 @@ function login_user() {
 
 //AUDIT LOGIC ------------------------------------------------------------------------------
 // Variable to store user repsonses
+// Global variables for navigation
 let currentStepIndex = 0;
 let selectedSteps = []; 
 let combinedSteps = []; // Will store the combined sequence
+let decisionComplete = false; // Flag to indicate decision step has been processed
 
 function fetchAuditSteps() {
   fetch("/get_audit_steps")
@@ -166,7 +168,7 @@ function fetchAuditSteps() {
         // Clear the input field
         document.getElementById("auditInput").value = "";
 
-        // Show radio options only for the decision step (Step1)
+        // Show radio options only for the decision step ("Step1")
         const radioOptions = document.getElementById("radioOptions");
         if (stepKey === "Step1") {
           radioOptions.style.display = "block";
@@ -181,8 +183,8 @@ function fetchAuditSteps() {
       displayStep("Step1");
 
       document.getElementById("nextButton").addEventListener("click", () => {
-        // If we're at the decision step, gather the radio selections.
-        if (currentStepIndex === 0) {
+        if (!decisionComplete) {
+          // Decision branch: gather the radio selections.
           const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
           selectedSteps = [];
           selectedRadios.forEach((radio) => {
@@ -201,12 +203,13 @@ function fetchAuditSteps() {
             // Combine the selected steps with the remaining steps.
             combinedSteps = selectedSteps.concat(remainingSteps);
             currentStepIndex = 0;
+            decisionComplete = true; // Mark that decision has been processed
             displayStep(combinedSteps[currentStepIndex]);
           } else {
             alert("Please select at least one option with 'Yes' to proceed.");
           }
         } else {
-          // For subsequent steps, save the response and move to the next step.
+          // Subsequent steps branch: save the user's response and move on.
           const userInput = document.getElementById("auditInput").value.trim();
           if (userInput) {
             const stepName = combinedSteps[currentStepIndex];
@@ -217,27 +220,28 @@ function fetchAuditSteps() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(response),
             })
-            .then((res) => {
-              if (!res.ok) {
-                throw new Error("Failed to save response.");
-              }
-              return res.json();
-            })
-            .then((data) => {
-              console.log(data.message);
-              currentStepIndex++;
-              if (currentStepIndex < combinedSteps.length) {
-                displayStep(combinedSteps[currentStepIndex]);
-              } else {
-                alert("You've completed all the steps! Responses saved.");
-                currentStepIndex = 0;
-                // Optionally, navigate elsewhere or restart.
-              }
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-              alert("Failed to save the response. Please try again.");
-            });
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Failed to save response.");
+                }
+                return res.json();
+              })
+              .then((data) => {
+                console.log(data.message);
+                currentStepIndex++;
+                if (currentStepIndex < combinedSteps.length) {
+                  displayStep(combinedSteps[currentStepIndex]);
+                } else {
+                  alert("You've completed all the steps! Responses saved.");
+                  // Optionally, reset the process or navigate elsewhere.
+                  currentStepIndex = 0;
+                  decisionComplete = false; // Reset the flag if restarting is desired.
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                alert("Failed to save the response. Please try again.");
+              });
           } else {
             alert("Please enter a response before proceeding.");
           }
@@ -248,6 +252,7 @@ function fetchAuditSteps() {
       console.error("There was a problem with the fetch operation:", error);
     });
 }
+
 // END OF AUDIT LOGIC -------------------------------------------------------------------------------------
 
 // BEGIN OF REPORT LOGIC -------------------------------------------------------------------------------------
