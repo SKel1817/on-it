@@ -129,8 +129,6 @@ let currentStepIndex = 0;
 
 let selectedSteps = []; // Array to store the sequence of steps for "Yes" selections
 
-let selectedSteps = []; // Array to store the sequence of steps for "Yes" selections
-
 // Fetch and process the information - audit.html page -- Fixed and done with database now
 function fetchAuditSteps() {
   fetch("/get_audit_steps")
@@ -232,8 +230,9 @@ function fetchAuditSteps() {
         } else {
           alert("Please enter a response before proceeding.");
         }
+      }
       });
-      
+    
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
