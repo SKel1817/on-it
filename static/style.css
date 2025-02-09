@@ -539,10 +539,10 @@ datalist {
         transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
-    .indexContainer input[type="Submit"]:hover {
-            background-color: #376F26;
-            transform: scale(1.03);
-    }
+.indexContainer input[type="Submit"]:hover {
+    background-color: #376F26;
+    transform: scale(1.03);
+}
 
     /* audit page styling */
 
@@ -576,22 +576,21 @@ datalist {
         line-height: 150%;
     }
 
-    .auditContainer {
-        width: 100%;
-        max-width: 90vw;
-        margin: auto;
-        padding: 5%;
-        background-color:white;
-        border: 0.1rem solid #A5D6A7;
-        border-radius: 5%;
-        box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
-        color: #1B5E20;
-        ;
-        text-align: center;
+.auditContainer {
+    width: 100%;
+    max-width: 90vw;
+    margin: auto;
+    padding: 5%;
+    background-color: white;
+    border: 0.1rem solid  #A5D6A7;
+    border-radius: 5%;
+    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
+    color: #1B5E20;;
+    text-align: center;
 
     display: flex;
-    flex-direction: column;
-    align-items: center;
+        flex-direction: column;
+        align-items: center;
 
     }
 
@@ -676,18 +675,6 @@ datalist {
     }
 
 
-
-    /* smaller mobile devices */
-    @media (max-width:480px) {
-        .Hopper {
-            width: 90%;
-        }
-
-        .indexContainer input[type="submit"] {
-            font-size: 1.2em;
-        }
-    }
-
     /* accCreate.html */
     .accountContainer {
         width: 90%;
@@ -759,15 +746,10 @@ datalist {
 
     /* setting.html page */
 
-    .settingsContainer {
-        width: 90%;
-        max-width: 30rem;
-        padding: 5%;
-        border-radius: 1rem;
-        background-color: #ffffff;
-        box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.2);
-        text-align: center;
-        margin: 15% auto;
+    .accountContainer input[type="range"] {
+        width: 100%;
+        margin: 1.5rem 0;
+        accent-color: #4F5D2F;
     }
 
     .settingsContainer label {
@@ -779,19 +761,7 @@ datalist {
         font-size: 1rem;
     }
 
-    .settingsContainer input[type="submit"] {
-        width: 100%;
-        padding: 1rem;
-        font-size: 1.2rem;
-        font-weight: bold;
-       background: linear-gradient(to right, #4F5D2F, #376F26);
-       color: white;
-       border: none;
-       border-radius: 0.5rem;
-       margin-top: 2rem;
-       cursor: pointer;
-       transition: background 0.3s ease-in-out, transform 0.2s ease;
-    }
+    /* setting.html page */
 
     .settingsContainer input[type="submit"]:hover {
         background: linear-gradient(to right, #376F26, #143F6E);

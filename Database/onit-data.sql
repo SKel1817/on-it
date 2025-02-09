@@ -180,7 +180,7 @@ VALUES
 
 
 -- Inserting data into the audit_response_table
-INSERT INTO `onit`.`audit_response_table` (`date`, `response_step`, `response_answer`, `user_table_iduser_table`)
+INSERT INTO `onit`.`audit_response_table` (`date`,`response_step`, `response_answer`, `user_table_iduser_table`)
 VALUES
 (NOW(), 'Step1', 
 '{"AssetID": "ASID12345", "AccessLevel": "Admin-Only", "Owner": "John Doe (IT Manager)"}', 1),

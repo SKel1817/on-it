@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, jsonify, send_file, session, url_for
+from flask import Flask, flash, redirect, render_template, request, jsonify, send_file, session, url_for
 import os
 import json
 from datetime import datetime
@@ -6,8 +6,8 @@ import subprocess
 from dotenv import load_dotenv
 import mariadb
 from mariadb import Error
-import sys
 import bcrypt
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 # Ideal workflow w/ current JSON logic no database:
 # - Javascript requests flask API
@@ -24,6 +24,11 @@ load_dotenv()
 
 # secert key for session variables
 app.secret_key = 'your_unique_and_secret_key'
+
+#set up Flask Login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"  # Redirect to login page if unauthorized
 
 # Set IP address
 IP_ADDR = os.getenv("IP_ADDR") if os.getenv("IP_ADDR") else "localhost"
@@ -44,6 +49,49 @@ def get_db_connection():
         print(f"Database connection error: {e}")
         return None
 
+# User model for Flask-Login
+class User(UserMixin):
+    def __init__(self, user_id, username, password, email, first_name, last_name, role, familarity_with_audits):
+        self.id = user_id
+        self.username = username
+        self.password = password
+        self.email = email
+        self.first_name = first_name
+        self.last_name = last_name
+        self.role = role
+        self.familarity_with_audits = familarity_with_audits
+
+
+# User loader for Flask-Login
+@login_manager.user_loader
+def load_user(user_id):
+    conn = get_db_connection()
+    if conn is None:
+        return None
+
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT iduser_table, username, password, email, first_name, last_name, role, familarity_with_audits
+        FROM user_table
+        WHERE iduser_table = ?
+    """, (user_id,))
+    user_data = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    if user_data:
+        return User(
+            user_id=user_data[0],
+            username=user_data[1],
+            password=user_data[2],
+            email=user_data[3],
+            first_name=user_data[4],
+            last_name=user_data[5],
+            role=user_data[6],
+            familarity_with_audits=user_data[7]
+        )
+    return None
 
 # Path to the JSON file -- remove when database is connected
 RESPONSES_FILE = os.path.join("static", "audit_responses.json")
@@ -59,9 +107,105 @@ def ensure_file_exists():
 # API Database queries -------------------------------------------------------------
 # User Logic Start ------------------
 # user login -- To be done
+@app.route("/login-user", methods=["POST"])
+def user_login():
+    # Ensure Content-Type is application/json
+    if request.content_type != "application/json":
+        return jsonify({"error": "HAHA we are in app.py Unsupported Media Type. Please set Content-Type to application/json."}), 415
 
-# Update current User details -- To be done
+    try:
+        # Parse JSON data
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({"error": "Invalid JSON data"}), 400
 
+        username = data.get("username")
+        password = data.get("password")
+
+        if not username or not password:
+            return jsonify({"error": "Missing username or password"}), 400
+
+        # Database connection and query logic
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT iduser_table, username, password, email, first_name, last_name, role, familarity_with_audits
+            FROM user_table
+            WHERE username=?
+        """, (username,))
+        user_data = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        if not user_data or not bcrypt.checkpw(password.encode("utf-8"), user_data[2].encode("utf-8")):
+            return jsonify({"error": "Invalid username or password"}), 401
+
+        # Create user object and log in
+        user = User(
+            user_id=user_data[0],
+            username=user_data[1],
+            password=user_data[2],
+            email=user_data[3],
+            first_name=user_data[4],
+            last_name=user_data[5],
+            role=user_data[6],
+            familarity_with_audits=user_data[7]
+        )
+        login_user(user)
+        return jsonify({"message": "Login successful!"}), 200
+
+    except Exception as e:
+        print(f"Error during login: {e}")
+        return jsonify({"error": "An error occurred during login."}), 500
+# Update current User details -- to be done
+@app.route("/update_user", methods=["POST"])
+@login_required
+def update_user():
+    try:
+        data = request.json
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        cur = conn.cursor()
+
+        # Validate if the fields exist in the payload
+        fields_to_update = {}
+        if "email" in data:
+            fields_to_update["email"] = data["email"]
+        if "password" in data:
+            # Hash the new password
+            fields_to_update["password"] = bcrypt.hashpw(data["password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        if "first_name" in data:
+            fields_to_update["first_name"] = data["first_name"]
+        if "last_name" in data:
+            fields_to_update["last_name"] = data["last_name"]
+        if "role" in data:
+            fields_to_update["role"] = data["role"]
+        if "familarity_with_audits" in data:
+            fields_to_update["familarity_with_audits"] = data["familarity_with_audits"]
+
+        if not fields_to_update:
+            return jsonify({"error": "No valid fields to update."}), 400
+
+        # Dynamically construct the update query
+        update_query = "UPDATE user_table SET " + ", ".join(
+            f"{field} = ?" for field in fields_to_update.keys()
+        ) + " WHERE iduser_table = ?"
+        cur.execute(update_query, list(fields_to_update.values()) + [current_user.id])
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({"message": "User account updated successfully."}), 200
+    except Exception as e:
+        print(f"Error updating user: {e}")
+        return jsonify({"error": "Failed to update user account."}), 500
 # create user -- done
 @app.route("/create_user", methods=["POST"])
 def create_user():
@@ -69,11 +213,15 @@ def create_user():
         data = request.json
 
         # Required fields for all users
-        required_fields = ["first_name", "last_name", "username", "email", "password", "familarity_with_audits", "business_indicator"]
+        required_fields = ["first_name", "last_name", "username", "email", "password", "password_conf", "familarity_with_audits", "business_indicator"]
 
         # Validate the presence of required fields
         if not all(field in data for field in required_fields):
             return jsonify({"error": "Missing required fields"}), 400
+
+        # Confirm passwords match
+        if data["password"] != data["password_conf"]:
+            return jsonify({"error": "Passwords do not match"}), 400
 
         # Validate and process `business_indicator`
         business_indicator = int(data.get("business_indicator", 0))  # Default to 0 (No)
@@ -82,7 +230,6 @@ def create_user():
 
         # Set `role` and `company` to "N/A" if not a business
         role = data.get("role", "N/A") if business_indicator == 1 else "N/A"
-        company = data.get("company", "N/A") if business_indicator == 1 else "N/A"
 
         conn = get_db_connection()
         if conn is None:
@@ -104,10 +251,10 @@ def create_user():
 
         # Insert user into the database
         cur.execute("""
-            INSERT INTO user_table (first_name, last_name, username, email, password, familarity_with_audits, role, company, business_indicator)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            INSERT INTO user_table (first_name, last_name, username, email, password, familarity_with_audits, role, business_indicator)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
             (data["first_name"], data["last_name"], data["username"], data["email"], hashed_password,
-             data["familarity_with_audits"], role, company, business_indicator))
+                data["familarity_with_audits"], role, business_indicator))
 
         conn.commit()
         cur.close()
@@ -119,6 +266,12 @@ def create_user():
         return jsonify({"error": "Failed to add user."}), 500
 # User Logic End ------------------
 
+#logout logic - Done
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 # Audit Logic Start ------------------
 # API for fetching audit steps from DB -- DONE
 @app.route("/get_audit_steps", methods=["GET"])
@@ -144,32 +297,19 @@ def get_audit_steps():
 # API for fetching audit dates -- modify once database is set up (will be API for report dates) -- TO DO
 @app.route("/get_audit_dates", methods=["GET"])
 def get_audit_dates():
-    # I think this might be the code for the audit dates:
-    # def get_audit_dates():
-    # try:
-    #     conn = get_db_connection()
-    #     if conn is None:
-    #         return jsonify({"error": "Database connection failed"}), 500
-        
-    #     cur = conn.cursor()
-    #     cur.execute("SELECT DISTINCT DATE(date) FROM audit_responses")
-    #     rows = cur.fetchall()
-        
-    #     dates = [row[0].strftime("%Y-%m-%d") for row in rows]
-        
-    #     cur.close()
-    #     conn.close()
-    #     return jsonify({"dates": dates})
-    # except Exception as e:
-    #     print(f"Error loading audit dates: {e}")
-    #     return jsonify({"error": "Failed to load audit dates."}), 500
     try:
-        responses_file = os.path.join("static", "audit_responses.json")
-        with open(responses_file, "r") as f:
-            responses = json.load(f)
-        # Extract unique dates
-        unique_dates = sorted({item["date"].split("T")[0] for item in responses})
-        return jsonify({"dates": unique_dates})
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT DATE(date) FROM audit_response_table")
+        rows = cur.fetchall()
+        dates = [row[0].strftime("%Y-%m-%d") for row in rows]
+
+        cur.close()
+        conn.close()
+        return jsonify({"dates": dates})
     except Exception as e:
         print(f"Error fetching audit dates: {e}")
         return jsonify({"error": "Failed to load audit dates."}), 500
@@ -182,68 +322,60 @@ def get_report_data():
         if not date:
             return jsonify({"error": "Date is required"}), 400
 
-        responses_file = os.path.join("static", "audit_responses.json")
-        steps_file = os.path.join("static", "auditsteps.json")
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
 
-        with open(responses_file, "r") as f:
-            responses = json.load(f)
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT response_step, response_answer
+            FROM audit_response_table
+            WHERE DATE(date) = ?
+        """, (date,))
+        responses = [{"step": row[0], "answer": row[1]} for row in cur.fetchall()]
 
-        with open(steps_file, "r") as f:
-            steps = json.load(f).get("CybersecurityAudit", {})
+        cur.execute("""
+            SELECT Step, instruction
+            FROM audit_steps_table
+        """)
+        steps = {row[0]: {"Instruction": row[1]} for row in cur.fetchall()}
 
-        filtered_responses = [
-            {"step": item["responses"]["step"], "answer": item["responses"]["answer"]}
-            for item in responses if item["date"].startswith(date)
-        ]
+        cur.close()
+        conn.close()
 
-        return jsonify({"responses": filtered_responses, "steps": steps})
+        return jsonify({"responses": responses, "steps": steps}), 200
     except Exception as e:
         print(f"Error fetching report data: {e}")
         return jsonify({"error": "Failed to load report data."}), 500
 
 # modify once database set up, temp JOSN saving method (Will be API for Save responses) -- TO DO
 @app.route("/save_response", methods=["POST"])
+@login_required
 def save_response():
     try:
-        # Ensure the file exists and is initialized
-        ensure_file_exists()
-
-        # Read the existing responses -- can remove after database is set up
-        with open(RESPONSES_FILE, "r") as f:
-            try:
-                responses = json.load(f)
-            except json.JSONDecodeError:
-                # If the file is corrupted or empty, reinitialize it
-                responses = []
-
-        # Get the incoming data from the POST request
         data = request.json
-        if not data or "step" not in data or "answer" not in data:
+        if not data or "response_step" not in data or "response_answer" not in data:
             return jsonify({"error": "Invalid data"}), 400
 
-        # Add the new response -- remove / modify after this point
-        new_entry = {
-            "date": datetime.utcnow().isoformat(),
-            "responses": {
-                "step": data["step"],
-                "answer": data["answer"]
-            }
-        }
-        responses.append(new_entry)
-        # example database logic
-        # INSERT INTO bruh (date, step, answer) VALUES (now(), new_entry["responses"]["step"], new_entry["responses"]["answer"])
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
 
-        # Save the updated responses back to the file -- remove
-        with open(RESPONSES_FILE, "w") as f:
-            json.dump(responses, f, indent=2)
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO audit_response_table (date, response_step, response_answer, user_table_iduser_table)
+            VALUES (NOW(), ?, ?, ?)
+        """, (data["response_step"], data["response_answer"], current_user.id))
+
+        conn.commit()
+        cur.close()
+        conn.close()
 
         return jsonify({"message": "Response saved successfully!"}), 200
-
     except Exception as e:
-        print("Error:", e)
+        print("Error saving response:", e)
         return jsonify({"error": "Internal server error"}), 500
-# Audit Logic End ------------------
-
+    
 # API for fetching audit frameworks from DB  -- DONE
 @app.route("/get_frameworks", methods=["GET"])
 def get_frameworks():
@@ -287,17 +419,34 @@ def get_frameworks():
 @app.route("/generate_pdf", methods=["GET"])
 def generate_pdf():
     try:
-        # Get the requested date from the query parameters
         date = request.args.get("date")
         if not date:
             return jsonify({"error": "Date parameter is missing"}), 400
 
-        # Call the Puppeteer script with the date as an argument
-        subprocess.run(["node", PUPPETEER_SCRIPT, date], check=True)
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
 
-        # Send the generated PDF file
+        cur = conn.cursor()
+        # Fetch responses for the given date
+        cur.execute("""
+            SELECT step, answer
+            FROM audit_responses
+            WHERE DATE(date) = ?
+        """, (date,))
+        responses = [{"step": row[0], "answer": row[1]} for row in cur.fetchall()]
+        cur.close()
+        conn.close()
+
+        # Save responses to a temporary file or pass them to Puppeteer
+        temp_file = os.path.join("static", "temp_data.json")
+        with open(temp_file, "w") as f:
+            json.dump(responses, f)
+
+        # Call Puppeteer to generate the PDF
+        subprocess.run(["node", PUPPETEER_SCRIPT, temp_file, date], check=True)
+
         return send_file(OUTPUT_PDF, as_attachment=True)
-
     except subprocess.CalledProcessError as e:
         print("Error generating PDF with Puppeteer:", e)
         return jsonify({"error": "Failed to generate PDF"}), 500
@@ -333,11 +482,30 @@ def search_page():
 def index():
     return render_template("index.html")
 
+def check_user_login():
+    if current_user.is_authenticated:
+        print(f"Logged in as: {current_user.username}")
+
 @app.route("/login")
 def login():
     return render_template("login.html")
 
+# login page is in the API's for ease of use
+@app.route("/profile")
+@login_required
+def profile():
+    return jsonify({
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "role": current_user.role,
+        "familarity_with_audits": current_user.familarity_with_audits
+    })
+
 @app.route("/audit")
+@login_required
 def audit():
     return render_template("audit.html")
 

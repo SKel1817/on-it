@@ -5,7 +5,6 @@ console.log("Script is running...");
 //Create User logic
 function create_user() {
   console.log("Setting up form submission...");
-
   const form = document.getElementById("signup-form");
   const businessYes = document.getElementById("businessYes");
   const businessNo = document.getElementById("businessNo");
@@ -27,8 +26,9 @@ function create_user() {
       const password = document.getElementById("password").value;
       const passwordConf = document.getElementById("passwordConf").value;
 
-      if (password !== passwordConf) {
-        alert("Passwords do not match.");
+      // Validate password confirmation
+      if (!password || password !== passwordConf) {
+        alert("Passwords do not match. Please try again.");
         return;
       }
 
@@ -40,6 +40,7 @@ function create_user() {
         username: document.getElementById("username").value,
         email: document.getElementById("email").value,
         password: password,
+        password_conf: passwordConf, // <<–– Added field
         familarity_with_audits: document.getElementById("slider").value,
         business_indicator: isBusiness ? 1 : 0, // Store as 1 for Yes, 0 for No
         role: isBusiness ? document.getElementById("role").value || "N/A" : "N/A",
@@ -68,7 +69,53 @@ function create_user() {
     console.error("Signup form not found!");
   }
 }
-// login existing user -- to be made
+// login existing user -- done
+function login_user() {
+  console.log("login_user is running...");
+  const loginButton = document.getElementById("loginButton");
+  if (!loginButton) {
+    console.error("Login button not found!");
+    return;
+  }
+
+  loginButton.addEventListener("click", function (e) {
+    // No need for e.preventDefault() here since we're not in a submit event.
+    console.log("Login button clicked!");
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (!username || !password) {
+      console.error("Username or password is missing");
+      alert("Please fill in both username and password.");
+      return;
+    }
+
+    console.log("Sending login request to API...");
+    fetch("/login-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Login failed");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        alert(data.message);
+        window.location.href = "/"; // Redirect after successful login
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Login failed: " + error.message);
+      });
+  });
+}
+
 
 // update existing user account -- to be made
 
@@ -78,9 +125,12 @@ function create_user() {
 
 //AUDIT LOGIC ------------------------------------------------------------------------------
 // Variable to store user repsonses
+// Global variables for navigation
+// Global variables for navigation
 let currentStepIndex = 0;
+let combinedSteps = []; // Will store the full branch: Step1 selections, Step2 equivalents, then remaining steps.
+let decisionComplete = false; // Flag to indicate the decision step has been processed
 
-// Fetch and process the information - audit.html page -- Fixed and done with database now
 function fetchAuditSteps() {
   fetch("/get_audit_steps")
     .then(response => {
@@ -91,16 +141,35 @@ function fetchAuditSteps() {
       const steps = data.CybersecurityAudit;
       const stepKeys = Object.keys(steps);
 
-      // Function to display a step
-      function displayStep(stepIndex) {
-        const step = steps[stepKeys[stepIndex]];
+      // Mapping for decision radio buttons for Step1.
+      // (These keys come from the radio button names for Step1.)
+      const step1Mapping = {
+        servers: "Step1a",
+        applications: "Step1b",
+        workstations: "Step1c",
+        cloudServices: "Step1d",
+        devices: "Step1e",
+        networkArchitecture: "Step1f",
+      };
 
-        // Update HTML with the step data
-        document.getElementById("stepName").textContent = stepKeys[stepIndex];
+      // Also define what keys belong to Step2 decisions so we can filter them later.
+      const step2Mapping = {
+        servers: "Step2a",
+        applications: "Step2b",
+        workstations: "Step2c",
+        cloudServices: "Step2d",
+        devices: "Step2e",
+        networkArchitecture: "Step2f",
+      };
+
+      // Function to display a step
+      function displayStep(stepKey) {
+        const step = steps[stepKey];
+        document.getElementById("stepName").textContent = stepKey;
         document.getElementById("instruction").textContent = step.Instruction;
         document.getElementById("explanation").textContent = step.Explanation;
 
-        // Example content formatting
+        // Display example output
         const exampleDiv = document.getElementById("example");
         exampleDiv.innerHTML = "<strong>Example:</strong><br>";
         for (const [key, value] of Object.entries(step.Example)) {
@@ -109,31 +178,69 @@ function fetchAuditSteps() {
 
         // Clear the input field
         document.getElementById("auditInput").value = "";
+
+        // For decision steps (Step1 or Step2) show radio options.
+        // Since we are only using a decision for Step1, we show them only when the current step is Step1.
+        const radioOptions = document.getElementById("radioOptions");
+        if (stepKey === "Step1" || stepKey === "Step2") {
+          radioOptions.style.display = "block";
+          document.getElementById("auditInput").style.display = "none";
+        } else {
+          radioOptions.style.display = "none";
+          document.getElementById("auditInput").style.display = "block";
+        }
       }
 
-      // Initial step display
-      displayStep(currentStepIndex);
+      // Start by displaying the decision step "Step1"
+      displayStep("Step1");
 
-      // Handle "Next Step" button click - audit.html page, will need to be replaced with database logic 
       document.getElementById("nextButton").addEventListener("click", () => {
-        const userInput = document.getElementById("auditInput").value.trim();
+        // Get current step from the UI.
+        const currentStep = document.getElementById("stepName").textContent;
 
-        if (userInput) {
-          // Save the user response
-          const stepName = stepKeys[currentStepIndex];
-          const response = {
-            step: stepName,
-            answer: userInput
-          };
+        // If we're at the decision step ("Step1") and haven't processed it yet:
+        if (currentStep === "Step1" && !decisionComplete) {
+          const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
+          let selectedSteps1 = [];
+          selectedRadios.forEach((radio) => {
+            const selectedName = radio.name;
+            const selectedValue = radio.value;
+            if (selectedValue === "Yes" && step1Mapping[selectedName]) {
+              selectedSteps1.push(step1Mapping[selectedName]);
+            }
+          });
 
-          // Send the response to the backend
+          if (selectedSteps1.length > 0) {
+            // Automatically compute corresponding Step2 substeps by replacing "Step1" with "Step2"
+            const selectedSteps2 = selectedSteps1.map(step => step.replace("Step1", "Step2"));
+            // Build remaining steps:
+            // Filter out decision steps and their substeps (both for Step1 and Step2)
+            const decisionSubSteps = Object.values(step1Mapping).concat(Object.values(step2Mapping));
+            const remainingSteps = stepKeys.filter(key => key !== "Step1" && key !== "Step2" && !decisionSubSteps.includes(key));
+            // Combined branch: first process the selected Step1 substeps, then the corresponding Step2 substeps, then any remaining steps.
+            combinedSteps = selectedSteps1.concat(selectedSteps2).concat(remainingSteps);
+            decisionComplete = true;
+            currentStepIndex = 0;
+            displayStep(combinedSteps[currentStepIndex]);
+          } else {
+            alert("Please select at least one option with 'Yes' for Step1 to proceed.");
+          }
+        } else {
+          // For non-decision steps (or after processing the decision), save the response and move to the next step.
+          const userInput = document.getElementById("auditInput").value.trim();
+          if (!userInput) {
+            alert("Please enter a response before proceeding.");
+            return;
+          }
+          // Determine the current branch (we are using combinedSteps here)
+          const stepName = combinedSteps[currentStepIndex];
+          const response = { response_step: stepName, response_answer: userInput };
+
           fetch("/save_response", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(response)
-            })
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          })
             .then((res) => {
               if (!res.ok) {
                 throw new Error("Failed to save response.");
@@ -142,22 +249,18 @@ function fetchAuditSteps() {
             })
             .then((data) => {
               console.log(data.message);
-              // Move to the next step or finish
               currentStepIndex++;
-              if (currentStepIndex < stepKeys.length) {
-                displayStep(currentStepIndex);
+              if (currentStepIndex < combinedSteps.length) {
+                displayStep(combinedSteps[currentStepIndex]);
               } else {
                 alert("You've completed all the steps! Responses saved.");
-                currentStepIndex = 0;
-                displayStep(currentStepIndex);
+                // Optionally reset flags/indexes if you want to restart the flow.
               }
             })
             .catch((error) => {
               console.error("Error:", error);
               alert("Failed to save the response. Please try again.");
             });
-        } else {
-          alert("Please enter a response before proceeding.");
         }
       });
     })
@@ -165,6 +268,8 @@ function fetchAuditSteps() {
       console.error("There was a problem with the fetch operation:", error);
     });
 }
+
+
 // END OF AUDIT LOGIC -------------------------------------------------------------------------------------
 
 // BEGIN OF REPORT LOGIC -------------------------------------------------------------------------------------
@@ -332,9 +437,6 @@ function fetchFrameworks() {
 // general page script functions
 
 
-// Initialize the page
-document.addEventListener("DOMContentLoaded", () => {
-  fetchAuditSteps();
-  fetchFrameworks();
-  create_user();
-});
+// Initialize the page don in each html file 
+
+
