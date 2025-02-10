@@ -143,6 +143,10 @@ body {
     max-height: fit-content;
     padding: 1%;
     text-align: center;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    resize: none;
 }
 
 /* login.html Web Styling */
@@ -1059,4 +1063,3 @@ troubleshootingHopperSpeech p {
     }
 
 
-}

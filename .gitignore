@@ -12,3 +12,4 @@ node_modules/
 /Database/.env
 /Database/temp.py
 .env
+/static/temp_data.json
