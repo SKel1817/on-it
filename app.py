@@ -264,6 +264,7 @@ def create_user():
     except Exception as e:
         print(f"Error adding user: {e}")
         return jsonify({"error": "Failed to add user."}), 500
+
 # User Logic End ------------------
 
 #logout logic - Done
@@ -286,7 +287,7 @@ def get_audit_steps():
         rows = cur.fetchall()
         
         audit_steps = {row[0]: {"Instruction": row[1], "Explanation": row[2], "Example": json.loads(row[3])} for row in rows}
-        
+        # pass along the user's familariity with audits
         cur.close()
         conn.close()
         return jsonify({"CybersecurityAudit": audit_steps})
