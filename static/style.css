@@ -143,11 +143,23 @@ body {
     max-height: fit-content;
     padding: 1%;
     text-align: center;
+}
+
+.auditInput  {
+    max-width: fit-content;
+    max-height: fit-content;
+    padding: 1%;
+    text-align: center;
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     resize: none;
 }
+
+/* Audit input */
+#auditInput{
+    transform:translatex(314px) translatey(-12px);
+   }
 
 /* login.html Web Styling */
 
