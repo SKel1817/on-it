@@ -1,8 +1,6 @@
 // Variable to store user repsonses
 let currentStepIndex = 0;
 
-let selectedSteps = []; // Array to store the sequence of steps for "Yes" selections
-
 // Fetch and process the information - audit.html page
 function fetchAuditSteps() {
   fetch("/get_audit_steps")
@@ -14,88 +12,118 @@ function fetchAuditSteps() {
       const steps = data.CybersecurityAudit;
       const stepKeys = Object.keys(steps);
 
-      const stepMapping = {
-        servers: "Step1a",
-        applications: "Step1b",
-        workstations: "Step1c",
-        cloudServices: "Step1d",
-        devices: "Step1e",
-        networkArchitecture: "Step1f",
-      };
-  
-      function displayStep(stepKey) {
-        const step = steps[stepKey];
-        document.getElementById("stepName").textContent = stepKey;
+      // Function to display a step
+      function displayStep(stepIndex) {
+        const step = steps[stepKeys[stepIndex]];
+
+        // Update HTML with the step data
+        document.getElementById("stepName").textContent = stepKeys[stepIndex];
         document.getElementById("instruction").textContent = step.Instruction;
         document.getElementById("explanation").textContent = step.Explanation;
-  
+
+        // Example content formatting
         const exampleDiv = document.getElementById("example");
         exampleDiv.innerHTML = "<strong>Example:</strong><br>";
         for (const [key, value] of Object.entries(step.Example)) {
           exampleDiv.innerHTML += `${key}: ${value}<br>`;
         }
-  
+
+        // Clear the input field
         document.getElementById("auditInput").value = "";
-  
-        const radioOptions = document.getElementById("radioOptions");
-        if (stepKey === "Step1") {
-          radioOptions.style.display = "block";
-          document.getElementById("auditInput").style.display = "none";
-        } else {
-          radioOptions.style.display = "none";
-          document.getElementById("auditInput").style.display = "block";
-        }
       }
-  
-      displayStep(stepKeys[currentStepIndex]);
-  
+
+      // Initial step display
+      displayStep(currentStepIndex);
+
+      // Handle "Next Step" button click - audit.html page, will need to be replaced with database logic 
       document.getElementById("nextButton").addEventListener("click", () => {
-        if (currentStepIndex === 0) {
-          const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
-          selectedSteps = [];
-          selectedRadios.forEach((radio) => {
-            const selectedName = radio.name;
-            const selectedValue = radio.value;
-            if (selectedValue === "Yes" && stepMapping[selectedName]) {
-              selectedSteps.push(stepMapping[selectedName]);
-            }
-          });
-  
-          if (selectedSteps.length > 0) {
-            currentStepIndex = 0;
-            displayStep(selectedSteps[currentStepIndex]);
-          } else {
-            alert("Please select at least one option with 'Yes' to proceed.");
-          }
-        } else {
-          const userInput = document.getElementById("auditInput").value.trim();
-          if (userInput) {
-            const stepName = selectedSteps[currentStepIndex];
-            const response = { step: stepName, answer: userInput };
-  
-            fetch("/save_response", {
+        const userInput = document.getElementById("auditInput").value.trim();
+
+        if (userInput) {
+          // Save the user response
+          const stepName = stepKeys[currentStepIndex];
+          const response = {
+            step: stepName,
+            answer: userInput
+          };
+
+          // Send the response to the backend
+          fetch("/save_response", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(response),
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(response)
             })
-              .then((res) => res.json())
-              .then((data) => {
-                if (currentStepIndex < selectedSteps.length - 1) {
-                  currentStepIndex++;
-                  displayStep(selectedSteps[currentStepIndex]);
-                } else {
-                  alert("You have completed all the steps.");
-                }
-              })
-              .catch((error) => alert("Failed to save the response."));
-          } else {
-            alert("Please enter a response before proceeding.");
-          }
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error("Failed to save response.");
+              }
+              return res.json();
+            })
+            .then((data) => {
+              console.log(data.message);
+              // Move to the next step or finish
+              currentStepIndex++;
+              if (currentStepIndex < stepKeys.length) {
+                displayStep(currentStepIndex);
+              } else {
+                alert("You've completed all the steps! Responses saved.");
+                currentStepIndex = 0;
+                displayStep(currentStepIndex);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Failed to save the response. Please try again.");
+            });
+        } else {
+          alert("Please enter a response before proceeding.");
         }
       });
     })
-    .catch((error) => console.error("Fetch error:", error));
-  }
+    .catch((error) => {
+      console.error("There was a problem with the fetch operation:", error);
+    });
+}
+// Function to fetch and display frameworks - learn.html page
+function fetchFrameworks() {
+  fetch("/get_frameworks")
+    .then(response => {
+      if (!response.ok) throw new Error("Failed to fetch frameworks.");
+      return response.json();
+    })
+    .then(data => {
+      const frameworks = data.frameworks;
+      const dropdown = document.getElementById("frameworkDropdown");
+      const detailsDiv = document.getElementById("frameworkDetails");
+
+      frameworks.forEach((framework, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = framework.name;
+        dropdown.appendChild(option);
+      });
+
+      dropdown.addEventListener("change", event => {
+        const selectedIndex = event.target.value;
+        if (selectedIndex) {
+          const selectedFramework = frameworks[selectedIndex];
+          detailsDiv.innerHTML = `
+            <h2>${selectedFramework.name}</h2>
+            <p><strong>Definition:</strong> ${selectedFramework.definition}</p>
+            <ul>${selectedFramework.how_to_use.map(step => `<li>${step}</li>`).join("")}</ul>
+            <ul>${selectedFramework.advantages.map(adv => `<li>${adv}</li>`).join("")}</ul>
+            <ul>${selectedFramework.disadvantages.map(disadv => `<li>${disadv}</li>`).join("")}</ul>
+            <a href="${selectedFramework.link}" target="_blank">Learn more</a>
+          `;
+        } else {
+          detailsDiv.innerHTML = "";
+        }
+      });
+    })
+    .catch(error => console.error("Error fetching frameworks:", error));
+}
 
 // Function to Load previous audits and display them
 function loadAudits() {
