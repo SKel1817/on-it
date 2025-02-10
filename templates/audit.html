@@ -1,28 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>on-it</title>
-    <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
-    <link rel="stylesheet" href="../static/style.css" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
-    <!--Link json file-->
-    <link rel="Steps-Json" href="../static/auditsteps.json" type="application/json" />
-    <script src="../static/script.js"></script>
-  </head>
 
-  <header>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
-      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>on-it</title>
+  <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="../static/style.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
+  <!--Link json file-->
+  <link rel="Steps-Json" href="../static/auditsteps.json" type="application/json" />
+  <script src="../static/script.js"></script>
+</head>
+
+<header>
+  <nav class="nav">
+    <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
+
+    {% if current_user.is_authenticated %}
+      <span class="nav-user">Welcome, {{ current_user.username }}!</span>
+      <a href="{{ url_for('logout') }}"><i class="material-icons" id="fRight">exit_to_app</i></a>
       <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
-      <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
-      <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
-      <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
-    </nav>
-  </header>
+    {% else %}
+      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+    {% endif %}
+    
+    <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
+    <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
+    <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
+  </nav>
+</header>
 
   <body class="body"> 
     <div class="auditContent">
@@ -50,6 +58,55 @@
         <p id="example"></p>
         <br>
         <br>
+        <div id="radioOptions">
+          <label for="yes_no_radio_server">Do you have servers ?</label>
+          <p>
+          <input type="radio" name="servers" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="servers" value="No">No</input>
+          </p>
+          <br>
+          <label for="yes_no_radio_applications">Do you have applications ?</label>
+          <p>
+          <input type="radio" name="applications" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="applications" value="No">No</input>
+          </p>
+          <br>
+          <label for="yes_no_radio_workstations">Do you have workstations ?</label>
+          <p>
+          <input type="radio" name="workstations" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="workstations" value="No">No</input>
+          </p>
+          <br>
+          <label for="yes_no_radio_cloudServices">Do you have cloud services ?</label>
+          <p>
+          <input type="radio" name="cloudServices" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="cloudServices" value="No">No</input>
+          </p>
+          <br>
+          <label for="yes_no_radio_devices">Do you have devices ?</label>
+          <p>
+          <input type="radio" name="devices" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="devices" value="No">No</input>
+          </p>
+          <br>
+          <label for="yes_no_radio_networkArchitecture">Do you have network architecture ?</label>
+          <p>
+          <input type="radio" name="networkArchitecture" value="Yes" checked>Yes</input>
+          </p>
+          <p>
+          <input type="radio" name="networkArchitecture" value="No">No</input>
+          </p>
+        </div>
         <input type="text" id="auditInput" placeholder="Enter Information Here">
         <input type="button" id="nextButton" value="Next Step">
         <br>
@@ -70,6 +127,9 @@
                   helpContent.style.display = "none";
               }
           }
+          document.addEventListener("DOMContentLoaded", () => {
+          fetchAuditSteps();
+          });
           </script>
       </div>
     </div>
