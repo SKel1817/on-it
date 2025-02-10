@@ -1,52 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Account</title>
-    <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
-    <link rel="stylesheet" href="../static/style.css" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
-    <script src="../static/script.js"></script>
-  </head>
 
-  <header>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
-      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account</title>
+  <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="../static/style.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
+  <script src="../static/script.js"></script>
+</head>
+
+<header>
+  <nav class="nav">
+    <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
+
+    {% if current_user.is_authenticated %}
+      <span class="nav-user">Welcome, {{ current_user.username }}!</span>
+      <a href="{{ url_for('logout') }}"><i class="material-icons" id="fRight">exit_to_app</i></a>
       <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
-      <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
-      <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
-      <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
-    </nav>
-  </header>
+    {% else %}
+      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+    {% endif %}
+    
+    <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
+    <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
+    <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
+  </nav>
+</header>
 
-  <body class="body"> 
-    <div class="accountContainer">
-      <form action="" method="">
-        <label for="fname">First name:</label><br>
-        <input type="text" id="fname" name="fname" required><br>
-        <label for="lname">Last name:</label><br>
-        <input type="text" id="lname" name="lname" required>
-        <label for="username">Username:</label>
-        <input type="email" id="username" name="username" required>
-        <label for="email">E-Mail:</label>
-        <input type="text" id="email" name="E-Mail" required>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <label for="passwordConf">Confirm Password:</label>
-        <input type="password" id="passwordConf" name="Confirm password" required>
-        <label for="slider">What is your familiarity with CyberSecurity audits?</label><br>
-        <input type="range" list="tickmarks" min="0" max="2" id="slider" name="slider" required>
-        <datalist id="tickmarks">
-          <option value="0" label="None."></option>
-          <option value="1" label="Some."></option>
-          <option value="2" label="A lot."></option>
-        </datalist>
-        <input type="submit" value="Create Account">
-        <a href="{{ url_for('login') }}"><label>Already have an account?</label></a>
-      </form>
-    </div>
-  </body>
+<body class="body">
+  <div class="accountContainer">
+    <form id="signup-form">
+      <label for="fname">First name:</label>
+      <input type="text" id="fname" name="first_name" required><br>
+
+      <label for="lname">Last name:</label>
+      <input type="text" id="lname" name="last_name" required><br>
+
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required><br>
+
+      <label for="email">E-Mail:</label>
+      <input type="email" id="email" name="email" required><br>
+
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required><br>
+
+      <label for="passwordConf">Confirm Password:</label>
+      <input type="password" id="passwordConf" name="passwordConf" required><br>
+
+      <label for="slider">What is your familiarity with CyberSecurity audits?</label><br>
+      <input type="range" list="tickmarks" min="0" max="2" id="slider" name="familarity_with_audits" required>
+      <datalist id="tickmarks">
+        <option value="0" label="None"></option>
+        <option value="1" label="Some"></option>
+        <option value="2" label="A lot"></option>
+      </datalist><br>
+
+      <label for="businessIndicator">Are you a business?</label><br>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <input type="radio" id="businessYes" name="businessIndicator" value="1" checked>
+        <label for="businessYes">Yes</label>
+        <input type="radio" id="businessNo" name="businessIndicator" value="0">
+        <label for="businessNo">No</label>
+      </div>
+
+      <div id="businessFields">
+        <label for="role">Role:</label>
+        <input type="text" id="role" name="role"><br>
+
+        <label for="company">Company:</label>
+        <input type="text" id="company" name="company"><br>
+      </div>
+
+      <input type="submit" value="Create Account">
+      <a href="{{ url_for('login') }}">Already have an account?</a>
+    </form>
+  </div>
+</body>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  create_user();
+});
+</script>
 </html>

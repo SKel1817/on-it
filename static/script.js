@@ -1,7 +1,136 @@
-// Variable to store user repsonses
-let currentStepIndex = 0;
+//confirm it's running
+console.log("Script is running...");
+// START of API DATABASE SUPPORTING LOGIC -------------------------------------------------------------------------------------
+//USER LOGIC -------------------------------------------------------------------------------------
+//Create User logic
+function create_user() {
+  console.log("Setting up form submission...");
+  const form = document.getElementById("signup-form");
+  const businessYes = document.getElementById("businessYes");
+  const businessNo = document.getElementById("businessNo");
+  const businessFields = document.getElementById("businessFields");
 
-// Fetch and process the information - audit.html page
+  // Toggle business fields visibility
+  businessYes.addEventListener("change", () => {
+    businessFields.style.display = "block";
+  });
+
+  businessNo.addEventListener("change", () => {
+    businessFields.style.display = "none";
+  });
+
+  if (form) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault(); // Prevent default form submission
+
+      const password = document.getElementById("password").value;
+      const passwordConf = document.getElementById("passwordConf").value;
+
+      // Validate password confirmation
+      if (!password || password !== passwordConf) {
+        alert("Passwords do not match. Please try again.");
+        return;
+      }
+
+      const isBusiness = document.querySelector("input[name='businessIndicator']:checked").value === "1";
+
+      const formData = {
+        first_name: document.getElementById("fname").value,
+        last_name: document.getElementById("lname").value,
+        username: document.getElementById("username").value,
+        email: document.getElementById("email").value,
+        password: password,
+        password_conf: passwordConf, // <<–– Added field
+        familarity_with_audits: document.getElementById("slider").value,
+        business_indicator: isBusiness ? 1 : 0, // Store as 1 for Yes, 0 for No
+        role: isBusiness ? document.getElementById("role").value || "N/A" : "N/A",
+        company: isBusiness ? document.getElementById("company").value || "N/A" : "N/A",
+      };
+
+      fetch("/create_user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(formData),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            alert("Error: " + data.error);
+          } else {
+            alert("User created successfully!");
+            window.location.href = "/login"; // Redirect to login
+          }
+        })
+        .catch((error) => console.error("Error:", error));
+    });
+  } else {
+    console.error("Signup form not found!");
+  }
+}
+// login existing user -- done
+function login_user() {
+  console.log("login_user is running...");
+  const loginButton = document.getElementById("loginButton");
+  if (!loginButton) {
+    console.error("Login button not found!");
+    return;
+  }
+
+  loginButton.addEventListener("click", function (e) {
+    // No need for e.preventDefault() here since we're not in a submit event.
+    console.log("Login button clicked!");
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (!username || !password) {
+      console.error("Username or password is missing");
+      alert("Please fill in both username and password.");
+      return;
+    }
+
+    console.log("Sending login request to API...");
+    fetch("/login-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Login failed");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        alert(data.message);
+        window.location.href = "/"; // Redirect after successful login
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Login failed: " + error.message);
+      });
+  });
+}
+
+
+// update existing user account -- to be made
+
+
+// END OF USER LOGIC -------------------------------------------------------------------------------------
+
+
+//AUDIT LOGIC ------------------------------------------------------------------------------
+// Variable to store user repsonses
+// Global variables for navigation
+// Global variables for navigation
+let currentStepIndex = 0;
+let combinedSteps = []; // Will store the full branch: Step1 selections, Step2 equivalents, then remaining steps.
+let decisionComplete = false; // Flag to indicate the decision step has been processed
+
 function fetchAuditSteps() {
   fetch("/get_audit_steps")
     .then(response => {
@@ -12,16 +141,21 @@ function fetchAuditSteps() {
       const steps = data.CybersecurityAudit;
       const stepKeys = Object.keys(steps);
 
-      // Function to display a step
-      function displayStep(stepIndex) {
-        const step = steps[stepKeys[stepIndex]];
-
-        // Update HTML with the step data
-        document.getElementById("stepName").textContent = stepKeys[stepIndex];
+      const stepMapping = {
+        servers: "Step1a",
+        applications: "Step1b",
+        workstations: "Step1c",
+        cloudServices: "Step1d",
+        devices: "Step1e",
+        networkArchitecture: "Step1f",
+      };
+  
+      function displayStep(stepKey) {
+        const step = steps[stepKey];
+        document.getElementById("stepName").textContent = stepKey;
         document.getElementById("instruction").textContent = step.Instruction;
         document.getElementById("explanation").textContent = step.Explanation;
-
-        // Example content formatting
+  
         const exampleDiv = document.getElementById("example");
         exampleDiv.innerHTML = "<strong>Example:</strong><br>";
         for (const [key, value] of Object.entries(step.Example)) {
@@ -30,31 +164,69 @@ function fetchAuditSteps() {
 
         // Clear the input field
         document.getElementById("auditInput").value = "";
+
+        // For decision steps (Step1 or Step2) show radio options.
+        // Since we are only using a decision for Step1, we show them only when the current step is Step1.
+        const radioOptions = document.getElementById("radioOptions");
+        if (stepKey === "Step1" || stepKey === "Step2") {
+          radioOptions.style.display = "block";
+          document.getElementById("auditInput").style.display = "none";
+        } else {
+          radioOptions.style.display = "none";
+          document.getElementById("auditInput").style.display = "block";
+        }
       }
 
-      // Initial step display
-      displayStep(currentStepIndex);
+      // Start by displaying the decision step "Step1"
+      displayStep("Step1");
 
-      // Handle "Next Step" button click - audit.html page, will need to be replaced with database logic 
       document.getElementById("nextButton").addEventListener("click", () => {
-        const userInput = document.getElementById("auditInput").value.trim();
+        // Get current step from the UI.
+        const currentStep = document.getElementById("stepName").textContent;
 
-        if (userInput) {
-          // Save the user response
-          const stepName = stepKeys[currentStepIndex];
-          const response = {
-            step: stepName,
-            answer: userInput
-          };
+        // If we're at the decision step ("Step1") and haven't processed it yet:
+        if (currentStep === "Step1" && !decisionComplete) {
+          const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
+          let selectedSteps1 = [];
+          selectedRadios.forEach((radio) => {
+            const selectedName = radio.name;
+            const selectedValue = radio.value;
+            if (selectedValue === "Yes" && step1Mapping[selectedName]) {
+              selectedSteps1.push(step1Mapping[selectedName]);
+            }
+          });
 
-          // Send the response to the backend
+          if (selectedSteps1.length > 0) {
+            // Automatically compute corresponding Step2 substeps by replacing "Step1" with "Step2"
+            const selectedSteps2 = selectedSteps1.map(step => step.replace("Step1", "Step2"));
+            // Build remaining steps:
+            // Filter out decision steps and their substeps (both for Step1 and Step2)
+            const decisionSubSteps = Object.values(step1Mapping).concat(Object.values(step2Mapping));
+            const remainingSteps = stepKeys.filter(key => key !== "Step1" && key !== "Step2" && !decisionSubSteps.includes(key));
+            // Combined branch: first process the selected Step1 substeps, then the corresponding Step2 substeps, then any remaining steps.
+            combinedSteps = selectedSteps1.concat(selectedSteps2).concat(remainingSteps);
+            decisionComplete = true;
+            currentStepIndex = 0;
+            displayStep(combinedSteps[currentStepIndex]);
+          } else {
+            alert("Please select at least one option with 'Yes' for Step1 to proceed.");
+          }
+        } else {
+          // For non-decision steps (or after processing the decision), save the response and move to the next step.
+          const userInput = document.getElementById("auditInput").value.trim();
+          if (!userInput) {
+            alert("Please enter a response before proceeding.");
+            return;
+          }
+          // Determine the current branch (we are using combinedSteps here)
+          const stepName = combinedSteps[currentStepIndex];
+          const response = { response_step: stepName, response_answer: userInput };
+
           fetch("/save_response", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(response)
-            })
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          })
             .then((res) => {
               if (!res.ok) {
                 throw new Error("Failed to save response.");
@@ -63,67 +235,23 @@ function fetchAuditSteps() {
             })
             .then((data) => {
               console.log(data.message);
-              // Move to the next step or finish
               currentStepIndex++;
-              if (currentStepIndex < stepKeys.length) {
-                displayStep(currentStepIndex);
+              if (currentStepIndex < combinedSteps.length) {
+                displayStep(combinedSteps[currentStepIndex]);
               } else {
                 alert("You've completed all the steps! Responses saved.");
-                currentStepIndex = 0;
-                displayStep(currentStepIndex);
+                // Optionally reset flags/indexes if you want to restart the flow.
               }
             })
             .catch((error) => {
               console.error("Error:", error);
               alert("Failed to save the response. Please try again.");
             });
-        } else {
-          alert("Please enter a response before proceeding.");
         }
       });
     })
-    .catch((error) => {
-      console.error("There was a problem with the fetch operation:", error);
-    });
-}
-// Function to fetch and display frameworks - learn.html page
-function fetchFrameworks() {
-  fetch("/get_frameworks")
-    .then(response => {
-      if (!response.ok) throw new Error("Failed to fetch frameworks.");
-      return response.json();
-    })
-    .then(data => {
-      const frameworks = data.frameworks;
-      const dropdown = document.getElementById("frameworkDropdown");
-      const detailsDiv = document.getElementById("frameworkDetails");
-
-      frameworks.forEach((framework, index) => {
-        const option = document.createElement("option");
-        option.value = index;
-        option.textContent = framework.name;
-        dropdown.appendChild(option);
-      });
-
-      dropdown.addEventListener("change", event => {
-        const selectedIndex = event.target.value;
-        if (selectedIndex) {
-          const selectedFramework = frameworks[selectedIndex];
-          detailsDiv.innerHTML = `
-            <h2>${selectedFramework.name}</h2>
-            <p><strong>Definition:</strong> ${selectedFramework.definition}</p>
-            <ul>${selectedFramework.how_to_use.map(step => `<li>${step}</li>`).join("")}</ul>
-            <ul>${selectedFramework.advantages.map(adv => `<li>${adv}</li>`).join("")}</ul>
-            <ul>${selectedFramework.disadvantages.map(disadv => `<li>${disadv}</li>`).join("")}</ul>
-            <a href="${selectedFramework.link}" target="_blank">Learn more</a>
-          `;
-        } else {
-          detailsDiv.innerHTML = "";
-        }
-      });
-    })
-    .catch(error => console.error("Error fetching frameworks:", error));
-}
+    .catch((error) => console.error("Fetch error:", error));
+  }
 
 // Function to Load previous audits and display them
 function loadAudits() {
@@ -154,13 +282,13 @@ function loadAudits() {
     });
 }
 
-// Redirect to the report page with the selected date
+// Redirect to the report page with the selected date - then redirect
 function viewReport(date) {
   const formattedDate = new Date(date).toISOString().split("T")[0];
   window.location.href = `/report?date=${encodeURIComponent(formattedDate)}`;
 }
 
-// Load the report for a specific date
+// Load the report for a specific date - load logic
 function loadReport(date) {
   fetch(`/get_report_data?date=${encodeURIComponent(date)}`)
     .then(response => {
@@ -198,7 +326,7 @@ function loadReport(date) {
     });
 }
 
-// Download the PDF
+// Download the PDF - finally download
 function downloadPDF(date) {
   if (!date) {
     alert("Date is missing. Please select a valid audit date.");
@@ -221,9 +349,74 @@ function downloadPDF(date) {
       alert("Failed to download PDF. Please try again.");
     });
 }
+// END OF REPORT LOGIC -------------------------------------------------------------------------------------
 
-// Initialize the page
-document.addEventListener("DOMContentLoaded", () => {
-  fetchAuditSteps();
-  fetchFrameworks();
-});
+//FRAMEWORK LOGIC -------------------------------------------------------------------------------------
+
+// Function to fetch and display frameworks - learn.html page
+function fetchFrameworks() {
+  console.log("Fetching frameworks...");
+
+  fetch("/get_frameworks")
+    .then((response) => {
+      console.log("API Response Status:", response.status);
+      if (!response.ok) throw new Error("Failed to fetch frameworks.");
+      return response.json();
+    })
+    .then((data) => {
+      console.log("API Data Received:", data);
+
+      const frameworks = data.frameworks;
+      const dropdown = document.getElementById("frameworkDropdown");
+      const detailsDiv = document.getElementById("frameworkDetails");
+
+      // Clear the dropdown first
+      dropdown.innerHTML = '<option value="">--Select a Framework--</option>';
+
+      // Populate the dropdown with framework names
+      frameworks.forEach((framework, index) => {
+        console.log("Adding Framework to Dropdown:", framework.name);
+
+        const option = document.createElement("option");
+        option.value = index; // Index for reference
+        option.textContent = framework.name; // Set the option's display text to the framework name
+        dropdown.appendChild(option);
+      });
+
+      // Handle dropdown selection
+      dropdown.addEventListener("change", (event) => {
+        const selectedIndex = event.target.value;
+        if (selectedIndex) {
+          const selectedFramework = frameworks[selectedIndex];
+
+          const formatList = (items) =>
+            items.map((item) => `<li>${item.replace(/\n/g, " ")}</li>`).join("");
+
+          detailsDiv.innerHTML = `
+            <h2>${selectedFramework.name}</h2>
+            <p><strong>Definition:</strong> ${selectedFramework.definition}</p>
+            <h3>How to Use:</h3>
+            <ul>${formatList(selectedFramework.how_to_use)}</ul>
+            <h3>Advantages:</h3>
+            <ul>${formatList(selectedFramework.advantages)}</ul>
+            <h3>Disadvantages:</h3>
+            <ul>${formatList(selectedFramework.disadvantages)}</ul>
+            <a href="${selectedFramework.link}" target="_blank">Learn more</a>
+          `;
+        } else {
+          detailsDiv.innerHTML = "";
+        }
+      });
+    })
+    .catch((error) => console.error("Error fetching frameworks:", error));
+}
+
+// END OF FRAMEWORK LOGIC -------------------------------------------------------------------------------------
+// END OF API DATABASE SUPPORTING LOGIC -------------------------------------------------------------------------------------
+
+// general page script functions
+
+
+// Initialize the page don in each html file 
+
+
