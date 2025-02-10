@@ -31,6 +31,10 @@
     <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
   </nav>
 </header>
+<style>
+
+
+</style>
 
   <body class="body"> 
     <div class="auditContent">
@@ -115,7 +119,7 @@
           <input type="radio" name="networkArchitecture" value="No">No</input>
           </p>
         </div>
-        <input type="text" id="auditInput" placeholder="Enter Information Here">
+        <textarea type="textarea" id="auditInput" placeholder="Enter Information Here"></textarea>
         <input type="button" id="nextButton" value="Next Step">
         <br>
         <br>
@@ -149,6 +153,16 @@
           document.addEventListener("DOMContentLoaded", () => {
           fetchAuditSteps();
           });
+          const textArea = document.getElementById('auditInput');
+
+          textArea.style.height = textArea.scrollHeight + "px";
+          textArea.style.overflowY = "hidden";
+
+          textArea.addEventListener("input", function () {
+              this.style.height = "auto";
+              this.style.height = this.scrollHeight + "px";
+          });
+
           </script>
       </div>
     </div>

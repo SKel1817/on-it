@@ -423,6 +423,10 @@ def generate_pdf():
         date = request.args.get("date")
         if not date:
             return jsonify({"error": "Date parameter is missing"}), 400
+        name = current_user.first_name + " " +current_user.last_name
+        role = current_user.role
+        if role == "":
+            role = "N/A"
 
         conn = get_db_connection()
         if conn is None:
