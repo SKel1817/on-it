@@ -431,11 +431,11 @@ def generate_pdf():
         cur = conn.cursor()
         # Fetch responses for the given date
         cur.execute("""
-            SELECT step, answer
-            FROM audit_responses
+            SELECT response_step, response_answer
+            FROM audit_response_table
             WHERE DATE(date) = ?
         """, (date,))
-        responses = [{"step": row[0], "answer": row[1]} for row in cur.fetchall()]
+        responses = [{"repsonse_step": row[0], "response_answer": row[1]} for row in cur.fetchall()]
         cur.close()
         conn.close()
 
@@ -445,7 +445,8 @@ def generate_pdf():
             json.dump(responses, f)
 
         # Call Puppeteer to generate the PDF
-        subprocess.run(["node", PUPPETEER_SCRIPT, temp_file, date], check=True)
+        subprocess.run(["node", PUPPETEER_SCRIPT, date], check=True)
+
 
         return send_file(OUTPUT_PDF, as_attachment=True)
     except subprocess.CalledProcessError as e:

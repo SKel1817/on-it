@@ -38,8 +38,12 @@
       <tr>
         <!-- Fill in with USER and Audit Data information from database -->
         <td><strong>Date:</strong> <span id="report-date"></span></td>
-        <td><strong>Auditor:</strong> <span id="auditor-name">John Doe</span></td>
-        <td><strong>Department:</strong> <span id="department-name">IT Security</span></td>
+        <td><strong>Auditor:</strong> <span id="auditor-name">{{current_user.first_name}} {{current_user.last_name}}</span></td>
+        {% if current_user.role != "" %}
+        <td><strong>Department:</strong> <span id="department-name">{{current_user.role}}</span></td>
+        {% else %}
+        <td><strong>Department:</strong><span id="department-name">N/A</span></td>
+        {% endif %}
       </tr>
     </table>
 
