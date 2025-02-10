@@ -1,57 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Search</title>
-    <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
-    <link rel="stylesheet" href="../static/style.css" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
-    <script src="../static/script.js"></script>
-  </head>
 
-  <header>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
-      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search</title>
+  <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="../static/style.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
+  <script src="../static/script.js"></script>
+  <!--To be changed first and then moved to style page, this is what I generally 
+    want this page to look like please correct it so it looks nice and uses the % like everything else thanks-->
+  <style>
+    .search-bar-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      border: 2px solid #ccc;
+      border-radius: 25px;
+      padding: 5px 15px;
+      width: 100%;
+      max-width: 400px;
+      background-color: white;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 16px;
+      padding: 5px;
+      background-color: transparent;
+    }
+
+    .search-bar button {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .search-bar button i {
+      font-size: 24px;
+      color: #666;
+    }
+
+    .search-bar input::placeholder {
+      color: #aaa;
+    }
+  </style>
+</head>
+
+<header>
+  <nav class="nav">
+    <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
+
+    {% if current_user.is_authenticated %}
+      <span class="nav-user">Welcome, {{ current_user.username }}!</span>
+      <a href="{{ url_for('logout') }}"><i class="material-icons" id="fRight">exit_to_app</i></a>
       <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
-      <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
-      <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
-      <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
-    </nav>
-  </header>
+    {% else %}
+      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+    {% endif %}
+    
+    <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
+    <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
+    <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
+  </nav>
+</header>
 
 <body class="body">
-    <div class="please">
-      <div class="searchContent">
-        <div class="searchHopper">
-          <img src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" height="100">
-        </div>
-        <div class="searchHopperSpeech">
-          <p>Hello and welcome to your search page!</p>
-        </div>
-        <div class="searchContainer">
-          <div id="searchResults">
-            <h2>Information to input into search:</h2>
-            <br>
-            <form action="{{ url_for('display_search') }}" method="POST">
+  <div class="please">
+    <div class="searchContent">
+      <div class="searchHopper">
+        <img src="../static/Media/Hopper.png" alt="on-it mascot Hopper" class="Hopper" height="100">
+      </div>
+      <div class="searchHopperSpeech">
+        <p>Hello and welcome to your search page!</p>
+      </div>
+      <div class="searchContainer">
+        <div id="searchResults">
+          <h2>Information to input into search:</h2>
+          <br>
+          <form action="{{ url_for('display_search') }}" method="POST">
             <p><strong>Error Code:</strong> {{ error_code }}</p>
             <p><strong>Power Status:</strong> {{ power_status }}</p>
             <p><strong>Updated Recently:</strong> {{ updated_recently }}</p>
             <p><strong>Device Name:</strong> {{ device_name }}</p>
             <p><strong>Device Model:</strong> {{ device_model }}</p>
-          </div>
+        </div>
+        </form>
+        <br>
+        <br>
+        <h2>Try Out Searching!</h2>
+        <div class="search-bar-container">
+          <form action="https://www.google.com/search" method="GET" target="_blank" class="search-bar">
+            <input type="text" name="q" placeholder="Enter your search term..." required>
+            <button type="submit">
+              <i class="material-icons">search</i>
+            </button>
           </form>
-          <br>
-          <br>
-      <h2>Try Out Searching!</h2>
-      <form action="https://www.google.com/search" method="GET" target="_blank">
-        <input type="text" name="q" placeholder="Enter your search term..." required>
-        <input type="submit" value="Search">
-    </form>    
-    </div>
+        </div>
       </div>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>

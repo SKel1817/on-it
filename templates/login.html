@@ -1,38 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
-    <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
-    <link rel="stylesheet" href="../static/style.css" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
-    <script src="../static/script.js"></script>
-  </head>
 
-  <header>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
-      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <link rel="on-it icon" href="../static/Media/onitIcon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="../static/style.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
+  <script src="../static/script.js"></script>
+</head>
+
+<header>
+  <nav class="nav">
+    <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
+
+    {% if current_user.is_authenticated %}
+      <span class="nav-user">Welcome, {{ current_user.username }}!</span>
+      <a href="{{ url_for('logout') }}"><i class="material-icons" id="fRight">exit_to_app</i></a>
       <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
-      <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
-      <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
-      <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
-    </nav>
-  </header>
+    {% else %}
+      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
+    {% endif %}
+    
+    <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
+    <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
+    <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
+  </nav>
+</header>
 
-  <body class="body">
-    <div class="loginContainer">
-      <form action="" method="">
+<body class="body">
+  <div class="loginContainer">
+    <form id="loginForm" action="/login-user" method="POST">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
-        <input type="submit" value="Login">
+        <button type="button" id="loginButton">Login</button>
         <!-- Placeholder until we make a create an account page -->
-        <a href="{{ url_for('acctCreate') }}"><label>Create an Account</label></a> 
-      </form>
-    </div>
-  </body>
+        <a href="{{ url_for('acctCreate') }}"><label>Create an Account</label></a>
+    </form>
+</div>
+</body>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  login_user();
+});
+</script>
 </html>
