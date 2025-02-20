@@ -160,7 +160,27 @@ body {
 #auditInput{
     transform:translatex(314px) translatey(-12px);
    }
+/* progress tracker bar css */
+.progress-container {
+    width: 100%;
+    background-color: white;
+    border-radius: 5%;
+    margin-top: 2%;
+}
 
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: white;
+    border-radius: 5%;
+    transition: width 0.5s ease-in-out;
+}
+
+#progress-text {
+    text-align: center;
+    margin-top: 2%;
+    font-weight: 500;
+}
 /* login.html Web Styling */
 
 .loginContainer {

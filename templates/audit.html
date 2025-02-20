@@ -141,6 +141,14 @@
           </div>
         </div>
         {% endif %}
+
+        <!-- Progress tracker code -->
+        <div class="progress-container">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <!-- Text display for the progress percentage -->
+        <p id="progress-text">Progress: 0%</p>
+
         <script>
           function toggleHelp() {
               var helpContent = document.getElementById("helpContent");
@@ -162,7 +170,6 @@
               this.style.height = "auto";
               this.style.height = this.scrollHeight + "px";
           });
-
           </script>
       </div>
     </div>

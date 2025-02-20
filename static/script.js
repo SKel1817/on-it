@@ -140,6 +140,8 @@ function fetchAuditSteps() {
     .then(data => {
       const steps = data.CybersecurityAudit;
       const stepKeys = Object.keys(steps);
+        // for intilalizing progress bar
+        updateProgressBar();
 
       // Mapping for decision radio buttons for Step1.
       // (These keys come from the radio button names for Step1.)
@@ -189,6 +191,10 @@ function fetchAuditSteps() {
           radioOptions.style.display = "none";
           document.getElementById("auditInput").style.display = "block";
         }
+      }
+
+      //update progress tracker
+      updateProgressBar();
       }
 
       // Start by displaying the decision step "Step1"
@@ -255,6 +261,7 @@ function fetchAuditSteps() {
               } else {
                 alert("You've completed all the steps! Responses saved.");
                 // Optionally reset flags/indexes if you want to restart the flow.
+                 updateProgressBar(); // Ensure progress bar shows 100%
               }
             })
             .catch((error) => {
@@ -268,6 +275,30 @@ function fetchAuditSteps() {
       console.error("There was a problem with the fetch operation:", error);
     });
 }
+
+//Progress tracker code!! updates dynamically
+function updateProgressBar() {
+
+    //select the progress bar element
+    const progressBar = document.getElementById("progress-bar");
+    // select the text element that shows progress percentage
+    const progressText = document.getElementById("progress-text");
+
+    //ensuring progress is not divided by zero
+    // Get the total number of steps in the audit process
+    let totalSteps = combinedSteps.length;
+    //calc the progress percentage while ensuring no division by zero
+    let progressPercentage = totalSteps > 1 ? (currentStepIndex / (totalSteps - 1)) * 100 : 0;
+
+    // this is to prevent percentage from going below 0 or above 100
+    if (progressPercentage < 0 || isNaN(progressPercentage)) progressPercentage = 0;
+    if (progressPercentage > 100) progressPercentage = 100; // Ensure it doesn't exceed 100%
+
+    // for updating UI for width and text display progress percentage
+     progressBar.style.width = `${progressPercentage}%`;
+     progressText.textContent = `Progress: ${Math.round(progressPercentage)}%`;
+
+    }
 
 
 // END OF AUDIT LOGIC -------------------------------------------------------------------------------------
