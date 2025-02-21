@@ -140,7 +140,6 @@ function fetchAuditSteps() {
     .then(data => {
       const steps = data.CybersecurityAudit;
       const stepKeys = Object.keys(steps);
-
       // Mapping for decision radio buttons for Step1.
       // (These keys come from the radio button names for Step1.)
       const step1Mapping = {
@@ -189,6 +188,8 @@ function fetchAuditSteps() {
           radioOptions.style.display = "none";
           document.getElementById("auditInput").style.display = "block";
         }
+        // update progress bar
+        updateProgressBar();
       }
 
       // Start by displaying the decision step "Step1"
@@ -255,6 +256,7 @@ function fetchAuditSteps() {
               } else {
                 alert("You've completed all the steps! Responses saved.");
                 // Optionally reset flags/indexes if you want to restart the flow.
+                updateProgressBar(); // Ensure progress bar shows 100%
               }
             })
             .catch((error) => {
@@ -267,6 +269,22 @@ function fetchAuditSteps() {
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);
     });
+}
+
+// //Progress tracker code!! updates dynamically
+// Update progress bar based on current step and total steps
+function updateProgressBar() {
+  const progressBar = document.getElementById("progress-bar");
+  const progressText = document.getElementById("progress-text");
+
+  // If decision hasn't been made yet, treat the decision step as one step
+  let totalSteps = decisionComplete ? combinedSteps.length : 1;
+  let currentProgress = decisionComplete ? currentStepIndex : 0;
+  let progressPercentage = totalSteps > 0 ? (currentProgress / totalSteps) * 100 : 0;
+  progressPercentage = Math.min(Math.max(progressPercentage, 0), 100);
+
+  progressBar.style.width = `${progressPercentage}%`;
+  progressText.textContent = `Progress: ${Math.round(progressPercentage)}%`;
 }
 
 
