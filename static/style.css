@@ -160,27 +160,30 @@ body {
 #auditInput{
     transform:translatex(314px) translatey(-12px);
    }
-/* progress tracker bar css */
+/* Progress tracker styles */
 .progress-container {
     width: 100%;
-    background-color: white;
-    border-radius: 5%;
-    margin-top: 2%;
-}
-
-.progress-bar {
+    background-color: #e0e0e0; /* light grey background */
+    border-radius: 20px;
+    overflow: hidden;
+    height: 20px;
+    margin-top: 20px;
+  }
+  
+  .progress-bar {
     width: 0%;
     height: 100%;
-    background-color: white;
-    border-radius: 5%;
+    background: linear-gradient(90deg, #66bb6a, #a3d1a6); /* vibrant green gradient */
     transition: width 0.5s ease-in-out;
-}
-
-#progress-text {
+  }
+  
+  #progress-text {
     text-align: center;
-    margin-top: 2%;
+    margin-top: 10px;
     font-weight: 500;
-}
+    color: #000000;
+  }
+  
 /* login.html Web Styling */
 
 .loginContainer {

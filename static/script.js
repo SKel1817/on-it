@@ -140,9 +140,6 @@ function fetchAuditSteps() {
     .then(data => {
       const steps = data.CybersecurityAudit;
       const stepKeys = Object.keys(steps);
-        // for intilalizing progress bar
-        updateProgressBar();
-
       // Mapping for decision radio buttons for Step1.
       // (These keys come from the radio button names for Step1.)
       const step1Mapping = {
@@ -191,10 +188,8 @@ function fetchAuditSteps() {
           radioOptions.style.display = "none";
           document.getElementById("auditInput").style.display = "block";
         }
-      }
-
-      //update progress tracker
-      updateProgressBar();
+        // update progress bar
+        updateProgressBar();
       }
 
       // Start by displaying the decision step "Step1"
@@ -261,7 +256,7 @@ function fetchAuditSteps() {
               } else {
                 alert("You've completed all the steps! Responses saved.");
                 // Optionally reset flags/indexes if you want to restart the flow.
-                 updateProgressBar(); // Ensure progress bar shows 100%
+                updateProgressBar(); // Ensure progress bar shows 100%
               }
             })
             .catch((error) => {
@@ -276,29 +271,21 @@ function fetchAuditSteps() {
     });
 }
 
-//Progress tracker code!! updates dynamically
+// //Progress tracker code!! updates dynamically
+// Update progress bar based on current step and total steps
 function updateProgressBar() {
+  const progressBar = document.getElementById("progress-bar");
+  const progressText = document.getElementById("progress-text");
 
-    //select the progress bar element
-    const progressBar = document.getElementById("progress-bar");
-    // select the text element that shows progress percentage
-    const progressText = document.getElementById("progress-text");
+  // If decision hasn't been made yet, treat the decision step as one step
+  let totalSteps = decisionComplete ? combinedSteps.length : 1;
+  let currentProgress = decisionComplete ? currentStepIndex : 0;
+  let progressPercentage = totalSteps > 0 ? (currentProgress / totalSteps) * 100 : 0;
+  progressPercentage = Math.min(Math.max(progressPercentage, 0), 100);
 
-    //ensuring progress is not divided by zero
-    // Get the total number of steps in the audit process
-    let totalSteps = combinedSteps.length;
-    //calc the progress percentage while ensuring no division by zero
-    let progressPercentage = totalSteps > 1 ? (currentStepIndex / (totalSteps - 1)) * 100 : 0;
-
-    // this is to prevent percentage from going below 0 or above 100
-    if (progressPercentage < 0 || isNaN(progressPercentage)) progressPercentage = 0;
-    if (progressPercentage > 100) progressPercentage = 100; // Ensure it doesn't exceed 100%
-
-    // for updating UI for width and text display progress percentage
-     progressBar.style.width = `${progressPercentage}%`;
-     progressText.textContent = `Progress: ${Math.round(progressPercentage)}%`;
-
-    }
+  progressBar.style.width = `${progressPercentage}%`;
+  progressText.textContent = `Progress: ${Math.round(progressPercentage)}%`;
+}
 
 
 // END OF AUDIT LOGIC -------------------------------------------------------------------------------------
