@@ -353,7 +353,7 @@ function loadReport(date) {
       let stepsHTML = "";
       data.responses.forEach(item => {
         const stepName = item.step || "N/A";
-        const instruction = data.steps[item.step] ? .Instruction || "Instruction not available";
+        const instruction = data.steps[item.step]?.Instruction || "Instruction not available";
         const response = item.answer || "No response provided";
         stepsHTML += `
           <tr>

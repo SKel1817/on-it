@@ -6,7 +6,30 @@ Slate Blue - #545E75
 Mid Blue - #143F6E
 Dark Blue - #05172A
 */
-
+/* changes made with visual css editior */
+/* Index container */
+.indexContainer{
+    line-height:41.9px;
+    font-weight:700;
+   }
+   
+   @media (max-width:768px){
+   
+    /* Index container */
+    .indexContainer{
+     transform:translatex(0px) translatey(0px);
+    }
+    
+   }
+   
+   @media (min-width:769px){
+   
+    /* Index container */
+    .indexContainer{
+     font-size:34px;
+    }
+    
+   }
 /* General Styling rules used through all the html pages */
 
 * {
@@ -37,8 +60,7 @@ h1 {
     font-weight: 900;
 }
 
-h2,
-h3 {
+h2, h3 {
     color: #143F6E;
     margin-bottom: 0.5rem;
     text-align: center;
@@ -51,22 +73,15 @@ header {
     padding-top: .5em;
 }
 
-/* changed - Distinct, darker nav bar with drop shadow and sticky position */
+/* changed - Light transparent white nav bar, icons/links to original blue */
 header {
-    background-color: #143F6E;
-    /* changed */
-    color: #fff;
-    /* changed */
+    background-color: rgba(255, 255, 255, 0.8); /* changed */
+    color: #143F6E; /* changed */
     position: sticky;
-    /* changed */
     top: 0;
-    /* changed */
     z-index: 999;
-    /* changed */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    /* changed */
     padding: 0.5rem 0;
-    /* changed */
 }
 
 #fLeft {
@@ -74,30 +89,25 @@ header {
     width: 5em;
 }
 
-/* changed - updated nav styling to align center and color white */
+/* changed - nav text/icons to #143F6E (original blue) */
 .nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* changed */
     height: 3em;
-    /* changed */
     padding: 0 1%;
     background-color: transparent;
-    /* changed (navbar color is on header) */
 }
 
 .nav a {
-    color: #fff;
-    /* changed */
+    color: #143F6E; /* changed */
     text-decoration: none;
     font-weight: 700;
     transition: color 0.3s ease;
 }
 
 .nav a:hover {
-    color: #BDD4BC;
-    /* changed for contrast */
+    color: #545E75; /* changed */
     text-decoration: underline;
 }
 
@@ -106,19 +116,18 @@ header {
     gap: 1rem;
 }
 
-/* changed - optional icon styling if you use material icons */
+/* changed - icons back to original blue */
 .material-icons {
     font-size: 1.5rem;
-    color: #fff;
+    color: #143F6E; /* changed */
 }
 
 /* containerCommon (optional concept) */
-/* You can use this class for all major content sections if desired */
 .containerCommon {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     padding: 2rem;
     margin: 2rem auto;
     max-width: 80%;
@@ -126,66 +135,86 @@ header {
 }
 
 /* INDEX (HOMEPAGE) */
-/* changed - modern "hero" style for index page */
+/* bigger, more transparent "hero" style for index page */
 .indexContainer {
     margin: 4rem auto;
-    /* changed */
-    max-width: 700px;
-    /* changed */
-    background-color: #ffffff;
-    /* changed */
+    width: 80%;
+    max-width: 900px;
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 1rem;
-    /* changed */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    /* changed */
     text-align: center;
-    /* changed */
-    padding: 2rem;
-    /* changed */
+    padding: 4rem;
     color: #143F6E;
     position: relative;
-    /* changed - remove absolute so it flows naturally */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .indexContainer h1 {
-    font-size: 3rem;
-    /* changed */
-    margin-bottom: 1.5rem;
-    /* changed */
+    font-size: 4rem;
+    margin-bottom: 2rem;
 }
 
 .indexContainer p {
-    font-size: 1.25rem;
-    /* changed */
-    margin-bottom: 1.5rem;
-    /* changed */
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
     color: #545E75;
-    /* changed */
 }
 
 .indexContainer input {
-    min-width: 50%;
-    padding: 0.75rem;
+    min-width: 60%;
+    padding: 1rem;
     margin: 1rem;
-    font-size: 1rem;
+    font-size: 1.25rem;
     border: 1px solid #4F5D2F;
     border-radius: 0.5rem;
 }
 
-/* changed - modern button styling */
 .indexContainer input[type="submit"] {
     background-color: #376F26;
     color: #fff;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-    /* changed - extra pop */
+    font-size: 1.5rem;
+    padding: 1rem 2rem;
 }
 
 .indexContainer input[type="submit"]:hover {
     background-color: #143F6E;
-    /* changed */
-    transform: scale(1.03);
+    transform: scale(1.05);
+}
+
+/* MOBILE VERSION */
+@media (max-width: 768px) {
+    .indexContainer {
+        width: 90%;
+        padding: 2rem;
+    }
+
+    .indexContainer h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .indexContainer p {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .indexContainer input {
+        min-width: 80%;
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+
+    .indexContainer input[type="submit"] {
+        font-size: 1.25rem;
+        padding: 0.75rem 1.5rem;
+    }
 }
 
 /* AUDIT PAGE */
@@ -196,10 +225,10 @@ header {
 }
 
 .auditContainer {
-    background-color: #ffffff;
+    background-color: #ffffff; 
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
     text-align: center;
     margin: 2em auto;
     padding: 2rem;
@@ -215,7 +244,7 @@ header {
     font-size: 1rem;
 }
 
-.auditInput {
+.auditInput  {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -225,7 +254,6 @@ header {
 
 #auditInput {
     transform: translatex(314px) translatey(-12px);
-    /* left as-is if needed */
 }
 
 /* Progress tracker */
@@ -257,7 +285,7 @@ header {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     width: 80%;
     padding: 5%;
     position: absolute;
@@ -317,7 +345,7 @@ header {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     width: 50%;
     padding: 2%;
     position: absolute;
@@ -352,7 +380,7 @@ datalist {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     width: 60%;
     padding: 2%;
     position: absolute;
@@ -368,7 +396,7 @@ datalist {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     width: 50%;
     padding: 2%;
     position: absolute;
@@ -393,7 +421,7 @@ datalist {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     width: 50%;
     padding: 2%;
     position: absolute;
@@ -429,13 +457,13 @@ datalist {
 
 /* SEARCH PAGE */
 .searchContent {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-    gap: 8px;
-    margin: auto;
+    display: flex;  
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 70%;
-    align-items: end;
+    margin: 0 auto;
+    min-height: 80vh;
 }
 
 .searchHopper {
@@ -443,15 +471,13 @@ datalist {
 }
 
 .searchContainer {
-    grid-column: span 2 / span 2;
-    grid-row: span 4 / span 4;
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     text-align: center;
     overflow-y: auto;
-    margin: auto;
+    margin: 0 auto;
     padding: 2rem;
 }
 
@@ -473,7 +499,7 @@ datalist {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     text-align: center;
     margin: 5% auto;
     padding: 2rem;
@@ -498,7 +524,7 @@ datalist {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     width: 50%;
     padding: 2%;
     position: absolute;
@@ -555,7 +581,6 @@ datalist {
         width: 90%;
         font-size: clamp(1.5em, 3vw, 2.5em);
         padding: 1.5rem;
-        /* changed */
     }
 
     .auditContainer {
@@ -623,7 +648,6 @@ datalist {
     .Hopper {
         width: 60%;
     }
-
     .indexContainer input[type="submit"] {
         font-size: 1.5em;
     }
