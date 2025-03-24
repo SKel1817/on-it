@@ -20,151 +20,152 @@
     {% if current_user.is_authenticated %}
     <span class="nav-user">Welcome, {{ current_user.username }}!</span>
     <div class="navRight">
-        <a href="{{ url_for('learn') }}"><i class="material-icons">description</i></a>
-        <a href="{{ url_for('previous_audits') }}"><i class="material-icons">history</i></a>
-        <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
-        <a href="{{ url_for('settings') }}"><i class="material-icons">settings</i></a>
-        <a href="{{ url_for('logout') }}"><i class="material-icons">exit_to_app</i></a>
+      <a href="{{ url_for('learn') }}"><i class="material-icons">description</i></a>
+      <a href="{{ url_for('previous_audits') }}"><i class="material-icons">history</i></a>
+      <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
+      <a href="{{ url_for('settings') }}"><i class="material-icons">settings</i></a>
+      <a href="{{ url_for('logout') }}"><i class="material-icons">exit_to_app</i></a>
       {% else %}
       <div class="navRight">
         <a href="{{ url_for('learn') }}"><i class="material-icons">description</i></a>
         <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
         <a href="{{ url_for('login') }}"><i class="material-icons">person</i></a>
-      {% endif %}
-    </div>
-  </div>
-</header>
-
-  <body class="body"> 
-    <div class="auditContent">
-      <div class="auditContainer">
-        <!-- take the json file and dynamically have it display information -->
-        <!-- Step name-->
-        <h2 id="stepName"></h2>
-        <br>
-        <br>
-        <!--Instruction-->
-        <h3 id="instruction"></h3>
-        <br>
-        <br>
-        <!-- Dynamically have it only show explanation and example if familarity with audits is a 0, 
-        and only show explanation if it is a 1, instruciton should always be visable-->
-        <!--Explanation-->
-        <!--display familarity with audits on the screen to make sure it's working-->
-        <!-- <p id="familarity">{{ current_user.familarity_with_audits }}</p> -->
-        {% if current_user.familarity_with_audits == 1 or current_user.familarity_with_audits == 0 %}
-        <p id="explanation"></p>
-        <br>
-        <br>
-      {% endif %}      
-        <!--Example-->
-        {% if current_user.familarity_with_audits == 0 %}
-        <p id="example"></p>
-        <br>
-        <br>
         {% endif %}
-        <div id="radioOptions">
-          <label for="yes_no_radio_server">Do you have servers ?</label>
-          <p>
-          <input type="radio" name="servers" value="Yes" checked>Yes</input>
-          </p>
-          <p>
-          <input type="radio" name="servers" value="No">No</input>
-          </p>
-          <br>
-          <label for="yes_no_radio_applications">Do you have applications ?</label>
-          <p>
-          <input type="radio" name="applications" value="Yes" checked>Yes</input>
-          </p>
-          <p>
-          <input type="radio" name="applications" value="No">No</input>
-          </p>
-          <br>
-          <label for="yes_no_radio_workstations">Do you have workstations ?</label>
-          <p>
-          <input type="radio" name="workstations" value="Yes" checked>Yes</input>
-          </p>
-          <p>
-          <input type="radio" name="workstations" value="No">No</input>
-          </p>
-          <br>
-          <label for="yes_no_radio_cloudServices">Do you have cloud services ?</label>
-          <p>
-          <input type="radio" name="cloudServices" value="Yes" checked>Yes</input>
-          </p>
-          <p>
-          <input type="radio" name="cloudServices" value="No">No</input>
-          </p>
-          <br>
-          <label for="yes_no_radio_devices">Do you have devices ?</label>
-          <p>
-          <input type="radio" name="devices" value="Yes" checked>Yes</input>
-          </p>
-          <p>
-          <input type="radio" name="devices" value="No">No</input>
-          </p>
-          <br>
-          <label for="yes_no_radio_networkArchitecture">Do you have network architecture ?</label>
-          <p>
-          <input type="radio" name="networkArchitecture" value="Yes" checked>Yes</input>
-          </p>
-          <p>
-          <input type="radio" name="networkArchitecture" value="No">No</input>
-          </p>
-        </div>
-        <textarea type="textarea" id="auditInput" placeholder="Enter Information Here"></textarea>
-        <input type="button" id="nextButton" value="Next Step">
-        <br>
-        <br>
-        <div class="auditHelp">
-          <!-- if familiarity is 0 do not show this button, if familiarity is 1, show the JSON example, if familiarity is 0 show the JSON explanation and example-->
-          {% if current_user.familarity_with_audits > 0 %}
-          <button onclick="toggleHelp()">Need help? Click here for more information!</button>
-          <div id="helpContent" style="display: none;">
-            <br>
-              <p id="auditHelp">
-                {% if current_user.familarity_with_audits == 2 %}
-                <p id="explanation"></p>
-                <p id="example"></p>
-                {% endif %}
-                {% if current_user.familarity_with_audits == 1 %}
-                <p id="example"></p>
-                {% endif %}
-              </p>
-          </div>
-        </div>
-        {% endif %}
-
-        <!-- Progress tracker code -->
-        <div class="progress-container">
-          <div class="progress-bar" id="progress-bar"></div>
-        </div>
-        <!-- Text display for the progress percentage -->
-        <p id="progress-text">Progress: 0%</p>
-
-        <script>
-          function toggleHelp() {
-              var helpContent = document.getElementById("helpContent");
-              if (helpContent.style.display === "none") {
-                  helpContent.style.display = "block";
-              } else {
-                  helpContent.style.display = "none";
-              }
-          }
-          document.addEventListener("DOMContentLoaded", () => {
-          fetchAuditSteps();
-          });
-          const textArea = document.getElementById('auditInput');
-
-          textArea.style.height = textArea.scrollHeight + "px";
-          textArea.style.overflowY = "hidden";
-
-          textArea.addEventListener("input", function () {
-              this.style.height = "auto";
-              this.style.height = this.scrollHeight + "px";
-          });
-          </script>
       </div>
     </div>
-  </body>
+</header>
+
+<body class="body">
+  <div class="auditContent">
+    <div class="auditContainer">
+      <!-- take the json file and dynamically have it display information -->
+      <!-- Step name-->
+      <h2 id="stepName"></h2>
+      <br>
+      <br>
+      <!--Instruction-->
+      <h3 id="instruction"></h3>
+      <br>
+      <br>
+      <!-- Dynamically have it only show explanation and example if familarity with audits is a 0, 
+        and only show explanation if it is a 1, instruciton should always be visable-->
+      <!--Explanation-->
+      <!--display familarity with audits on the screen to make sure it's working-->
+      <!-- <p id="familarity">{{ current_user.familarity_with_audits }}</p> -->
+      {% if current_user.familarity_with_audits == 1 or current_user.familarity_with_audits == 0 %}
+      <p id="explanation"></p>
+      <br>
+      <br>
+      {% endif %}
+      <!--Example-->
+      {% if current_user.familarity_with_audits == 0 %}
+      <p id="example"></p>
+      <br>
+      <br>
+      {% endif %}
+      <div id="radioOptions">
+        <label for="yes_no_radio_server">Do you have servers ?</label>
+        <p>
+          <input type="radio" name="servers" value="Yes" checked>Yes</input>
+        </p>
+        <p>
+          <input type="radio" name="servers" value="No">No</input>
+        </p>
+        <br>
+        <label for="yes_no_radio_applications">Do you have applications ?</label>
+        <p>
+          <input type="radio" name="applications" value="Yes" checked>Yes</input>
+        </p>
+        <p>
+          <input type="radio" name="applications" value="No">No</input>
+        </p>
+        <br>
+        <label for="yes_no_radio_workstations">Do you have workstations ?</label>
+        <p>
+          <input type="radio" name="workstations" value="Yes" checked>Yes</input>
+        </p>
+        <p>
+          <input type="radio" name="workstations" value="No">No</input>
+        </p>
+        <br>
+        <label for="yes_no_radio_cloudServices">Do you have cloud services ?</label>
+        <p>
+          <input type="radio" name="cloudServices" value="Yes" checked>Yes</input>
+        </p>
+        <p>
+          <input type="radio" name="cloudServices" value="No">No</input>
+        </p>
+        <br>
+        <label for="yes_no_radio_devices">Do you have devices ?</label>
+        <p>
+          <input type="radio" name="devices" value="Yes" checked>Yes</input>
+        </p>
+        <p>
+          <input type="radio" name="devices" value="No">No</input>
+        </p>
+        <br>
+        <label for="yes_no_radio_networkArchitecture">Do you have network architecture ?</label>
+        <p>
+          <input type="radio" name="networkArchitecture" value="Yes" checked>Yes</input>
+        </p>
+        <p>
+          <input type="radio" name="networkArchitecture" value="No">No</input>
+        </p>
+      </div>
+      <textarea type="textarea" id="auditInput" placeholder="Enter Information Here"></textarea>
+      <input type="button" id="nextButton" value="Next Step">
+      <br>
+      <br>
+      <div class="auditHelp">
+        <!-- if familiarity is 0 do not show this button, if familiarity is 1, show the JSON example, if familiarity is 0 show the JSON explanation and example-->
+        {% if current_user.familarity_with_audits > 0 %}
+        <button onclick="toggleHelp()">Need help? Click here for more information!</button>
+        <div id="helpContent" style="display: none;">
+          <br>
+          <p id="auditHelp">
+            {% if current_user.familarity_with_audits == 2 %}
+            <p id="explanation"></p>
+            <p id="example"></p>
+            {% endif %}
+            {% if current_user.familarity_with_audits == 1 %}
+            <p id="example"></p>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Progress tracker code -->
+      <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <!-- Text display for the progress percentage -->
+      <p id="progress-text">Progress: 0%</p>
+
+      <script>
+        function toggleHelp() {
+          var helpContent = document.getElementById("helpContent");
+          if (helpContent.style.display === "none") {
+            helpContent.style.display = "block";
+          } else {
+            helpContent.style.display = "none";
+          }
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+          fetchAuditSteps();
+        });
+        const textArea = document.getElementById('auditInput');
+
+        textArea.style.height = textArea.scrollHeight + "px";
+        textArea.style.overflowY = "hidden";
+
+        textArea.addEventListener("input", function () {
+          this.style.height = "auto";
+          this.style.height = this.scrollHeight + "px";
+        });
+      </script>
+    </div>
+  </div>
+</body>
+
 </html>

@@ -93,12 +93,15 @@ function login_user() {
 
     console.log("Sending login request to API...");
     fetch("/login-user", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    })
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password
+        }),
+      })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Login failed");
@@ -235,13 +238,18 @@ function fetchAuditSteps() {
           }
           // Determine the current branch (we are using combinedSteps here)
           const stepName = combinedSteps[currentStepIndex];
-          const response = { response_step: stepName, response_answer: userInput };
+          const response = {
+            response_step: stepName,
+            response_answer: userInput
+          };
 
           fetch("/save_response", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(response),
-          })
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(response),
+            })
             .then((res) => {
               if (!res.ok) {
                 throw new Error("Failed to save response.");
@@ -456,5 +464,3 @@ function fetchFrameworks() {
 
 
 // Initialize the page don in each html file 
-
-
