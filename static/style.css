@@ -24,8 +24,10 @@ h1 {
     color: #143F6E;
 }
 
-#fRight {
-    float: right;
+header {
+    width: 100%;
+    background-color: #BDD4BC;
+    padding-top: .5em;
 }
 
 #fLeft {
@@ -34,17 +36,28 @@ h1 {
 }
 
 .nav {
-    margin: 1%;
+    display: flex;
+    justify-content: space-between;
+    align-self: center;
+    height: 2em;
+    padding: 0 1%;
+    background-color: #BDD4BC;
 }
 
 .nav a {
     color: #143F6E;
+    text-decoration: none;
+}
+
+.nav .navRight {
+    display: flex;
+    gap: 1rem;
 }
 
 body {
-    margin: auto;
+    margin: 0;
+    padding: 0;
     min-height: 100vh;
-    align-items: center;
     overflow-y: auto;
 }
 
@@ -88,42 +101,7 @@ body {
     align-items: end;
 }
 
-.auditHopper {
-    margin-right: 10%;
-}
-
-.Hopper {
-    float: right;
-}
-
-/* https://www.smashingmagazine.com/2024/03/modern-css-tooltips-speech-bubbles-part1/ */
-.auditHopperSpeech {
-    width: 90%;
-
-    /* triangle dimension */
-    --b: 2em;
-    /* base */
-    --h: 1em;
-    /* height */
-
-    --c: #FFFFFF;
-
-    padding: 2%;
-
-    border-radius: var(--r);
-    clip-path:
-        polygon(0 100%, 100% 100%, 100% 0, 0 0,
-            0 calc(50% - var(--b)/2),
-            calc(-1*var(--h)) 50%,
-            0 calc(50% + var(--b)/2));
-    background: var(--c);
-    border-image: fill 0/0/var(--h) conic-gradient(var(--c) 0 0);
-}
-
 .auditContainer {
-    grid-column: span 2 / span 2;
-    grid-row: span 4 / span 4;
-
     padding: 2%;
     min-height: 50%;
     width: 90%;
@@ -298,7 +276,7 @@ datalist {
     width: 60%;
 
     border: ridge;
-    border-radius: 10%;
+    border-radius: 5%;
 
     position: absolute;
     top: 50%;
@@ -340,6 +318,8 @@ datalist {
     color: #143F6E;
 
     vertical-align: sub;
+
+    overflow: auto;
 }
 
 /* settings.html Web Styling */
@@ -361,6 +341,8 @@ datalist {
     text-align: left;
 
     overflow-y: auto;
+
+    margin-top: 1em;
 }
 
 .settingsContainer form {
@@ -373,6 +355,15 @@ datalist {
     margin: 2%;
 }
 
+.settingsContainer .changePassword {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.settingsContainer .changePassword a {
+    color: #143F6E;
+}
 /* search.html Web Styling */
 
 .searchContent {
@@ -390,30 +381,6 @@ datalist {
 
 .searchHopper {
     margin-right: 10%;
-}
-
-/* https://www.smashingmagazine.com/2024/03/modern-css-tooltips-speech-bubbles-part1/ */
-.searchHopperSpeech {
-    width: 90%;
-
-    /* triangle dimension */
-    --b: 2em;
-    /* base */
-    --h: 1em;
-    /* height */
-
-    --c: #FFFFFF;
-
-    padding: 2%;
-
-    border-radius: var(--r);
-    clip-path:
-        polygon(0 100%, 100% 100%, 100% 0, 0 0,
-            0 calc(50% - var(--b)/2),
-            calc(-1*var(--h)) 50%,
-            0 calc(50% + var(--b)/2));
-    background: var(--c);
-    border-image: fill 0/0/var(--h) conic-gradient(var(--c) 0 0);
 }
 
 .searchContainer {
@@ -444,49 +411,11 @@ datalist {
 /* troubleshooting.html Web Styling */
 
 .troubleshootingContent {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(8, 1fr);
-    gap: 8px;
-
     margin: auto;
     width: 70%;
-
-    align-items: end;
-}
-
-.troubleshootingHopper {
-    margin-right: 10%;
-}
-
-/* https://www.smashingmagazine.com/2024/03/modern-css-tooltips-speech-bubbles-part1/ */
-.troubleshootingHopperSpeech {
-    width: 90%;
-
-    /* triangle dimension */
-    --b: 2em;
-    /* base */
-    --h: 1em;
-    /* height */
-
-    --c: #FFFFFF;
-
-    padding: 2%;
-
-    border-radius: var(--r);
-    clip-path:
-        polygon(0 100%, 100% 100%, 100% 0, 0 0,
-            0 calc(50% - var(--b)/2),
-            calc(-1*var(--h)) 50%,
-            0 calc(50% + var(--b)/2));
-    background: var(--c);
-    border-image: fill 0/0/var(--h) conic-gradient(var(--c) 0 0);
 }
 
 .troubleshootingContainer {
-    grid-column: span 2 / span 2;
-    grid-row: span 7 / span 7;
-
     padding: 2%;
     min-height: 50%;
     width: 90%;
@@ -499,6 +428,7 @@ datalist {
 
     overflow-y: auto;
     margin: auto;
+    margin-top: 5%;
 }
 
 .troubleshootingContainer input {
@@ -510,6 +440,44 @@ datalist {
 
 .please {
     margin: auto;
+}
+
+/* changePassword.html Web Styling */
+.changePasswordContainer {
+    padding: 2%;
+    max-height: 95%;
+    width: 50%;
+
+    border: ridge;
+    border-radius: 2em;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    background-color: #ffffff;
+    text-align: left;
+
+    overflow-y: auto;
+
+    margin-top: 1em;
+}
+
+.changePasswordContainer form {
+    color: #143F6E;
+}
+
+.changePasswordContainer input {
+    width: 95%;
+    padding: 2%;
+    margin: 2%;
+}
+
+.changePasswordContainer a {
+    width: 95%;
+    padding: 2%;
+    margin: 2%;
 }
 
 /* mobile styling */
@@ -527,6 +495,10 @@ datalist {
         align-items: center;
         padding: 2%;
         background-color: #BDD4BC;
+    }
+
+    .nav .navRight {
+        gap: 0;
     }
 
     .material-icons {

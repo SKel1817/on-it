@@ -15,26 +15,25 @@
 </head>
 
 <header>
-  <nav class="nav">
-    <a href="{{ url_for('index') }}"><i class="material-icons" id="fLeft">home</i></a>
-
+  <div class="nav">
+    <a href="{{ url_for('index') }}"><i class="material-icons">home</i></a>
     {% if current_user.is_authenticated %}
-      <span class="nav-user">Welcome, {{ current_user.username }}!</span>
-      <a href="{{ url_for('logout') }}"><i class="material-icons" id="fRight">exit_to_app</i></a>
-      <a href="{{ url_for('settings') }}"><i class="material-icons" id="fRight">settings</i></a>
-    {% else %}
-      <a href="{{ url_for('login') }}"><i class="material-icons" id="fRight">person</i></a>
-    {% endif %}
-    
-    <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined" id="fRight">build_circle</i></a>
-    <a href="{{ url_for('previous_audits') }}"><i class="material-icons" id="fRight">history</i></a>
-    <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
-  </nav>
+    <span class="nav-user">Welcome, {{ current_user.username }}!</span>
+    <div class="navRight">
+        <a href="{{ url_for('learn') }}"><i class="material-icons">description</i></a>
+        <a href="{{ url_for('previous_audits') }}"><i class="material-icons">history</i></a>
+        <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
+        <a href="{{ url_for('settings') }}"><i class="material-icons">settings</i></a>
+        <a href="{{ url_for('logout') }}"><i class="material-icons">exit_to_app</i></a>
+      {% else %}
+      <div class="navRight">
+        <a href="{{ url_for('learn') }}"><i class="material-icons">description</i></a>
+        <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
+        <a href="{{ url_for('login') }}"><i class="material-icons">person</i></a>
+      {% endif %}
+    </div>
+  </div>
 </header>
-<style>
-
-
-</style>
 
   <body class="body"> 
     <div class="auditContent">
