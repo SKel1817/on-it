@@ -8,6 +8,7 @@ Dark Blue - #05172A
 */
 
 /* General Styling rules used through all the html pages */
+
 * {
     margin: 0;
     padding: 0;
@@ -135,18 +136,19 @@ body {
 }
 
 /* Audit input */
+
 #auditInput{
     transform:translatex(314px) translatey(-12px);
-   }
+}
 /* Progress tracker styles */
 .progress-container {
     width: 100%;
-    background-color: #e0e0e0; /* light grey background */
+    background-color: #e0e0e0;
     border-radius: 20px;
     overflow: hidden;
     height: 20px;
     margin-top: 20px;
-  }
+}
   
   .progress-bar {
     width: 0%;
@@ -364,6 +366,7 @@ datalist {
 .settingsContainer .changePassword a {
     color: #143F6E;
 }
+
 /* search.html Web Styling */
 
 .searchContent {
@@ -377,10 +380,6 @@ datalist {
     width: 70%;
 
     align-items: end;
-}
-
-.searchHopper {
-    margin-right: 10%;
 }
 
 .searchContainer {
@@ -443,6 +442,7 @@ datalist {
 }
 
 /* changePassword.html Web Styling */
+
 .changePasswordContainer {
     padding: 2%;
     max-height: 95%;
@@ -556,36 +556,6 @@ datalist {
 }
 
     /* audit page styling */
-
-    .auditHopperSpeech {
-        position: relative;
-        width: 130%;
-        margin: 5% auto;
-        padding: 5%;
-        background-color: #C8E6C9;
-        color: #1B5E20;
-        border-radius: 2em;
-        text-align: center;
-        font-size: 1rem;
-        font-family: 'Playfair Display', serif;
-        font-weight: 500;
-        box-shadow: 0 2% 4% rgba(0, 0, 0, 0.1);
-    }
-
-    .auditHopperSpeech::after {
-        content: "";
-        position: absolute;
-        bottom: -10%;
-        left: 50%;
-        border-width: 10% 10% 0 10%;
-        border-style: solid;
-        border-color: #C8E6C9 transparent transparent transparent;
-    }
-
-    .auditHopperSpeech p {
-        margin: 0;
-        line-height: 150%;
-    }
 
 .auditContainer {
     width: 100%;
@@ -800,42 +770,6 @@ datalist {
     margin-top: -35%;
 }
 
-.troubleshootingHopper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.troubleshootingHopperSpeech {
-     position: relative;
-     width: 130%;
-     margin: 5% auto;
-     padding: 5%;
-     background-color: #C8E6C9;
-     color:  #1B5E20;
-     border-radius: 2em;
-     text-align: center;
-     font-size: 1rem;
-     font-family: 'Playfair Display', serif;
-     font-weight: 500;
-     box-shadow: 0 2% 4% rgba(0, 0, 0, 0.1);
-}
-
-.troubleshootingHopperSpeech::after {
-    content: "";
-    position: absolute;
-    bottom: -15%;
-    left: 10%;
-    border-width: 10px 10px 0 10px;
-    border-style: solid;
-    border-color: #C8E6C9 transparent transparent transparent;
-}
-
-troubleshootingHopperSpeech p {
-    margin: auto;
-    line-height: 150%;
-}
-
 .troubleshootingContainer {
     width: 103%;
     max-width: 90vw;
@@ -967,33 +901,6 @@ troubleshootingHopperSpeech p {
 
 /* search.html */
 
-.searchHopper {
-    width: 95%;
-    margin-left: -10%;
-}
-
-.searchHopperSpeech {
-    width: 100%;
-    font-size: 1rem;
-    color: #4F5D2F;
-    font-weight: 600;
-    text-align: center;
-    font-family: 'Playfair Display' , serif;
-    box-shadow: 0 2% 4% rgba(0, 0, 0, 0.1);
-    padding: 3%;
-    margin: auto;
-}
-
-.searchHopperSpeech::after {
-    content: "";
-    position: absolute;
-    bottom: -15%;
-    left: 10%;
-    border-width: 10px 10px 0 10px;
-    border-style: solid;
-    border-color: #C8E6C9 transparent transparent transparent;
-}
-
 .searchContainer {
     width: 100%;
     margin: auto;
@@ -1047,7 +954,6 @@ troubleshootingHopperSpeech p {
 
 }
 /* tablets */
-
 
     @media (min-width: 600px) and (max-width:768px) {
         .Hopper {
