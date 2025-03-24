@@ -104,11 +104,6 @@ body {
 /* audit.html Web Styling */
 
 .auditContent {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-    gap: 8px;
-
     margin: auto;
     height: 100%;
     width: 70%;
@@ -129,6 +124,7 @@ body {
 
     overflow-y: auto;
     margin: auto;
+    margin-top: 2em;
 }
 
 .auditContainer input {
@@ -154,7 +150,9 @@ body {
 #auditInput{
     transform:translatex(314px) translatey(-12px);
 }
+
 /* Progress tracker styles */
+
 .progress-container {
     width: 100%;
     background-color: #e0e0e0;
@@ -164,19 +162,19 @@ body {
     margin-top: 20px;
 }
   
-  .progress-bar {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(90deg, #66bb6a, #a3d1a6); /* vibrant green gradient */
-    transition: width 0.5s ease-in-out;
-  }
+.progress-bar {
+width: 0%;
+height: 100%;
+background: linear-gradient(90deg, #66bb6a, #a3d1a6); /* vibrant green gradient */
+transition: width 0.5s ease-in-out;
+}
   
-  #progress-text {
-    text-align: center;
-    margin-top: 10px;
-    font-weight: 500;
-    color: #000000;
-  }
+#progress-text {
+text-align: center;
+margin-top: 10px;
+font-weight: 500;
+color: #000000;
+}
   
 /* login.html Web Styling */
 
