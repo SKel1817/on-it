@@ -145,6 +145,45 @@ body {
     text-align: center;
 }
 
+.auditInput  {
+    max-width: fit-content;
+    max-height: fit-content;
+    padding: 1%;
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    resize: none;
+}
+
+/* Audit input */
+#auditInput{
+    transform:translatex(314px) translatey(-12px);
+   }
+/* Progress tracker styles */
+.progress-container {
+    width: 100%;
+    background-color: #e0e0e0; /* light grey background */
+    border-radius: 20px;
+    overflow: hidden;
+    height: 20px;
+    margin-top: 20px;
+  }
+  
+  .progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #66bb6a, #a3d1a6); /* vibrant green gradient */
+    transition: width 0.5s ease-in-out;
+  }
+  
+  #progress-text {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 500;
+    color: #000000;
+  }
+  
 /* login.html Web Styling */
 
 .loginContainer {
@@ -1059,4 +1098,3 @@ troubleshootingHopperSpeech p {
     }
 
 
-}

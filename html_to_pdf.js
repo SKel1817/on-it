@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 async function generatePDF(date) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-
+    
     // Build the URL to the live report page
     const reportUrl = `http://127.0.0.1:5000/report?date=${encodeURIComponent(date)}`;
 

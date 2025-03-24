@@ -31,6 +31,10 @@
     <a href="{{ url_for('learn') }}"><i class="material-icons" id="fRight">description</i></a>
   </nav>
 </header>
+<style>
+
+
+</style>
 
   <body class="body"> 
     <div class="auditContent">
@@ -41,7 +45,7 @@
         <p>Hello and welcome to your audit, follow the instructions below and insert the proper information!</p>
       </div>
       <div class="auditContainer">
-        <!-- take the json file and dynamically have it display information  -->
+        <!-- take the json file and dynamically have it display information -->
         <!-- Step name-->
         <h2 id="stepName"></h2>
         <br>
@@ -50,14 +54,22 @@
         <h3 id="instruction"></h3>
         <br>
         <br>
+        <!-- Dynamically have it only show explanation and example if familarity with audits is a 0, 
+        and only show explanation if it is a 1, instruciton should always be visable-->
         <!--Explanation-->
+        <!--display familarity with audits on the screen to make sure it's working-->
+        <!-- <p id="familarity">{{ current_user.familarity_with_audits }}</p> -->
+        {% if current_user.familarity_with_audits == 1 or current_user.familarity_with_audits == 0 %}
         <p id="explanation"></p>
         <br>
         <br>
+      {% endif %}      
         <!--Example-->
+        {% if current_user.familarity_with_audits == 0 %}
         <p id="example"></p>
         <br>
         <br>
+        {% endif %}
         <div id="radioOptions">
           <label for="yes_no_radio_server">Do you have servers ?</label>
           <p>
@@ -107,17 +119,36 @@
           <input type="radio" name="networkArchitecture" value="No">No</input>
           </p>
         </div>
-        <input type="text" id="auditInput" placeholder="Enter Information Here">
+        <textarea type="textarea" id="auditInput" placeholder="Enter Information Here"></textarea>
         <input type="button" id="nextButton" value="Next Step">
         <br>
         <br>
         <div class="auditHelp">
+          <!-- if familiarity is 0 do not show this button, if familiarity is 1, show the JSON example, if familiarity is 0 show the JSON explanation and example-->
+          {% if current_user.familarity_with_audits > 0 %}
           <button onclick="toggleHelp()">Need help? Click here for more information!</button>
           <div id="helpContent" style="display: none;">
             <br>
-              <p id="auditHelp">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi in sollicitudin purus. Cras gravida imperdiet ligula, facilisis lacinia erat porta at. Aliquam ac libero nec mauris pellentesque ultricies. Nulla facilisi. Maecenas ultrices urna vel lacinia pellentesque. Cras tempor lacus tortor. Nunc congue pretium risus, at dictum massa vehicula vel. Integer sit amet fringilla est. Integer congue sapien eros, sit amet pulvinar arcu mattis sit amet. Aenean ullamcorper lobortis purus, sed hendrerit nisl vestibulum at. Curabitur sed enim sapien. Suspendisse id imperdiet nisl.</p>
+              <p id="auditHelp">
+                {% if current_user.familarity_with_audits == 2 %}
+                <p id="explanation"></p>
+                <p id="example"></p>
+                {% endif %}
+                {% if current_user.familarity_with_audits == 1 %}
+                <p id="example"></p>
+                {% endif %}
+              </p>
           </div>
         </div>
+        {% endif %}
+
+        <!-- Progress tracker code -->
+        <div class="progress-container">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <!-- Text display for the progress percentage -->
+        <p id="progress-text">Progress: 0%</p>
+
         <script>
           function toggleHelp() {
               var helpContent = document.getElementById("helpContent");
@@ -129,6 +160,15 @@
           }
           document.addEventListener("DOMContentLoaded", () => {
           fetchAuditSteps();
+          });
+          const textArea = document.getElementById('auditInput');
+
+          textArea.style.height = textArea.scrollHeight + "px";
+          textArea.style.overflowY = "hidden";
+
+          textArea.addEventListener("input", function () {
+              this.style.height = "auto";
+              this.style.height = this.scrollHeight + "px";
           });
           </script>
       </div>
