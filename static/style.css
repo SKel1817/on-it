@@ -246,10 +246,13 @@ header {
 
 .auditInput  {
     width: 100%;
-    padding: 10px;
+    min-height: 6rem; /* changed - bigger initial height */
+    padding: 1rem; /* changed - more padding for comfort */
     border: 1px solid #ccc;
-    resize: none;
     border-radius: 0.5rem;
+    /* remove resize: none; or set resize: vertical; so they can expand if needed */
+    resize: vertical; /* changed */
+    font-size: 1.1rem; /* slightly larger text */
 }
 
 #auditInput {
