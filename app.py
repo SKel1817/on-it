@@ -539,6 +539,10 @@ def learn():
 def troubleshooting():
     return render_template("troubleshooting.html")
 
+@app.route("/changePassword")
+def changePassword():
+    return render_template("changePassword.html")
+
 
 # main loop to run the app
 if __name__ == "__main__":
