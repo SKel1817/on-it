@@ -21,14 +21,52 @@ html {
     background-repeat: no-repeat;
 }
 
-h1 {
-    color: #143F6E;
+body {
+    min-height: 100vh;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
 }
 
+/* HEADINGS */
+h1 {
+    color: #143F6E;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 900;
+}
+
+h2,
+h3 {
+    color: #143F6E;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+/* NAVIGATION */
 header {
     width: 100%;
     background-color: #BDD4BC;
     padding-top: .5em;
+}
+
+/* changed - Distinct, darker nav bar with drop shadow and sticky position */
+header {
+    background-color: #143F6E;
+    /* changed */
+    color: #fff;
+    /* changed */
+    position: sticky;
+    /* changed */
+    top: 0;
+    /* changed */
+    z-index: 999;
+    /* changed */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    /* changed */
+    padding: 0.5rem 0;
+    /* changed */
 }
 
 #fLeft {
@@ -36,123 +74,161 @@ header {
     width: 5em;
 }
 
+/* changed - updated nav styling to align center and color white */
 .nav {
     display: flex;
     justify-content: space-between;
-    align-self: center;
-    height: 2em;
+    align-items: center;
+    /* changed */
+    height: 3em;
+    /* changed */
     padding: 0 1%;
-    background-color: #BDD4BC;
-    display: flex;
-    justify-content: space-between;
-    align-self: center;
-    height: 2em;
-    padding: 0 1%;
-    background-color: #BDD4BC;
+    background-color: transparent;
+    /* changed (navbar color is on header) */
 }
 
 .nav a {
-    color: #143F6E;
+    color: #fff;
+    /* changed */
     text-decoration: none;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+.nav a:hover {
+    color: #BDD4BC;
+    /* changed for contrast */
+    text-decoration: underline;
 }
 
 .nav .navRight {
     display: flex;
     gap: 1rem;
-    text-decoration: none;
 }
 
-.nav .navRight {
-    display: flex;
-    gap: 1rem;
+/* changed - optional icon styling if you use material icons */
+.material-icons {
+    font-size: 1.5rem;
+    color: #fff;
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    overflow-y: auto;
+/* containerCommon (optional concept) */
+/* You can use this class for all major content sections if desired */
+.containerCommon {
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 80%;
+    text-align: left;
 }
 
-/* index.html Web Styling */
-
+/* INDEX (HOMEPAGE) */
+/* changed - modern "hero" style for index page */
 .indexContainer {
-    padding: 2%;
-    height: 40%;
-    width: 100%;
-
-    font-size: 3em;
-    color: #143F6E;
-
-    position: absolute;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
+    margin: 4rem auto;
+    /* changed */
+    max-width: 700px;
+    /* changed */
+    background-color: #ffffff;
+    /* changed */
+    border-radius: 1rem;
+    /* changed */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* changed */
     text-align: center;
+    /* changed */
+    padding: 2rem;
+    /* changed */
+    color: #143F6E;
+    position: relative;
+    /* changed - remove absolute so it flows naturally */
+}
+
+.indexContainer h1 {
+    font-size: 3rem;
+    /* changed */
+    margin-bottom: 1.5rem;
+    /* changed */
+}
+
+.indexContainer p {
+    font-size: 1.25rem;
+    /* changed */
+    margin-bottom: 1.5rem;
+    /* changed */
+    color: #545E75;
+    /* changed */
 }
 
 .indexContainer input {
-    min-width: 20%;
-    padding: 1%;
-    margin: 1%;
-    font-size: .5em;
+    min-width: 50%;
+    padding: 0.75rem;
+    margin: 1rem;
+    font-size: 1rem;
+    border: 1px solid #4F5D2F;
+    border-radius: 0.5rem;
 }
 
-/* audit.html Web Styling */
+/* changed - modern button styling */
+.indexContainer input[type="submit"] {
+    background-color: #376F26;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    /* changed - extra pop */
+}
 
+.indexContainer input[type="submit"]:hover {
+    background-color: #143F6E;
+    /* changed */
+    transform: scale(1.03);
+}
+
+/* AUDIT PAGE */
 .auditContent {
     margin: auto;
-    height: 100%;
     width: 70%;
-
     align-items: end;
 }
 
 .auditContainer {
-    padding: 2%;
-    min-height: 50%;
-    width: 90%;
-
-    border: ridge;
-    border-radius: 2em;
-
     background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
-
+    margin: 2em auto;
+    padding: 2rem;
+    max-width: 800px;
     overflow-y: auto;
-    margin: auto;
-    margin-top: 2em;
 }
 
 .auditContainer input {
-    max-width: fit-content;
-    max-height: fit-content;
-    padding: 1%;
-    text-align: center;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
 }
 
-.auditInput  {
-    max-width: fit-content;
-    max-height: fit-content;
-    padding: 1%;
-    text-align: center;
+.auditInput {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     resize: none;
+    border-radius: 0.5rem;
 }
 
-/* Audit input */
-
-#auditInput{
-    transform:translatex(314px) translatey(-12px);
+#auditInput {
+    transform: translatex(314px) translatey(-12px);
+    /* left as-is if needed */
 }
 
-/* Progress tracker styles */
-
+/* Progress tracker */
 .progress-container {
     width: 100%;
     background-color: #e0e0e0;
@@ -161,41 +237,33 @@ body {
     height: 20px;
     margin-top: 20px;
 }
-  
-.progress-bar {
-width: 0%;
-height: 100%;
-background: linear-gradient(90deg, #66bb6a, #a3d1a6); /* vibrant green gradient */
-transition: width 0.5s ease-in-out;
-}
-  
-#progress-text {
-text-align: center;
-margin-top: 10px;
-font-weight: 500;
-color: #000000;
-}
-  
-/* login.html Web Styling */
 
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #66bb6a, #a3d1a6);
+    transition: width 0.5s ease-in-out;
+}
+
+#progress-text {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 500;
+    color: #000000;
+}
+
+/* LOGIN PAGE */
 .loginContainer {
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 80%;
     padding: 5%;
-    border-radius: 2em;
-
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: #143F6E;
-
-    background-color: #ffffff;
-    box-shadow: 0px 0.5vw 1vw rgba(0, 0, 0, 0.1);
-
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -228,9 +296,8 @@ color: #000000;
     background: linear-gradient(to right, #4F5D2F, #376F26);
     color: white;
     font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    font-size: 2rem;
     font-weight: bold;
+    font-size: 2rem;
     border: none;
     cursor: pointer;
     transition: background 0.3s ease-in-out, transform 0.3s ease;
@@ -245,23 +312,19 @@ color: #000000;
     transform: scale(0.98);
 }
 
-/* acctCreate.html Web Styling */
-
+/* ACCOUNT CREATION PAGE */
 .accountContainer {
-    padding: 2%;
-    height: 80%;
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 50%;
-
-    border: ridge;
-
+    padding: 2%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
-    background-color: #ffffff;
     text-align: left;
-
     overflow-y: auto;
 }
 
@@ -271,8 +334,11 @@ color: #000000;
 
 .accountContainer input {
     width: 95%;
-    padding: 2%;
-    margin: 2%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
 }
 
 datalist {
@@ -281,84 +347,61 @@ datalist {
     color: #000000;
 }
 
-/* learn.html Web Styling */
-
+/* LEARN PAGE */
 .learnContainer {
-    padding: 2%;
-    margin: auto;
-    height: 80%;
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 60%;
-
-    border: ridge;
-    border-radius: 5%;
-    border-radius: 5%;
-
+    padding: 2%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
-    background-color: #ffffff;
     text-align: left;
-
     overflow-y: auto;
 }
 
-/* previous_audits.html Web Styling */
-
+/* PREVIOUS AUDITS PAGE */
 .auditListContainer {
-    padding: 2%;
-    margin: auto;
-    height: 60%;
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 50%;
-
-    border: ridge;
-
+    padding: 2%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
-    background-color: #ffffff;
     text-align: left;
-
     overflow-y: auto;
 }
 
 .previousContainer button {
     max-width: 10%;
-
     border: none;
     background-color: #ffffff;
     color: #143F6E;
-
     vertical-align: sub;
-
-    overflow: auto;
-
-    overflow: auto;
+    cursor: pointer;
 }
 
-/* settings.html Web Styling */
-
+/* SETTINGS PAGE */
 .settingsContainer {
-    padding: 2%;
-    max-height: 95%;
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 50%;
-
-    border: ridge;
-    border-radius: 2em;
-
+    padding: 2%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
-    background-color: #ffffff;
     text-align: left;
-
     overflow-y: auto;
-    margin-top: 2em;
 }
 
 .settingsContainer form {
@@ -367,8 +410,11 @@ datalist {
 
 .settingsContainer input {
     width: 95%;
-    padding: 2%;
-    margin: 2%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
 }
 
 .settingsContainer .changePassword {
@@ -381,18 +427,14 @@ datalist {
     color: #143F6E;
 }
 
-/* search.html Web Styling */
-
+/* SEARCH PAGE */
 .searchContent {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(5, 1fr);
     gap: 8px;
-
     margin: auto;
-    height: 100%;
     width: 70%;
-
     align-items: end;
 }
 
@@ -403,83 +445,68 @@ datalist {
 .searchContainer {
     grid-column: span 2 / span 2;
     grid-row: span 4 / span 4;
-
-    padding: 2%;
-    min-height: 50%;
-    width: 90%;
-
-    border: ridge;
-    border-radius: 2em;
-
     background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
-
     overflow-y: auto;
     margin: auto;
+    padding: 2rem;
 }
 
 .searchContainer input {
-    max-width: fit-content;
-    max-height: fit-content;
-    padding: 1%;
-    text-align: center;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
 }
 
-/* troubleshooting.html Web Styling */
-
+/* TROUBLESHOOTING PAGE */
 .troubleshootingContent {
     margin: auto;
     width: 70%;
 }
 
 .troubleshootingContainer {
-    padding: 2%;
-    min-height: 50%;
-    width: 90%;
-
-    border: ridge;
-    border-radius: 2em;
-
     background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
-
+    margin: 5% auto;
+    padding: 2rem;
+    width: 90%;
     overflow-y: auto;
-    margin: auto;
-    margin-top: 5%;
-    margin-top: 5%;
 }
 
 .troubleshootingContainer input {
-    max-width: fit-content;
-    max-height: fit-content;
-    padding: 1%;
-    text-align: center;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
 }
 
 .please {
     margin: auto;
 }
 
-/* changePassword.html Web Styling */
-
+/* CHANGE PASSWORD PAGE */
 .changePasswordContainer {
-    padding: 2%;
-    max-height: 95%;
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 50%;
-
-    border: ridge;
-    border-radius: 2em;
-
+    padding: 2%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
-    background-color: #ffffff;
     text-align: left;
-
     overflow-y: auto;
-
     margin-top: 1em;
 }
 
@@ -489,56 +516,22 @@ datalist {
 
 .changePasswordContainer input {
     width: 95%;
-    padding: 2%;
-    margin: 2%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
 }
 
 .changePasswordContainer a {
     width: 95%;
-    padding: 2%;
-    margin: 2%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
 }
 
-/* changePassword.html Web Styling */
-.changePasswordContainer {
-    padding: 2%;
-    max-height: 95%;
-    width: 50%;
+/* RESPONSIVE STYLES */
 
-    border: ridge;
-    border-radius: 2em;
-
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    background-color: #ffffff;
-    text-align: left;
-
-    overflow-y: auto;
-
-    margin-top: 1em;
-}
-
-.changePasswordContainer form {
-    color: #143F6E;
-}
-
-.changePasswordContainer input {
-    width: 95%;
-    padding: 2%;
-    margin: 2%;
-}
-
-.changePasswordContainer a {
-    width: 95%;
-    padding: 2%;
-    margin: 2%;
-}
-
-/* mobile styling */
-
+/* MOBILE STYLING */
 @media (max-width: 768px) {
 
     #fLeft {
@@ -551,489 +544,97 @@ datalist {
         justify-content: space-around;
         align-items: center;
         padding: 2%;
-        background-color: #BDD4BC;
     }
 
     .nav .navRight {
         gap: 0;
-    }
-
-    .nav .navRight {
-        gap: 0;
-    }
-
-    .material-icons {
-        font-size: 1.5rem;
-        color: #143F6E;
-    }
-
-    /* index.html(homepage) */
-
-    .Hopper {
-        width: 50% !important;
-        max-width: 280px !important;
-        height: auto;
-        display: block;
-        margin: 0 auto 1.5rem auto;
     }
 
     .indexContainer {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 4%;
-        font-family: 'Playfair Display', serif;
-        font-weight: 1000;
-        color: #04340C;
+        margin: 2rem auto;
+        width: 90%;
         font-size: clamp(1.5em, 3vw, 2.5em);
-        text-align: center;
+        padding: 1.5rem;
+        /* changed */
+    }
+
+    .auditContainer {
         width: 90%;
-        margin: 0 auto;
-    }
-
-
-    .indexContainer input[type="submit"] {
-        display: inline-block;
-        font-family: 'Playfair Display', serif;
-        font-weight: 700;
-        font-size: clamp(1.2em, 2vw, 1.5em);
-        color: white;
-        width: 100%;
-        max-width: 300px;
-        padding: 1rem 2rem;
-        background-color: #376F26;
-        border: none;
-        border-radius: 0.5rem;
-        margin-top: 1.5rem;
-        cursor: pointer;
-        box-shadow: 0.25rem 0.25rem 0.5rem rgba(0, 0, 0, 0.4);
-        transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-
-.indexContainer input[type="Submit"]:hover {
-    background-color: #376F26;
-    transform: scale(1.03);
-}
-
-    /* audit page styling */
-
-.auditContainer {
-    width: 100%;
-    max-width: 90vw;
-    margin: auto;
-    padding: 5%;
-    background-color: white;
-    border: 0.1rem solid  #A5D6A7;
-    border-radius: 5%;
-    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
-    color: #1B5E20;;
-    text-align: center;
-
-    display: flex;
-        flex-direction: column;
-        align-items: center;
-
-    }
-
-    .auditContainer h2,
-    .auditContainer h3 {
-        font-size: 1.2rem;
-        font-family: 'Playfair Display', serif;
-        font-weight: 700;
-        margin-bottom: 3%;
-    }
-
-    .auditContainer p {
-        font-size: 1rem;
-        font-family: 'Playfair Display', serif;
-        margin: 5% 0;
-    }
-
-    #auditInput {
-        width: 85%;
-        padding: 3%;
-        font-size: 1rem;
-        border: 1% solid #A5D6A7;
-        border-radius: 5%;
-        background-color: #ffffff;
-        color: #1B5E20;
-        font-family: 'Playfair Display', serif;
-        margin: 2% 0;
-    }
-
-    #nextButton {
-        width: 100%;
-        padding: 3%;
-        font-size: 120%;
-        font-family: 'Playfair Display', serif;
-        margin: 2% 0;
-        background: linear-gradient(to right, #66BB6A, #2E7D32);
-        transition: all 0.3s ease-in-out;
-        color: white;
-        border: none;
-        border-radius: 5%;
-        cursor: pointer;
-    }
-
-    #nextButton:hover {
-        background: linear-gradient(to right, #43A047, #2E7D32);
-        transform: scale(1.05);
-    }
-
-    .auditHelp {
-        margin: 5% auto;
-        width: 90%;
-        text-align: center;
-    }
-
-    .auditHelp button {
-        width: 100%;
+        margin: 1rem auto;
         padding: 5%;
-        font-size: 100%;
-        font-family: 'Playfair Display', serif;
-        background-color: #143F6E;
-        color: white;
-        border: none;
-        border-radius: 5%;
-        box-shadow: 0 2% 4% rgba(0, 0, 0, 0.1);
-        transition: background-color 0.3s ease;
-        cursor: pointer;
+        border-radius: 1rem;
     }
 
-    .auditHelp button:hover {
-        background-color: #66BB6A;
-    }
-
-    #helpContent {
-        width: 100%;
-        margin-top: 5%;
-        padding: 5%;
-        background-color: #f9f9f9;
-        border-radius: 5%;
-        font-size: 100%;
-        font-family: 'Playfair Display', serif;
-        box-shadow: 0 2% 4% rgba(0, 0, 0, 0.1);
-    }
-
-
-    /* accCreate.html */
     .accountContainer {
         width: 90%;
         max-width: 30rem;
         padding: 5%;
-        border-radius: 1rem;
-        background-color: BDD4BC;
+        background-color: #BDD4BC;
         box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.2);
         text-align: center;
         margin: 5% auto;
+        position: static;
+        transform: none;
     }
 
-    .accountContainer label {
-        display: block;
-        font-weight: bold;
-        color: #4F5D2F;
-        margin-top: 0.5rem;
-        text-align: center;
-        font-size: 1rem;
-    }
-
-    .accountContainer input[type="submit"] {
-        width: 100%;
-        padding: 1.2rem;
-        font-size: 1.2rem;
-        font-weight: bold;
-        background: linear-gradient(to right, #4F5D2F, #376F26);
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
+    .settingsContainer {
+        width: 90%;
         margin-top: 2rem;
-        cursor: pointer;
-        transition: background 0.3s ease-in-out, transform 0.2s ease;
+        position: static;
+        transform: none;
     }
 
-    .accountContainer input[type="submit"]:hover {
-        background: linear-gradient(to right, #376F26, #143F6E);
-        transform: scale(1.03);
+    .troubleshootingContainer {
+        width: 95%;
+        margin: 2rem auto;
     }
 
-    .accountContainer a {
-        display: block;
-        margin-top: 1.5rem;
-        font-size: 1rem;
-        font-weight: bold;
-        color: #143F6E;
-        text-decoration: none;
+    .auditListContainer {
+        width: 90%;
+        margin: 2rem auto;
+        position: static;
+        transform: none;
     }
 
-    .accountContainer a:hover {
-        text-decoration: underline;
-        color: #545E75;
+    .learnContainer {
+        width: 90%;
+        margin: 2rem auto;
+        position: static;
+        transform: none;
     }
 
-    .accountContainer input[type="range"] {
-        width: 100%;
-        margin: 1.5rem 0;
-        accent-color: #4F5D2F;
+    .searchContainer {
+        width: 90%;
+        margin: 2rem auto;
+        border-radius: 1rem;
+        padding: 2rem;
     }
 
-    datalist {
-        display: flex;
-        justify-content: space-between;
-        padding: 0 1rem;
-        font-size: 1rem;
-        font-weight: bold;
-        color: #4F5D2F;
+    .changePasswordContainer {
+        width: 90%;
+        margin: 2rem auto;
+        position: static;
+        transform: none;
+    }
+}
+
+/* TABLETS */
+@media (min-width: 600px) and (max-width: 768px) {
+    .Hopper {
+        width: 60%;
     }
 
-    /* setting.html page */
-
-    .accountContainer input[type="range"] {
-        width: 100%;
-        margin: 1.5rem 0;
-        accent-color: #4F5D2F;
+    .indexContainer input[type="submit"] {
+        font-size: 1.5em;
     }
+}
 
-    .settingsContainer label {
-        display: block;
-        font-weight: bold;
-        color: #4F5D2F;
-        margin-top: 1rem;
-        text-align: center;
-        font-size: 1rem;
+/* SMALL SCREENS */
+@media (max-width: 600px) {
+    .loginContainer {
+        width: 85%;
+        padding: 1.25rem;
+        border-radius: 0.75rem;
+        font-size: 1.125rem;
     }
-
-    /* setting.html page */
-
-    .settingsContainer input[type="submit"]:hover {
-        background: linear-gradient(to right, #376F26, #143F6E);
-        transform: scale(1.03);
-    }
-
-    .settingsContainer input[type="range"] {
-        width: 100%;
-        margin: 1.5rem 0;
-        accent-color: #4F5D2F;
-    }
-
-    datalist {
-        display: flex;
-        justify-content: space-between;
-        padding: 0 1rem;
-        font-size: 1rem;
-        font-weight: bold;
-        color: #4F5D2F;
-    }
-
-/* troubleshooting.html */
-
-.troubleshootingContent {
-    margin-top: -35%;
 }
-
-.troubleshootingContainer {
-    width: 103%;
-    max-width: 90vw;
-    margin: auto;
-    padding: 5%;
-    background-color: white;
-    border: 0.1rem solid  #A5D6A7;
-    border-radius: 5%;
-    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
-    color: #1B5E20;;
-    text-align: center;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.troubleshootingContainer input[type="text"] {
-    width: 85%;
-    padding: 3%;
-    font-size: 1rem;
-    border: 1% solid  #A5D6A7;
-    border-radius: 5%;
-    background-color: white;
-    color: #1B5E20;
-    font-family: 'Playfair Display' , serif;
-    margin: 2% 0;
-}
-
-.troubleshootingContainer input[type="submit"] {
-    width: 100%;
-    padding: 3%;
-    font-size: 1rem;
-    font-family: 'Playfair Display' , serif;
-    margin: 2% 0;
-    background: linear-gradient(to right, #66BB6A, #2E7D32);
-    transition: all 0.3s ease-in-out;
-    color: white;
-    border: none;
-    border-radius: 5%;
-    cursor: pointer;
-}
-
-.troubleshootingContainer input[type="submit"]:hover {
-     background: linear-gradient(to right, #43A047, #2E7D32);
-     transform: scale(1.05);
-}
-
-/* previous_audits.html */
-.auditListContainer {
-    width: 80%;
-    margin: auto;
-    padding: 5%;
-    background-color: white;
-    border: 0.1rem solid #A5D6A7;
-    border-radius: 5%;
-    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
-    color:  #1B5E20;
-    text-align: center;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.auditListContainer h1 {
-    font-size: 2rem;
-    color: #4F5D2F;
-    font-family: 'Playfair Display' , serif;
-    font-weight: 1000;
-    margin-bottom: 2%;
-}
-
-.auditListContainer ul {
-    width: 85%;
-    padding: 3%;
-    font-size: 1rem;
-    font-family: 'Playfair Display' , serif;
-    color: #4F5D2F;
-    font-weight: 800%;
-}
-
-/* learn.html framework page */
-.learnContainer {
-    width: 103%;
-    max-width: 90vw;
-    margin: auto;
-    padding: 5%;
-    background-color: white;
-    border: 0.1rem solid #A5D6A7;
-    border-radius: 5%;
-    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
-    color: #1B5E20;
-    text-align: center;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.learnContainer h1 {
-    font-size: 2rem;
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    color: #4F5D2F;
-    margin-bottom: 3%;
-}
-
-.learnContainer select {
-    width: 85%;
-    padding: 3%;
-    font-size: 1rem;
-    border: 1% solid  #A5D6A7;
-    border-radius: 5%;
-    background-color: white;
-    font-family: 'Playfair Display' , serif;
-    margin: 2% 0;
-}
-
-#frameworkDetails {
-    width: 85%;
-    font-size: 1rem;
-    color: #4F5D2F;
-    padding: 3%;
-    background-color: white;
-    font-family: 'Playfair Display' , serif;
-    text-align: center;
-}
-
-/* search.html */
-
-.searchContainer {
-    width: 100%;
-    margin: auto;
-    padding: 5%;
-    background-color: white;
-    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.2);
-    color: #4F5D2F;
-    text-align: center;
-    font-size: 1rem;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.searchContainer input[type="text"]{
-    width: 85%;
-    padding: 3%;
-    font-size: 1rem;
-    border: 1% solid  #A5D6A7;
-    border-radius: 5%;
-    background-color: white;
-    color: #1B5E20;
-    font-family: 'Playfair Display' , serif;
-    margin: 2% 0;
-}
-
-.searchContainer input[type="submit"]{
-    display:inline-block;
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    font-size: clamp(1.2em, 2vw, 1.5em);
-    color: white;
-    width:100%;
-    max-width: 300px;
-    padding: 1rem 2rem;
-    background-color:  #376F26;
-    border: none;
-    border-radius: 0.5rem;
-    margin-top: 1.5rem;
-    cursor: pointer;
-    box-shadow: 0.25rem 0.25rem 0.5rem rgba(0, 0, 0, 0.4);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.searchContainer input[type="submit"]:hover {
-    background-color: #376F26;
-    transform: scale(1.03);
-}
-/* report.html */
-
-}
-/* tablets */
-
-    @media (min-width: 600px) and (max-width:768px) {
-        .Hopper {
-            width: 60%;
-        }
-
-
-        .indexContainer input[type="submit"] {
-            font-size: 1.5em;
-        }
-    }
-
-    @media (max-width: 600px) {
-        .loginContainer {
-            width: 85%;
-            padding: 1.25rem;
-            border-radius: 0.75rem;
-            font-size: 1.125rem;
-        }
-    }
-
-

@@ -18,37 +18,38 @@
     {% if current_user.is_authenticated %}
     <span class="nav-user">Welcome, {{ current_user.username }}!</span>
     <div class="navRight">
-        <a href="{{ url_for('learn') }}"><i class="material-icons">description</i></a>
-        <a href="{{ url_for('previous_audits') }}"><i class="material-icons">history</i></a>
-        <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
-        <a href="{{ url_for('settings') }}"><i class="material-icons">settings</i></a>
-        <a href="{{ url_for('logout') }}"><i class="material-icons">exit_to_app</i></a>
+      <a href="{{ url_for('learn') }}"><i class="material-icons">description</i></a>
+      <a href="{{ url_for('previous_audits') }}"><i class="material-icons">history</i></a>
+      <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
+      <a href="{{ url_for('settings') }}"><i class="material-icons">settings</i></a>
+      <a href="{{ url_for('logout') }}"><i class="material-icons">exit_to_app</i></a>
       {% else %}
       <div class="navRight">
         <a href="{{ url_for('learn') }}"><i class="material-icons">description</i></a>
         <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
         <a href="{{ url_for('login') }}"><i class="material-icons">person</i></a>
-      {% endif %}
+        {% endif %}
+      </div>
     </div>
-  </div>
 </header>
 
 <body class="body">
   <div class="settingsContainer">
     <form action="" method="">
       <!-- fill in existing user info using current_user.what we need -->
-       <p>View or update your account information below:</p>
-       <br>
+      <p>View or update your account information below:</p>
+      <br>
       <label for="fname">First name:</label><br>
-      <input type="text" id="fname" name="fname" value="{{current_user.first_name}}" required ><br>
+      <input type="text" id="fname" name="fname" value="{{current_user.first_name}}" required><br>
       <label for="lname">Last name:</label><br>
-      <input type="text" id="lname" name="lname"value="{{current_user.last_name}}" required>
+      <input type="text" id="lname" name="lname" value="{{current_user.last_name}}" required>
       <label for="username">Username:</label>
       <input type="text" id="username" name="username" value="{{current_user.username}}" required>
       <label for="email">E-Mail:</label>
       <input type="email" id="email" name="E-Mail" value="{{current_user.email}}" required>
       <label for="slider">What is your familiarity with CyberSecurity audits?</label><br>
-      <input type="range" list="tickmarks" min="0" max="2" id="slider" name="slider" value="{{current_user.familarity_with_audits}}" required>
+      <input type="range" list="tickmarks" min="0" max="2" id="slider" name="slider"
+        value="{{current_user.familarity_with_audits}}" required>
       <datalist id="tickmarks">
         <option value="0" label="None."></option>
         <option value="1" label="Some."></option>

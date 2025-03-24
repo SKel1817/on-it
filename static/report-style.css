@@ -118,7 +118,8 @@ button:hover {
     }
 
     a {
-        display: none; /* Hide the links in the PDF */
+        display: none;
+        /* Hide the links in the PDF */
     }
 
     #report-container {
