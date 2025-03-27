@@ -331,8 +331,8 @@ def get_report_data():
         cur.execute("""
             SELECT response_step, response_answer
             FROM audit_response_table
-            WHERE DATE(date) = ?
-        """, (date,))
+            WHERE DATE(date) = ? AND user_table_iduser_table = ?
+        """, (date, current_user.id))
         responses = [{"step": row[0], "answer": row[1]} for row in cur.fetchall()]
 
         cur.execute("""
@@ -437,8 +437,8 @@ def generate_pdf():
         cur.execute("""
             SELECT response_step, response_answer
             FROM audit_response_table
-            WHERE DATE(date) = ?
-        """, (date,))
+            WHERE DATE(date) = ? AND user_table_iduser_table = ?
+        """, (date, current_user.id))
         responses = [{"repsonse_step": row[0], "response_answer": row[1]} for row in cur.fetchall()]
         cur.close()
         conn.close()
@@ -524,8 +524,9 @@ def settings():
     return render_template("settings.html")
 
 @app.route("/report")
+@login_required
 def report():
-    return render_template("report.html")
+    return render_template("report.html", current_user=current_user)
 
 @app.route("/previous")
 def previous_audits():
