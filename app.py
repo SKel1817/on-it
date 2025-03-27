@@ -304,7 +304,7 @@ def get_audit_dates():
             return jsonify({"error": "Database connection failed"}), 500
 
         cur = conn.cursor()
-        cur.execute("SELECT DISTINCT DATE(date) FROM audit_response_table")
+        cur.execute("SELECT DISTINCT DATE(date) FROM onit.audit_response_table WHERE user_table_iduser_table = ?", (current_user.id,))
         rows = cur.fetchall()
         dates = [row[0].strftime("%Y-%m-%d") for row in rows]
 
