@@ -63,7 +63,7 @@
         <!-- Steps will be dynamically inserted here -->
       </tbody>
     </table>
-    <button id="download-pdf" onclick="downloadPDF(document.getElementById('report-date').textContent)">
+    <button id="download-pdf" onclick="downloadPDF(document.getElementById('report-date').textContent, '{{ current_user.id }}')">
       Download Report
     </button>
   </div>
@@ -71,7 +71,8 @@
     document.addEventListener("DOMContentLoaded", () => {
       const urlParams = new URLSearchParams(window.location.search);
       const date = urlParams.get("date");
-      loadReport(date);
+      const id = urlParams.get("id");
+      loadReport(date, id);
     });
   </script>
 </body>

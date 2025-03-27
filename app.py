@@ -423,34 +423,13 @@ def generate_pdf():
         date = request.args.get("date")
         if not date:
             return jsonify({"error": "Date parameter is missing"}), 400
-        name = current_user.first_name + " " +current_user.last_name
-        role = current_user.role
-        if role == "":
-            role = "N/A"
 
-        conn = get_db_connection()
-        if conn is None:
-            return jsonify({"error": "Database connection failed"}), 500
-
-        cur = conn.cursor()
-        # Fetch responses for the given date
-        cur.execute("""
-            SELECT response_step, response_answer
-            FROM audit_response_table
-            WHERE DATE(date) = ? AND user_table_iduser_table = ?
-        """, (date, current_user.id))
-        responses = [{"repsonse_step": row[0], "response_answer": row[1]} for row in cur.fetchall()]
-        cur.close()
-        conn.close()
-
-        # Save responses to a temporary file or pass them to Puppeteer
-        temp_file = os.path.join("static", "temp_data.json")
-        with open(temp_file, "w") as f:
-            json.dump(responses, f)
+        user_id = current_user.id
+        if not user_id:
+            return jsonify({"error": "User ID is missing"}), 400
 
         # Call Puppeteer to generate the PDF
-        subprocess.run(["node", PUPPETEER_SCRIPT, date], check=True)
-
+        subprocess.run(["node", PUPPETEER_SCRIPT, date, str(user_id)], check=True)
 
         return send_file(OUTPUT_PDF, as_attachment=True)
     except subprocess.CalledProcessError as e:
