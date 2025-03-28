@@ -7,32 +7,7 @@ Mid Blue - #143F6E
 Dark Blue - #05172A
 */
 
-/* changes made with visual css editior */
-/* Index container */
-.indexContainer{
-    line-height:41.9px;
-    font-weight:700;
-   }
-   
-   @media (max-width:768px){
-   
-    /* Index container */
-    .indexContainer{
-     transform:translatex(0px) translatey(0px);
-    }
-    
-   } 
-   
-   @media (min-width:769px){
-   
-    /* Index container */
-    .indexContainer{
-     font-size:34px;
-    }
-    
-   }
-
-/* General Styling rules used through all the html pages */
+/* ------------------------------ General styling ------------------------------ */
 * {
     margin: 0;
     padding: 0;
@@ -52,7 +27,6 @@ body {
     padding: 0;
 }
 
-/* HEADINGS */
 h1 {
     color: #143F6E;
     font-size: 2rem;
@@ -67,29 +41,24 @@ h2, h3 {
     text-align: center;
 }
 
-/* NAVIGATION */
-header {
-    width: 100%;
-    padding-top: .5em;
-}
-
-/* changed - Light transparent white nav bar, icons/links to original blue */
-header {
-    background-color: rgba(255, 255, 255, 0.8); /* changed */
-    color: #143F6E; /* changed */
-    position: sticky;
-    top: 0;
-    z-index: 999;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    padding: 0.5rem 0;
-}
-
 #fLeft {
     float: left;
     width: 5em;
 }
 
-/* changed - nav text/icons to #143F6E (original blue) */
+/* Nav Bar */
+header {
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 0;
+    padding-top: .5em;
+    color: #143F6E;
+    position: sticky;
+    z-index: 999; 
+    width: 100%;
+    top: 0;
+}
+
 .nav {
     display: flex;
     justify-content: space-between;
@@ -114,15 +83,31 @@ header {
     text-decoration: underline;
 }
 
-/* Hamburger menu styling */
-.hamburger {
+.navRight {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.navRight a {
+    color: #143F6E;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.navRight a:hover {
+    color: #4F5D2F;
+    text-decoration: underline;
+}
+
+#hamburger {
     display: none;
     font-size: 2rem;
     cursor: pointer;
     color: #143F6E;
 }
 
-/* Dropdown menu styling */
 .dropdown {
     display: none;
     flex-direction: column;
@@ -148,77 +133,25 @@ header {
     color: #4F5D2F;
 }
 
-/* Hide the checkbox */
 .menu-toggle {
     display: none;
 }
 
-/* Show the dropdown when the checkbox is checked */
+.menu-toggle .material-icons {
+    display: none;
+}
+
 .menu-toggle:checked ~ .dropdown {
     display: flex;
 }
 
-.navRight {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.navRight a {
-    color: #143F6E;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
-}
-
-.navRight a:hover {
-    color: #4F5D2F;
-    text-decoration: underline;
-}
-
-.hamburger {
-    display: none;
-    font-size: 2rem;
-    cursor: pointer;
-    color: #143F6E;
-}
-
-@media (max-width: 768px) {
-    .nav .navRight {
-        display: none;
-    }
-
-    .hamburger {
-        display: block;
-    }
-
-    .dropdown {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 3em;
-        right: 1em;
-        background-color: #ffffff;
-        border: 1px solid #A5D6A7;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 1rem;
-        z-index: 1000;
-    }
-
-    .menu-toggle:checked ~ .dropdown {
-        display: flex;
-    }
-}
-
-/* changed - icons back to original blue */
 .material-icons {
     font-size: 1.5rem;
-    color: #143F6E; /* changed */
+    color: #143F6E;
 }
 
 /* containerCommon (optional concept) */
-.containerCommon {
+/* .containerCommon {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
     border-radius: 1rem;
@@ -227,10 +160,9 @@ header {
     margin: 2rem auto;
     max-width: 80%;
     text-align: left;
-}
+} */
 
-/* INDEX (HOMEPAGE) */
-/* bigger, more transparent "hero" style for index page */
+/* ------------------------------ Home / index.html web styling ------------------------------ */
 .indexContainer {
     margin: 4rem auto;
     width: 80%;
@@ -283,36 +215,7 @@ header {
     transform: scale(1.05);
 }
 
-/* MOBILE VERSION */
-@media (max-width: 768px) {
-    .indexContainer {
-        width: 90%;
-        padding: 2rem;
-    }
-
-    .indexContainer h1 {
-        font-size: 2.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .indexContainer p {
-        font-size: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .indexContainer input {
-        min-width: 80%;
-        padding: 0.75rem;
-        font-size: 1rem;
-    }
-
-    .indexContainer input[type="submit"] {
-        font-size: 1.25rem;
-        padding: 0.75rem 1.5rem;
-    }
-}
-
-/* AUDIT PAGE */
+/* ------------------------------ audit.html web styling ------------------------------ */
 .auditContent {
     margin: auto;
     width: 70%;
@@ -341,13 +244,12 @@ header {
 
 .auditInput  {
     width: 100%;
-    min-height: 6rem; /* changed - bigger initial height */
-    padding: 1rem; /* changed - more padding for comfort */
+    min-height: 6rem;
+    padding: 1rem;
     border: 1px solid #ccc;
     border-radius: 0.5rem;
-    /* remove resize: none; or set resize: vertical; so they can expand if needed */
-    resize: vertical; /* changed */
-    font-size: 1.1rem; /* slightly larger text */
+    resize: vertical;
+    font-size: 1.1rem;
 }
 
 #auditInput {
@@ -378,7 +280,154 @@ header {
     color: #000000;
 }
 
-/* LOGIN PAGE */
+/* ------------------------------ learn.html web styling ------------------------------ */
+.learnContainer {
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: 60%;
+    padding: 2%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: left;
+    overflow-y: auto;
+}
+
+/* ------------------------------ previous_audits.html web styling ------------------------------ */
+.auditListContainer {
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: 50%;
+    padding: 2%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: left;
+    overflow-y: auto;
+}
+
+.previousContainer button {
+    max-width: 10%;
+    border: none;
+    background-color: #ffffff;
+    color: #143F6E;
+    vertical-align: sub;
+    cursor: pointer;
+}
+
+/* ------------------------------ troubleshooting.html web styling ------------------------------ */
+.troubleshootingContent {
+    margin: auto;
+    width: 70%;
+}
+
+.troubleshootingContainer {
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    margin: 5% auto;
+    padding: 2rem;
+    width: 90%;
+    overflow-y: auto;
+}
+
+.troubleshootingContainer input {
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.please {
+    margin: auto;
+}
+
+/* ------------------------------ settings.html web styling ------------------------------ */
+.settingsContainer {
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: 50%;
+    height: 65%;
+    padding: 2%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: left;
+    overflow-y: auto;
+}
+
+.settingsContainer form {
+    color: #143F6E;
+}
+
+.settingsContainer input {
+    width: 100%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.settingsContainer .changePassword {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.settingsContainer .changePassword a {
+    color: #143F6E;
+}
+
+/* ------------------------------ changePassword web styling ------------------------------  */
+.changePasswordContainer {
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: 50%;
+    padding: 2%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: left;
+    overflow-y: auto;
+    margin-top: 1em;
+}
+
+.changePasswordContainer form {
+    color: #143F6E;
+}
+
+.changePasswordContainer input {
+    width: 95%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.changePasswordContainer a {
+    width: 95%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+}
+
+/* ------------------------------ login.html web styling ------------------------------ */
 .loginContainer {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
@@ -438,7 +487,7 @@ header {
     transform: scale(0.98);
 }
 
-/* ACCOUNT CREATION PAGE */
+/* ------------------------------ acctCreate.html web styling ------------------------------ */
 .accountContainer {
     background-color: #ffffff;
     border: 1px solid #A5D6A7;
@@ -474,88 +523,7 @@ datalist {
     color: #000000;
 }
 
-/* LEARN PAGE */
-.learnContainer {
-    background-color: #ffffff;
-    border: 1px solid #A5D6A7;
-    border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    width: 60%;
-    padding: 2%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: left;
-    overflow-y: auto;
-}
-
-/* PREVIOUS AUDITS PAGE */
-.auditListContainer {
-    background-color: #ffffff;
-    border: 1px solid #A5D6A7;
-    border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    width: 50%;
-    padding: 2%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: left;
-    overflow-y: auto;
-}
-
-.previousContainer button {
-    max-width: 10%;
-    border: none;
-    background-color: #ffffff;
-    color: #143F6E;
-    vertical-align: sub;
-    cursor: pointer;
-}
-
-/* SETTINGS PAGE */
-.settingsContainer {
-    background-color: #ffffff;
-    border: 1px solid #A5D6A7;
-    border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    width: 50%;
-    height: 65%;
-    padding: 2%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: left;
-    overflow-y: auto;
-}
-
-.settingsContainer form {
-    color: #143F6E;
-}
-
-.settingsContainer input {
-    width: 100%;
-    padding: 0.75rem;
-    margin: 0.5rem 0;
-    border-radius: 0.5rem;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-}
-
-.settingsContainer .changePassword {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-
-.settingsContainer .changePassword a {
-    color: #143F6E;
-}
-
-/* SEARCH PAGE */
+/* ------------------------------ search.html web styling ------------------------------ */
 .searchContent {
     display: flex;  
     flex-direction: column;
@@ -564,10 +532,6 @@ datalist {
     width: 70%;
     margin: 0 auto;
     min-height: 80vh;
-}
-
-.searchHopper {
-    margin-right: 10%;
 }
 
 .searchContainer {
@@ -589,77 +553,64 @@ datalist {
     font-size: 1rem;
 }
 
-/* TROUBLESHOOTING PAGE */
-.troubleshootingContent {
-    margin: auto;
-    width: 70%;
-}
-
-.troubleshootingContainer {
-    background-color: #ffffff;
-    border: 1px solid #A5D6A7;
-    border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    text-align: center;
-    margin: 5% auto;
-    padding: 2rem;
-    width: 90%;
-    overflow-y: auto;
-}
-
-.troubleshootingContainer input {
-    padding: 0.75rem;
-    margin: 0.5rem 0;
-    border-radius: 0.5rem;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-}
-
-.please {
-    margin: auto;
-}
-
-/* CHANGE PASSWORD PAGE */
-.changePasswordContainer {
-    background-color: #ffffff;
-    border: 1px solid #A5D6A7;
-    border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    width: 50%;
-    padding: 2%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: left;
-    overflow-y: auto;
-    margin-top: 1em;
-}
-
-.changePasswordContainer form {
-    color: #143F6E;
-}
-
-.changePasswordContainer input {
-    width: 95%;
-    padding: 0.75rem;
-    margin: 0.5rem 0;
-    border-radius: 0.5rem;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-}
-
-.changePasswordContainer a {
-    width: 95%;
-    padding: 0.75rem;
-    margin: 0.5rem 0;
-}
-
-/* RESPONSIVE STYLES */
-
-/* MOBILE STYLING */
+/* RESPONSIVE STYLING */
+/* Mobile styling */
 @media (max-width: 768px) {
+    /* Nav Bar */
+    .nav .navRight {
+        display: none;
+    }
 
+    #hamburger {
+        display: block;
+    }
+
+    .dropdown {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 3em;
+        right: 1em;
+        background-color: #ffffff;
+        border: 1px solid #A5D6A7;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        z-index: 1000;
+    }
+
+    .menu-toggle:checked ~ .dropdown {
+        display: flex;
+    }
+
+    /* index.html styling */
+    .indexContainer {
+        width: 90%;
+        padding: 2rem;
+    }
+
+    .indexContainer h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .indexContainer p {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .indexContainer input {
+        min-width: 80%;
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+
+    .indexContainer input[type="submit"] {
+        font-size: 1.25rem;
+        padding: 0.75rem 1.5rem;
+    }
+
+    
     #fLeft {
         float: left;
         width: 1em;
@@ -743,16 +694,7 @@ datalist {
     }
 }
 
-/* TABLETS */
-@media (min-width: 600px) and (max-width: 768px) {
-    .Hopper {
-        width: 60%;
-    }
-    .indexContainer input[type="submit"] {
-        font-size: 1.5em;
-    }
-}
-
+/* Small Screen Styling */
 /* SMALL SCREENS */
 @media (max-width: 600px) {
     .loginContainer {
@@ -760,5 +702,15 @@ datalist {
         padding: 1.25rem;
         border-radius: 0.75rem;
         font-size: 1.125rem;
+    }
+}
+
+/* Tablet styling */
+@media (min-width: 600px) and (max-width: 768px) {
+    .Hopper {
+        width: 60%;
+    }
+    .indexContainer input[type="submit"] {
+        font-size: 1.5em;
     }
 }

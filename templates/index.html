@@ -17,7 +17,7 @@
   <div class="nav">
     <a href="{{ url_for('index') }}"><i class="material-icons">home</i></a>
     <input type="checkbox" id="menu-toggle" class="menu-toggle">
-    <label for="menu-toggle" class="hamburger">☰</label>
+    <label for="menu-toggle"><i class="material-icons" id="hamburger">menu</i></label>
     <div class="dropdown">
       {% if current_user.is_authenticated %}
       <span class="nav-user">Welcome, {{ current_user.username }}!</span>
@@ -47,7 +47,6 @@
       {% endif %}
     </div>
   </div>
-
 </header>
 
 <body class="body">
