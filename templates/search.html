@@ -60,24 +60,38 @@
 <header>
   <div class="nav">
     <a href="{{ url_for('index') }}"><i class="material-icons">home</i></a>
-    {% if current_user.is_authenticated %}
-    <span class="nav-user">Welcome, {{ current_user.username }}!</span>
+    <input type="checkbox" id="menu-toggle" class="menu-toggle">
+    <label for="menu-toggle"><i class="material-icons" id="hamburger">menu</i></label>
+    <div class="dropdown">
+      {% if current_user.is_authenticated %}
+      <span class="nav-user">Welcome, {{ current_user.username }}!</span>
+      <a href="{{ url_for('learn') }}"><i class="material-icons">description</i> Learn</a>
+      <a href="{{ url_for('previous_audits') }}"><i class="material-icons">history</i> Previous Audits</a>
+      <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i> Troubleshooting</a>
+      <a href="{{ url_for('settings') }}"><i class="material-icons">settings</i> Settings</a>
+      <a href="{{ url_for('logout') }}"><i class="material-icons">exit_to_app</i> Logout</a>
+      {% else %}
+      <a href="{{ url_for('learn') }}"><i class="material-icons">description</i> Learn</a>
+      <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i> Troubleshooting</a>
+      <a href="{{ url_for('login') }}"><i class="material-icons">person</i> Login</a>
+      {% endif %}
+    </div>
     <div class="navRight">
+      {% if current_user.is_authenticated %}
+      <span class="nav-user">Welcome, {{ current_user.username }}!</span>
       <a href="{{ url_for('learn') }}"><i class="material-icons">description</i></a>
       <a href="{{ url_for('previous_audits') }}"><i class="material-icons">history</i></a>
       <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
       <a href="{{ url_for('settings') }}"><i class="material-icons">settings</i></a>
       <a href="{{ url_for('logout') }}"><i class="material-icons">exit_to_app</i></a>
       {% else %}
-      <div class="navRight">
-        <a href="{{ url_for('learn') }}"><i class="material-icons">description</i></a>
-        <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
-        <a href="{{ url_for('login') }}"><i class="material-icons">person</i></a>
-        {% endif %}
-      </div>
+      <a href="{{ url_for('learn') }}"><i class="material-icons">description</i> </a>
+      <a href="{{ url_for('troubleshooting') }}"><i class="material-symbols-outlined">build_circle</i></a>
+      <a href="{{ url_for('login') }}"><i class="material-icons">person</i></a>
+      {% endif %}
     </div>
+  </div>
 </header>
-
 <body class="body">
   <div class="please">
     <div class="searchContent">
