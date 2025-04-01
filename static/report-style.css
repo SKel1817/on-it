@@ -1,12 +1,4 @@
 /* General Styles */
-#fRight {
-    float: right;
-}
-
-#fLeft {
-    float: left;
-}
-
 body {
     font-family: 'Times New Roman', Times, serif;
     margin: 0;
@@ -16,7 +8,106 @@ body {
     line-height: 1.6;
 }
 
+/* Nav bar */
+header {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 0;
+    padding-top: .5em;
+    color: #143F6E;
+    position: sticky;
+    z-index: 999; 
+    width: 100%;
+    top: 0;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 3em;
+    padding: 0 1%;
+    background-color: rgba(255, 255, 255, 0.8);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
 .nav a {
+    color: #143F6E;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+.nav a:hover {
+    color: #545E75;
+    text-decoration: underline;
+}
+
+.navRight {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.navRight a {
+    color: #143F6E;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.navRight a:hover {
+    color: #4F5D2F;
+    text-decoration: underline;
+}
+
+#hamburger {
+    display: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #143F6E;
+}
+
+.dropdown {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 3em;
+    right: 1em;
+    background-color: #ffffff;
+    border: 1px solid #A5D6A7;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    z-index: 1000;
+}
+
+.dropdown a {
+    margin: 0.5rem 0;
+    color: #143F6E;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.dropdown a:hover {
+    color: #4F5D2F;
+}
+
+.menu-toggle {
+    display: none;
+}
+
+.menu-toggle .material-icons {
+    display: none;
+}
+
+.menu-toggle:checked ~ .dropdown {
+    display: flex;
+}
+
+.material-icons {
+    font-size: 1.5rem;
     color: #143F6E;
 }
 
@@ -127,5 +218,39 @@ button:hover {
         padding: 0;
         border: none;
         width: 100%;
+    }
+
+    header {
+        display: none;
+        /* Hide the header in the PDF */
+    }
+}
+
+@media (max-width: 768px) {
+    /* Nav Bar */
+    .nav .navRight {
+        display: none;
+    }
+
+    #hamburger {
+        display: block;
+    }
+
+    .dropdown {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 3em;
+        right: 1em;
+        background-color: #ffffff;
+        border: 1px solid #A5D6A7;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        z-index: 1000;
+    }
+
+    .menu-toggle:checked ~ .dropdown {
+        display: flex;
     }
 }
