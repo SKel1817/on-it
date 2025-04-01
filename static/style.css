@@ -645,7 +645,6 @@ datalist {
         width: 90%;
         max-width: 30rem;
         padding: 5%;
-        background-color: #BDD4BC;
         box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.2);
         text-align: center;
         margin: 5% auto;
@@ -656,8 +655,9 @@ datalist {
     .settingsContainer {
         width: 90%;
         margin-top: 2rem;
-        position: static;
-        transform: none;
+        /* position: static;
+        transform: none; */
+        margin: auto;
     }
 
     .troubleshootingContainer {
