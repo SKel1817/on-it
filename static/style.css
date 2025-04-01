@@ -150,20 +150,33 @@ header {
     color: #143F6E;
 }
 
-/* containerCommon (optional concept) */
-/* .containerCommon {
-    background-color: #ffffff;
-    border: 1px solid #A5D6A7;
-    border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    padding: 2rem;
-    margin: 2rem auto;
-    max-width: 80%;
-    text-align: left;
-} */
 
 /* ------------------------------ Home / index.html web styling ------------------------------ */
 .indexContainer {
+    padding: 2%;
+    height: 40%;
+    width: 100%;
+
+    font-size: 3em;
+    color: #143F6E;
+
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);  
+    
+    text-align: center;
+}
+
+.indexContainer input {
+    min-width: 20%;
+    padding: 1%;
+    margin: 1%;
+    font-size: .5em;
+    border-radius: 0.5rem;
+}
+
+/* .indexContainer {
     margin: 4rem auto;
     width: 80%;
     max-width: 900px;
@@ -178,7 +191,7 @@ header {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
+} */
 
 .indexContainer h1 {
     font-size: 4rem;
@@ -191,14 +204,14 @@ header {
     color: #545E75;
 }
 
-.indexContainer input {
+/* .indexContainer input {
     min-width: 60%;
     padding: 1rem;
     margin: 1rem;
     font-size: 1.25rem;
     border: 1px solid #4F5D2F;
     border-radius: 0.5rem;
-}
+} */
 
 .indexContainer input[type="submit"] {
     background-color: #376F26;
