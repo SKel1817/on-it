@@ -174,8 +174,24 @@ function fetchAuditSteps() {
         // Display example output
         const exampleDiv = document.getElementById("example");
         exampleDiv.innerHTML = "<strong>Example:</strong><br>";
-        for (const [key, value] of Object.entries(step.Example)) {
-          exampleDiv.innerHTML += `${key}: ${value}<br>`;
+        
+        // Check the type of Example data and handle accordingly
+        const example = step.Example;
+        if (example) {
+          if (typeof example === 'object' && example !== null) {
+            // It's an object, so iterate through its properties
+            for (const [key, value] of Object.entries(example)) {
+              exampleDiv.innerHTML += `${key}: ${value}<br>`;
+            }
+          } else if (typeof example === 'string') {
+            // It's a string, just display it directly
+            exampleDiv.innerHTML += example;
+          } else {
+            // For any other type, stringify it
+            exampleDiv.innerHTML += JSON.stringify(example);
+          }
+        } else {
+          exampleDiv.innerHTML += "No example available";
         }
 
         // Clear the input field
@@ -463,4 +479,4 @@ function fetchFrameworks() {
 // general page script functions
 
 
-// Initialize the page don in each html file 
+// Initialize the page don in each html file

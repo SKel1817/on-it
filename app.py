@@ -286,8 +286,37 @@ def get_audit_steps():
         cur.execute("SELECT Step, instruction, explanation, example FROM audit_steps_table")
         rows = cur.fetchall()
         
-        audit_steps = {row[0]: {"Instruction": row[1], "Explanation": row[2], "Example": json.loads(row[3])} for row in rows}
-        # pass along the user's familariity with audits
+        audit_steps = {}
+        for row in rows:
+            step = row[0]
+            instruction = row[1]
+            explanation = row[2]
+            example_str = row[3]
+            
+            # Handle text data from the database instead of trying to parse it as JSON
+            if example_str and example_str.strip():
+                # If the data looks like JSON, try to parse it
+                if (example_str.strip().startswith('{') and example_str.strip().endswith('}')) or \
+                   (example_str.strip().startswith('[') and example_str.strip().endswith(']')):
+                    try:
+                        example = json.loads(example_str)
+                    except json.JSONDecodeError:
+                        # If JSON parsing fails, use the string as is
+                        print(f"Could not parse JSON for step {step}, using raw string")
+                        example = example_str
+                else:
+                    # Not JSON format, use as plain text
+                    example = example_str
+            else:
+                # Empty or null value
+                example = ""
+            
+            audit_steps[step] = {
+                "Instruction": instruction,
+                "Explanation": explanation,
+                "Example": example
+            }
+        
         cur.close()
         conn.close()
         return jsonify({"CybersecurityAudit": audit_steps})
