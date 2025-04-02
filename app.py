@@ -274,6 +274,82 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 # Audit Logic Start ------------------
+# API for checking incomplete audits
+@app.route("/check_incomplete_audit", methods=["GET"])
+@login_required
+def check_incomplete_audit():
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        cur = conn.cursor()
+        
+        # First get all audit steps to determine total steps
+        cur.execute("SELECT COUNT(*) FROM audit_steps_table")
+        total_steps = cur.fetchone()[0]
+        
+        # Get the most recent incomplete audit date (if any)
+        # An audit is considered incomplete if the number of responses is less than the total steps
+        cur.execute("""
+            SELECT DATE(date) as audit_date, COUNT(*) as steps_completed
+            FROM audit_response_table
+            WHERE user_table_iduser_table = ?
+            GROUP BY DATE(date)
+            HAVING COUNT(*) < ?
+            ORDER BY date DESC
+            LIMIT 1
+        """, (current_user.id, total_steps))
+        
+        incomplete_audit = cur.fetchone()
+        
+        if incomplete_audit:
+            audit_date = incomplete_audit[0].strftime("%Y-%m-%d")
+            completed_steps = incomplete_audit[1]
+            
+            # Get the most recent step that was completed
+            cur.execute("""
+                SELECT response_step
+                FROM audit_response_table
+                WHERE user_table_iduser_table = ? AND DATE(date) = ?
+                ORDER BY date DESC
+                LIMIT 1
+            """, (current_user.id, audit_date))
+            
+            last_step = cur.fetchone()[0]
+            
+            # Get all responses for this date to restore the audit state
+            cur.execute("""
+                SELECT response_step, response_answer
+                FROM audit_response_table
+                WHERE user_table_iduser_table = ? AND DATE(date) = ?
+            """, (current_user.id, audit_date))
+            
+            responses = [{"step": row[0], "answer": row[1]} for row in cur.fetchall()]
+            
+            cur.close()
+            conn.close()
+            
+            progress_percentage = round((completed_steps / total_steps) * 100)
+            
+            return jsonify({
+                "incomplete_audit": True,
+                "date": audit_date,
+                "completed_steps": completed_steps,
+                "total_steps": total_steps,
+                "progress_percentage": progress_percentage,
+                "last_step": last_step,
+                "responses": responses
+            })
+        else:
+            cur.close()
+            conn.close()
+            return jsonify({"incomplete_audit": False})
+            
+    except Exception as e:
+        print(f"Error checking incomplete audit: {e}")
+        return jsonify({"error": "Failed to check for incomplete audits."}), 500
+
 # API for fetching audit steps from DB -- DONE
 @app.route("/get_audit_steps", methods=["GET"])
 def get_audit_steps():
