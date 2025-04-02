@@ -83,9 +83,9 @@ DROP TABLE IF EXISTS `onit`.`audit_steps_table` ;
 CREATE TABLE IF NOT EXISTS `onit`.`audit_steps_table` (
   `idauditsteps` INT NOT NULL auto_increment,
   `Step` VARCHAR(255) NULL,
-  `instruction` VARCHAR(255) NULL,
-  `explanation` VARCHAR(255) NULL,
-  `example` VARCHAR(255) NULL,
+  `instruction` text NULL,
+  `explanation` text NULL,
+  `example` text NULL,
   PRIMARY KEY (`idauditsteps`))
 ENGINE = InnoDB;
 
@@ -106,77 +106,158 @@ VALUES
 -- inserting data into the audit_steps_table
 INSERT INTO `onit`.`audit_steps_table` (`idauditsteps`, `Step`, `instruction`, `explanation`, `example`)
 VALUES
-(1, 'Step1', 'Identify and classify all assets in the organization.', 
-"Begin by creating an inventory of all servers, applications, workstations, cloud services, devices, and network architecture within the business. Classify these assets based on their criticality and sensitivity to the organization's operations.", 
-'{"AssetID": "ASID12345", "AccessLevel": "Admin-Only", "Owner": "John Doe (IT Manager)"}'),
+(1, 'Step1', 'Identify and classify all technologlical assets in the organization.', 
+"Begin by creating an inventory of all servers, applications, workstations, cloud services, devices, and network architecture within the business. 
+Classify these assets based on their criticality and sensitivity to the organization's operations. 
+In normal people terms, find all the different technologies that the company uses and put them into categories. 
+For example, a server is a computer that provides information to other computers. 
+A workstation is a computer used by employees, workstations include desktop computers, laptops, and tablets.", 
+'The company has a dell entrpise server, 15 dell laptops that all have chrome and outlook installed on them, and 5 iPhones that are used by the sales team.'),
 
 (2, 'Step1a', 'Identify and classify all servers.', 
-'A server is a computer that provides information to other computers. Web servers, database servers, file servers, and email servers need to be assessed.', 
-'{"AssetType": "Web Server", "AssetName": "Apache Server", "Criticality": "High", "Classification": "Public"}'),
+'In simple terms, a server is basically a powerful computer that provides information or services to other computers on a network. 
+You need to find all the web servers, database servers, file servers, and email servers your organization uses.',
+'The company uses two Dell PowerEdge servers: one running our customer database and another hosting our company website. 
+We also have a cloud-based email server through Microsoft Exchange Online.'),
 
 (3, 'Step1b', 'Identify and classify all applications.', 
-'An application is software that performs a specific function for the user. Common applications include Microsoft Excel, PowerPoint, or web browsers like Firefox.', 
-'{"AssetType": "Application", "AssetName": "Excel", "Criticality": "Medium", "Classification": "Internal"}'),
+'Applications are the software programs that people use to do specific tasks. 
+This includes everything from Microsoft Office programs like Word and Excel to specialized software your 
+company might use for accounting or design work. ',
+'Our company uses Microsoft Office 365 (Word, Excel, PowerPoint, Outlook) for daily work, 
+QuickBooks for accounting, Adobe Creative Cloud for design work, 
+and a custom-built inventory management system for tracking products.'),
 
 (4, 'Step1c', 'Identify and classify all workstations.', 
-'Workstations include desktop computers, laptops, and tablets used by employees.', 
-'{"AssetType": "Workstation", "AssetName": "Employee Laptop #1234", "Criticality": "Medium", "Classification": "Restricted"}'),
+'Workstations are simply the computers that employees use to do their jobs. 
+This includes desktop computers that stay in one place, laptops that can be carried around, 
+and tablets that might be used for specific tasks.',
+'Our company has 25 Dell desktop computers for office staff,
+ 10 Lenovo ThinkPad laptops for managers and remote workers, 
+ and 5 Microsoft Surface tablets used by the sales team when meeting clients.'),
 
 (5, 'Step1d', 'Identify and classify all cloud services.', 
-'Cloud services are computing resources delivered over the internet for storage or applications. Examples include Google Drive, Dropbox, AWS, or Google Cloud.', 
-'{"AssetType": "Cloud Service", "AssetName": "AWS", "Criticality": "High", "Classification": "Confidential"}'),
+'Cloud services are digital resources you access over the internet instead of from your own computers. 
+These include storage services like Google Drive or Dropbox, and software services like Gmail or Salesforce.',
+'Our organization uses Microsoft OneDrive for file storage and sharing, 
+Dropbox for large file transfers with clients, Salesforce for customer relationship management, a
+nd AWS for hosting our company website.'),
 
 (6, 'Step1e', 'Identify and classify all devices.', 
-'Devices can include mobile phones used for professional or personal reasons, as well as Internet of Things devices such as printers or cameras.', 
-'{"AssetType": "Device", "AssetName": "iPhone 14", "Criticality": "Medium", "Classification": "Confidential"}'),
+'Devices include anything electronic that connects to your network beyond standard computers. 
+This means smartphones, printers, security cameras, smart TVs, and anything else thats part of the 
+Internet of Things.',
+'Our office has 15 iPhones assigned to management and sales staff, 
+4 networked printers, 8 security cameras, 
+2 smart TVs in conference rooms, and a digital reception kiosk in the lobby.'),
 
 (7, 'Step1f', 'Identify and classify all network architecture.', 
-'Network architecture includes elements that prevent unauthorized access to network resources. Examples are firewalls, routers, switches, and VPN connections.', 
-'{"AssetType": "Firewall", "AssetName": "Palo Alto Networks", "Criticality": "High", "Classification": "Restricted"}'),
+'Network architecture refers to all the equipment and systems that connect your computers and devices 
+together and to the internet. This includes things like routers, switches, firewalls, and WiFi access points. ',
+'Our network consists of a Cisco firewall, 3 network switches connecting different office zones, 
+5 WiFi access points throughout the building, a VPN for remote access,
+ and fiber optic internet connection with 1Gbps speed.'),
 
 (8, 'Step2', 'Perform a risk assessment. Take into account common vulnerabilities and threats that may impact assets.', 
-'It is important to assess possible vulnerabilities and threats to prioritize security measures and prevent future incidents.', 
-'{"RiskLevel": "High", "ThreatType": "Privilege Escalation", "VulnerabilityDescription": "Weak password policy", "MitigationStatus": "Pending", "Impact": "Data breach of customer records", "Likelihood": "Likely"}'),
+'A risk assessment is like taking inventory of all the potential ways your digital assets could be compromised or damaged.
+ This includes identifying weaknesses in your systems (vulnerabilities) and the dangers that might exploit those weaknesses (threats).
+  By understanding what could go wrong and how likely it is to happen, you can focus your security efforts where they are needed most.',
+'We identified that our customer database server has outdated software (vulnerability) that could be exploited by 
+hackers using ransomware (threat). If this happened, we would lose access to all customer data which would severely 
+impact our business. The likelihood is medium since these attacks are common, 
+so we need to prioritize updating this server immediately.'),
 
 (9, 'Step2a', 'Assess vulnerabilities and threats in servers.', 
-'Common vulnerabilities in servers include unpatched software, weak authentication, and misconfigured firewalls. Threats could include ransomware and privilege escalation.', 
-'{"AssetType": "Server", "AssetName": "Database Server I", "Criticality": "High", "Classification": "Confidential"}'),
+'When looking at servers, you need to check for outdated software that hasn not been updated with security patches,
+weak login systems that could be easily broken into, and incorrectly set up security settings. 
+Servers are prime targets for attackers because they often contain valuable information.
+ Common threats include ransomware (which locks up your data until you pay), and people trying to gain 
+ administrator access they should not have.',
+'Our main database server is running an operating system version that is three years old with known security
+ issues. We found the server does not require complex passwords and does not lock accounts after failed login 
+ attempts. This makes it vulnerable to brute force attacks where hackers try thousands of password combinations.'),
 
 (10, 'Step2b', 'Assess vulnerabilities and threats in applications.', 
-'Vulnerabilities include SQL injection, cross-site scripting, and improper input validation. Potential threats include data breaches.', 
-'{"AssetType": "Application", "AssetName": "Internal HR System", "Criticality": "High", "Classification": "Confidential"}'),
+'For applications, look for security flaws like the ability to inject harmful code into databases (SQL injection), 
+websites that don\'t properly check what users input, or apps that do not validate data properly. 
+These weaknesses can let attackers steal information or damage systems.',
+'Our customer portal application does not properly filter what users type into search fields, which could allow attackers to run malicious database commands. 
+It also stores passwords using outdated encryption methods.
+ If exploited, customer personal and financial information could be exposed.'),
 
 (11, 'Step2c', 'Assess vulnerabilities and threats in workstations.', 
-'Vulnerabilities include outdated software and weak passwords. Potential threats include phishing, keylogging, ransomware, and malware.', 
-'{"AssetType": "Workstation", "AssetName": "CEO Laptop", "Criticality": "High", "Classification": "Confidential"}'),
+'For employee computers, common problems include software that has not been updated, weak passwords that are easy
+ to guess, and no protection against modern threats. Attackers target these computers through tricks like 
+ fake emails with harmful attachments (phishing),
+ programs that record what you type (keyloggers), and malicious software that holds your files hostage (ransomware).',
+'We found that 40% of our employee computers have not installed critical security updates from the last 
+three months. Most users have simple passwords and reuse them across multiple systems. Several employees 
+reported receiving sophisticated phishing emails designed to look like they are from our IT department.'),
 
 (12, 'Step2d', 'Assess vulnerabilities and threats in cloud services.', 
-'Vulnerabilities include insufficient access controls and insecure APIs. Threats include data breaches and denial of service.', 
-'{"AssetType": "Cloud Service", "AssetName": "Dropbox Business Account", "Criticality": "Medium", "Classification": "Restricted"}'),
+'With cloud services, main concerns include improper access controls (who can get in and what they can see), 
+and poorly secured connection points (APIs). If these are not properly secured, unauthorized people might 
+access your data, or your service might be disrupted.',
+'Our company Dropbox account is shared among all employees using a single login, with no two-factor authentication enabled. 
+Our custom software that connects to Salesforce uses hardcoded access credentials in its source code. 
+These issues could allow unauthorized access to sensitive client information even after an employee leaves the 
+company.'),
 
 (13, 'Step2e', 'Assess vulnerabilities and threats in devices.', 
-'Vulnerabilities include weak app permissions and lack of two-factor authentication. Threats include theft of devices and ransomware.', 
-'{"AssetType": "Device", "AssetName": "Smart Printer - Office 1", "Criticality": "Low", "Classification": "Internal"}'),
+'For devices like phones and IoT equipment, problems often include apps with too many permissions,
+ lack of two-step verification, and outdated firmware. These devices face threats from theft,
+  harmful apps, and ransomware. Many people forget that smartphones and connected devices need security 
+  just like computers do.',
+'The company smartphones do not have passcode requirements or the ability to remotely wipe data if lost. 
+Our security cameras are still using the default manufacturer passwords. 
+Smart printers on our network have not had firmware updates since installation three years ago, 
+leaving them vulnerable to known exploits.'),
 
 (14, 'Step2f', 'Assess vulnerabilities and threats in network architecture.', 
-'Vulnerabilities include open ports, weak encryption, and default configurations. Threats include denial-of-service attacks and eavesdropping.', 
-'{"AssetType": "Switch", "AssetName": "Cisco Catalyst", "Criticality": "Medium", "Classification": "Internal"}'),
+'When examining your network, look for security issues like unnecessary open connection points (ports), 
+weak encryption that does not properly protect data, and equipment still using factory default settings.
+ Networks face threats from attacks designed to overwhelm them, unauthorized people listening in on communications,
+and intrusions from outside.',
+'Our network scan revealed multiple unused open ports on the firewall, including several commonly targeted by 
+attackers. The guest WiFi network is using outdated WEP encryption instead of WPA3.
+ Remote access is allowed from any location without geofencing restrictions. 
+ These issues could allow attackers to infiltrate our network or intercept communications.'),
 
 (15, 'Step3', 'Utilize vulnerability and scanning tools.', 
-'These tools automate the process of detecting known vulnerabilities. Once the tool provides an assessment, it becomes easier to see which assets are impacted.', 
-'{"VulnerabilityID": "CVE-2022-1234", "Severity": "High", "AffectedAsset": "Web Server", "Remediation": "Apply the latest security patch"}'),
+'Vulnerability scanning tools are specialized software that automatically checks your systems for known security
+ problems, much like getting a medical checkup to catch issues early. These tools can quickly identify weaknesses
+  that might take humans a long time to find manually. After scanning, you will get a report showing which systems
+   have problems, how serious they are, and often suggestions for fixing them.',
+'We ran a vulnerability scan using Nessus across our network and found 127 vulnerabilities: 15 critical,
+ 42 high, 50 medium, and 20 low priority issues. The most serious problems were outdated Apache servers with known 
+ exploits, missing encryption on several administrator portals, and unpatched Windows systems vulnerable to the
+  EternalBlue exploit used by WannaCry ransomware.'),
 
-(16, 'Step4', 'Conduct a penetration test to evaluate defenses.', 
-'Simulate an attack to test the effectiveness of security measures. Document vulnerabilities exploited during the test and provide recommendations to address these issues.', 
-'{"VulnerabilityID": "CVE-2023-1234", "Requirement": "SQL Injection", "CurrentState": "Vulnerable", "ActionPlan": "Implement prepared statements for database queries."}'),
+(16, 'Step4', 'Conduct simple security tests and assessments.', 
+'You do not need to be a hacker to test your basic security. 
+There are several simple tests you can do yourself: try logging in with a weak password to see if your systems 
+reject it, check if your wifi network is visible to the public, see if employees can access information they 
+should not, and try visiting your websites using "https://" to make sure they are encrypted.',
+'We did a basic security check and found several issues: our wifi password was too simple and displayed on a 
+whiteboard visible to visitors, three former employees still had active accounts, our website was not using HTTPS 
+encryption, and our customer service team was sharing a single login for the customer database. '),
 
 (17, 'Step5', 'Create an incident response plan.', 
-'Develop a plan that outlines the steps to take in the event of a security breach for specific assets.', 
-'{"TestType": "Phishing Simulation", "Findings": "20% of employees clicked on phishing emails.", "Recommendation": "Implement mandatory phishing awareness training."}'),
+'Develop a plan that outlines the steps to take in the event of a security breach for specific assets.
+ Your plan should include things that you would need to do in the event of a data breach. Make sure to think about
+  who you would have to notify, how you would recover data, and what kinds of things would need to be handled.', 
+'In the event of a data breach, we will notify affected customers within 72 hours,
+ secure the affected systems, and conduct a forensic investigation to determine the cause. 
+ We will also provide credit monitoring services to affected customers for one year. 
+We will hire an IT professional to help us with the investigation and recovery process.
+ We will also notify the appropriate regulatory authorities as required by law.'),
 
 (18, 'Step6', 'Create a continuous improvement plan for employees.', 
-'Implement training and awareness programs to educate employees with various access levels.', 
-'{"IncidentType": "Data Breach", "Steps": "Identify affected systems, Notify stakeholders, Secure the breach, Conduct a forensic investigation", "ContactInfo": "IT Security Team (security@company.com)"}');
+'Implement training and awareness programs to educate employees with various access levels. 
+This is the stuff you are going to do now to avoid getting a breach in the future.
+ This can be training or tests on your systems', 
+'We will conduct quarterly security awareness training for all employees, 
+focusing on phishing prevention, password management, and data handling best practices.');
 
 
 -- Inserting data into the audit_response_table
