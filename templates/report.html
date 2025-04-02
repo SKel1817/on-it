@@ -56,12 +56,11 @@
       <tr>
         <!-- Fill in with USER and Audit Data information from database -->
         <td><strong>Date:</strong> <span id="report-date"></span></td>
-        <td><strong>Auditor:</strong> <span id="auditor-name">{{current_user.first_name}}
-            {{current_user.last_name}}</span></td>
-        {% if current_user.role != "" %}
-        <td><strong>Department:</strong> <span id="department-name">{{current_user.role}}</span></td>
+        <td><strong>Auditor:</strong> <span id="auditor-name">{{ current_user.first_name }} {{ current_user.last_name }}</span></td>
+        {% if current_user.role %}
+        <td><strong>Department:</strong> <span id="department-name">{{ current_user.role }}</span></td>
         {% else %}
-        <td><strong>Department:</strong><span id="department-name">N/A</span></td>
+        <td><strong>Department:</strong> <span id="department-name">N/A</span></td>
         {% endif %}
       </tr>
     </table>
@@ -79,7 +78,7 @@
         <!-- Steps will be dynamically inserted here -->
       </tbody>
     </table>
-    <button id="download-pdf" onclick="downloadPDF(document.getElementById('report-date').textContent)">
+    <button id="download-pdf" onclick="downloadPDF(document.getElementById('report-date').textContent, '{{ current_user.id }}')">
       Download Report
     </button>
   </div>
@@ -87,7 +86,8 @@
     document.addEventListener("DOMContentLoaded", () => {
       const urlParams = new URLSearchParams(window.location.search);
       const date = urlParams.get("date");
-      loadReport(date);
+      const id = urlParams.get("id");
+      loadReport(date, id);
     });
   </script>
 </body>
