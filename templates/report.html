@@ -77,17 +77,18 @@
       <tbody id="steps-body">
         <!-- Steps will be dynamically inserted here -->
       </tbody>
-    </table>
-    <button id="download-pdf" onclick="downloadPDF(document.getElementById('report-date').textContent, '{{ current_user.id }}')">
+    </table>      <button id="download-pdf" data-session-id="{{ session_id }}" onclick="downloadPDF(document.getElementById('report-date').textContent, parseInt(this.getAttribute('data-session-id')))">
       Download Report
     </button>
-  </div>
-  <script>
+  </div>  <script>
     document.addEventListener("DOMContentLoaded", () => {
+      // Get date from URL parameters or from server-rendered variable
       const urlParams = new URLSearchParams(window.location.search);
-      const date = urlParams.get("date");
-      const id = urlParams.get("id");
-      loadReport(date, id);
+      const date = urlParams.get("date") || "{{ report_date }}";
+      document.getElementById("report-date").textContent = date;
+      
+      // Load report data
+      loadReport(date);
     });
   </script>
 </body>

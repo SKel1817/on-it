@@ -1,13 +1,14 @@
 from flask import Flask, flash, redirect, render_template, request, jsonify, send_file, session, url_for
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import subprocess
 from dotenv import load_dotenv
 import mariadb
 from mariadb import Error
 import bcrypt
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+import secrets
 
 # Ideal workflow w/ current JSON logic no database:
 # - Javascript requests flask API
@@ -105,6 +106,8 @@ def ensure_file_exists():
         with open(RESPONSES_FILE, "w") as f:
             json.dump([], f)
 # API Database queries -------------------------------------------------------------
+
+
 # User Logic Start ------------------
 # user login -- To be done
 @app.route("/login-user", methods=["POST"])
@@ -250,11 +253,9 @@ def create_user():
         hashed_password = bcrypt.hashpw(data["password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
         # Insert user into the database
-        cur.execute("""
-            INSERT INTO user_table (first_name, last_name, username, email, password, familarity_with_audits, role, business_indicator)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-            (data["first_name"], data["last_name"], data["username"], data["email"], hashed_password,
-                data["familarity_with_audits"], role, business_indicator))
+        cur.execute("""INSERT INTO user_table (first_name, last_name, username, email, password, familarity_with_audits, role, business_indicator) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (data["first_name"], data["last_name"], data["username"], data["email"], hashed_password,
+                     data["familarity_with_audits"], role, business_indicator))
 
         conn.commit()
         cur.close()
@@ -274,6 +275,88 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 # Audit Logic Start ------------------
+# API for checking incomplete audits
+@app.route("/check_incomplete_audit", methods=["GET"])
+@login_required
+def check_incomplete_audit():
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        cur = conn.cursor()
+        
+        # First get all audit steps to determine total steps
+        cur.execute("SELECT COUNT(*) FROM audit_steps_table")
+        total_steps = cur.fetchone()[0]
+        
+        # Get the most recent incomplete audit session
+        # An audit session is considered incomplete if it doesn't contain a Step6 response
+        cur.execute("""
+            SELECT DATE(date) as audit_date, COUNT(*) as steps_completed, session_id
+            FROM audit_response_table
+            WHERE user_table_iduser_table = ?
+            AND (date, session_id) NOT IN (
+                SELECT date, session_id
+                FROM audit_response_table
+                WHERE user_table_iduser_table = ?
+                AND response_step = 'Step6'
+            )
+            GROUP BY DATE(date), session_id
+            HAVING COUNT(*) < ?
+            ORDER BY date DESC, session_id DESC
+            LIMIT 1        """, (current_user.id, current_user.id, total_steps))
+        
+        incomplete_audit = cur.fetchone()
+        
+        if incomplete_audit:
+            audit_date = incomplete_audit[0].strftime("%Y-%m-%d")
+            completed_steps = incomplete_audit[1]
+            session_id = incomplete_audit[2]
+            
+            # Get the most recent step that was completed in this session
+            cur.execute("""
+                SELECT response_step
+                FROM audit_response_table
+                WHERE user_table_iduser_table = ? AND DATE(date) = ? AND session_id = ?
+                ORDER BY date DESC
+                LIMIT 1
+            """, (current_user.id, audit_date, session_id))
+            
+            last_step = cur.fetchone()[0]
+            
+            # Get all responses for this specific session to restore the audit state
+            cur.execute("""
+                SELECT response_step, response_answer
+                FROM audit_response_table
+                WHERE user_table_iduser_table = ? AND DATE(date) = ? AND session_id = ?
+            """, (current_user.id, audit_date, session_id))
+            
+            responses = [{"step": row[0], "answer": row[1]} for row in cur.fetchall()]
+            
+            cur.close()
+            conn.close()
+            
+            progress_percentage = round((completed_steps / total_steps) * 100)
+            
+            return jsonify({
+                "incomplete_audit": True,
+                "date": audit_date,
+                "completed_steps": completed_steps,
+                "total_steps": total_steps,
+                "progress_percentage": progress_percentage,
+                "last_step": last_step,
+                "responses": responses
+            })
+        else:
+            cur.close()
+            conn.close()
+            return jsonify({"incomplete_audit": False})
+            
+    except Exception as e:
+        print(f"Error checking incomplete audit: {e}")
+        return jsonify({"error": "Failed to check for incomplete audits."}), 500
+
 # API for fetching audit steps from DB -- DONE
 @app.route("/get_audit_steps", methods=["GET"])
 def get_audit_steps():
@@ -333,35 +416,91 @@ def get_audit_dates():
             return jsonify({"error": "Database connection failed"}), 500
 
         cur = conn.cursor()
-        cur.execute("SELECT DISTINCT DATE(date) FROM onit.audit_response_table WHERE user_table_iduser_table = ?", (current_user.id,))
+        
+        # Query to get unique date-session combinations and check if each session has a Step6 (complete)
+        cur.execute("""
+            SELECT 
+                DATE(a.date) as audit_date, 
+                a.session_id,
+                EXISTS (
+                    SELECT 1 
+                    FROM audit_response_table 
+                    WHERE user_table_iduser_table = ? 
+                    AND DATE(date) = DATE(a.date) 
+                    AND session_id = a.session_id 
+                    AND response_step = 'Step6'
+                ) as is_complete
+            FROM audit_response_table a
+            WHERE a.user_table_iduser_table = ?
+            GROUP BY DATE(a.date), a.session_id
+            ORDER BY DATE(a.date) DESC, a.session_id DESC
+        """, (current_user.id, current_user.id))
+        
         rows = cur.fetchall()
-        dates = [row[0].strftime("%Y-%m-%d") for row in rows]
+        audit_sessions = []
+        # For backward compatibility with existing code
+        dates = []
+        
+        for row in rows:
+            date_str = row[0].strftime("%Y-%m-%d")
+            session_id = row[1]
+            is_complete = bool(row[2])
+            
+            # Add to dates array for backward compatibility
+            if date_str not in dates:
+                dates.append(date_str)
+            
+            # Format as "2025-04-10" for single sessions, "2025-04-10 (Session 2)" for multiple
+            display_name = date_str
+            if session_id > 1:
+                display_name = f"{date_str} (Session {session_id})"
+                
+            audit_sessions.append({
+                "date": date_str,
+                "session_id": session_id,
+                "display_name": display_name,
+                "is_complete": is_complete
+            })
 
         cur.close()
         conn.close()
-        return jsonify({"dates": dates})
+        return jsonify({"audit_sessions": audit_sessions, "dates": dates})
     except Exception as e:
         print(f"Error fetching audit dates: {e}")
         return jsonify({"error": "Failed to load audit dates."}), 500
 
-# API for fetching report data -- modify once database is set up (will be API for report) -- TO DO
+# API for fetching report data -- modified to support token authentication
 @app.route("/get_report_data", methods=["GET"])
 def get_report_data():
     try:
         date = request.args.get("date")
         if not date:
             return jsonify({"error": "Date is required"}), 400
+        
+        # Check for token-based authentication
+        token = request.args.get("token")
+        if token and token in report_tokens:
+            user_id = report_tokens[token]["user_id"]
+        elif current_user.is_authenticated:
+            user_id = current_user.id
+        else:
+            return jsonify({"error": "Authentication required"}), 401
 
         conn = get_db_connection()
         if conn is None:
-            return jsonify({"error": "Database connection failed"}), 500
+            return jsonify({"error": "Database connection failed"}), 500        # Get session_id from request parameters, default to 1
+        session_id = request.args.get("session_id", 1)
+        try:
+            session_id = int(session_id)
+        except (ValueError, TypeError):
+            session_id = 1
 
         cur = conn.cursor()
         cur.execute("""
             SELECT response_step, response_answer
             FROM audit_response_table
-            WHERE DATE(date) = ? AND user_table_iduser_table = ?
-        """, (date, current_user.id))
+            WHERE DATE(date) = ? AND user_table_iduser_table = ? AND session_id = ?
+        """, (date, user_id, session_id))
         responses = [{"step": row[0], "answer": row[1]} for row in cur.fetchall()]
 
         cur.execute("""
@@ -391,11 +530,42 @@ def save_response():
         if conn is None:
             return jsonify({"error": "Database connection failed"}), 500
 
+        # Get or create session_id for the current date
+        session_id = data.get("session_id")
+        if not session_id:
+            # Check if we need to create a new session for today
+            cur = conn.cursor()
+            today = datetime.now().strftime("%Y-%m-%d")
+            
+            # Find the latest session_id for today
+            cur.execute("""
+                SELECT MAX(session_id) FROM audit_response_table 
+                WHERE user_table_iduser_table = ? AND DATE(date) = ?
+            """, (current_user.id, today))
+            
+            result = cur.fetchone()
+            if result and result[0] is not None:
+                session_id = result[0]
+                
+                # Check if this session has a Step6 (which means it's complete)
+                cur.execute("""
+                    SELECT 1 FROM audit_response_table
+                    WHERE user_table_iduser_table = ? AND DATE(date) = ? 
+                    AND session_id = ? AND response_step = 'Step6'
+                """, (current_user.id, today, session_id))
+                
+                if cur.fetchone():
+                    # This session is complete, create a new one
+                    session_id = result[0] + 1
+            else:
+                # First session of the day
+                session_id = 1
+        
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO audit_response_table (date, response_step, response_answer, user_table_iduser_table)
-            VALUES (NOW(), ?, ?, ?)
-        """, (data["response_step"], data["response_answer"], current_user.id))
+            INSERT INTO audit_response_table (date, response_step, response_answer, user_table_iduser_table, session_id)
+            VALUES (NOW(), ?, ?, ?, ?)
+        """, (data["response_step"], data["response_answer"], current_user.id, session_id))
 
         conn.commit()
         cur.close()
@@ -445,6 +615,50 @@ def get_frameworks():
 # End of API Database queries -------------------------------------------------------------
 
 
+# Token storage for report access
+report_tokens = {}
+
+# Generate a temporary token for report access
+def generate_report_token(user_id, expiry_minutes=5):
+    token = secrets.token_urlsafe(32)
+    expiry_time = datetime.now() + timedelta(minutes=expiry_minutes)
+    report_tokens[token] = {"user_id": user_id, "expiry": expiry_time}
+    return token
+
+# Add a token-authenticated report route
+@app.route("/report-with-token")
+def report_with_token():
+    token = request.args.get("token")
+    date = request.args.get("date")
+    if not token or token not in report_tokens:
+        return redirect(url_for("login"))
+    
+    token_data = report_tokens[token]
+    # Check if token has expired
+    if datetime.now() > token_data["expiry"]:
+        del report_tokens[token]  # Remove expired token
+        return redirect(url_for("login"))
+    
+    # Retrieve user data for the token
+    user_id = token_data["user_id"]
+    user = load_user(user_id)
+    if not user:
+        return redirect(url_for("login"))
+    
+    # Render the report template with the user data and date
+    return render_template("report.html", current_user=user, report_date=date)
+
+# Add an endpoint to generate a token for PDF generation
+@app.route("/get_report_token", methods=["POST"])
+def get_report_token():
+    data = request.json
+    user_id = data.get('user_id')
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
+    
+    token = generate_report_token(user_id)
+    return jsonify({"token": token})
+
 # function for generating the pdf 
 @app.route("/generate_pdf", methods=["GET"])
 def generate_pdf():
@@ -457,8 +671,21 @@ def generate_pdf():
         if not user_id:
             return jsonify({"error": "User ID is missing"}), 400
 
-        # Call Puppeteer to generate the PDF
-        subprocess.run(["node", PUPPETEER_SCRIPT, date, str(user_id)], check=True)
+        # Get the session_id from request parameters
+        session_id = request.args.get("session_id")
+        print(f"Raw session_id from request.args: {request.args.get('session_id')}")
+        if not session_id:
+            print("session_id parameter is missing in the request.")
+            return jsonify({"error": "Session ID parameter is missing"}), 400
+
+        print(f"Extracted session_id from request: {session_id}")
+
+        # Format the parameter as "userId-sessionId" to pass both values to the script
+        user_param = f"{user_id}-{session_id}"
+        print(f"Formatted user_param: {user_param}")
+
+        # Call Puppeteer to generate the PDF with the combined parameter
+        subprocess.run(["node", PUPPETEER_SCRIPT, date, user_param], check=True)
 
         return send_file(OUTPUT_PDF, as_attachment=True)
     except subprocess.CalledProcessError as e:
@@ -493,6 +720,7 @@ def search_page():
 
 # pages logic
 @app.route("/")
+
 def index():
     return render_template("index.html")
 
@@ -534,7 +762,9 @@ def settings():
 @app.route("/report")
 @login_required
 def report():
-    return render_template("report.html", current_user=current_user)
+    # Extract session_id from request parameters
+    session_id = request.args.get("session_id", "1")  # Default to 1 if not provided
+    return render_template("report.html", current_user=current_user, session_id=session_id)
 
 @app.route("/previous")
 def previous_audits():
@@ -552,6 +782,101 @@ def troubleshooting():
 def changePassword():
     return render_template("changePassword.html")
 
+# Add an endpoint to get user data by ID for report generation
+@app.route("/get_user_data", methods=["GET"])
+def get_user_data():
+    try:
+        user_id = request.args.get("userId")
+        token = request.args.get("token")
+        
+        # Validate the token if provided
+        if token:
+            if token not in report_tokens:
+                return jsonify({"error": "Invalid token"}), 401
+            token_data = report_tokens[token]
+            if datetime.now() > token_data["expiry"]:
+                del report_tokens[token]
+                return jsonify({"error": "Token expired"}), 401
+        
+        if not user_id:
+            return jsonify({"error": "User ID required"}), 400
+            
+        # Load user data from database
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT first_name, last_name, role
+            FROM user_table
+            WHERE iduser_table = ?
+        """, (user_id,))
+        
+        user_data = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        if not user_data:
+            return jsonify({"error": "User not found"}), 404
+            
+        return jsonify({
+            "firstName": user_data[0],
+            "lastName": user_data[1],
+            "role": user_data[2]
+        }), 200
+        
+    except Exception as e:
+        print(f"Error getting user data: {e}")
+        return jsonify({"error": "Failed to get user data"}), 500
+
+# Modify the mark_audit_complete endpoint to redirect to the report page after marking the audit as complete
+@app.route("/mark_audit_complete", methods=["POST"])
+@login_required
+def mark_audit_complete():
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "Invalid data"}), 400
+
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        # Get the current session ID or create one
+        cur = conn.cursor()
+        today = datetime.now().strftime("%Y-%m-%d")
+        
+        # Find the latest session_id for today
+        cur.execute("""
+            SELECT MAX(session_id) FROM audit_response_table 
+            WHERE user_table_iduser_table = ? AND DATE(date) = ?
+        """, (current_user.id, today))
+        
+        result = cur.fetchone()
+        session_id = 1
+        if result and result[0] is not None:
+            session_id = result[0]
+        
+        # First, add the Step6 completion marker
+        cur.execute("""
+            INSERT INTO audit_response_table (date, response_step, response_answer, user_table_iduser_table, session_id)
+            VALUES (NOW(), 'Step6', 'Audit completed', ?, ?)
+        """, (current_user.id, session_id))
+        
+        # Log completion for debugging
+        app.logger.info(f"Marked audit as complete for user {current_user.id}, session {session_id}")
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        # Redirect to the report page with the session_id
+        return redirect(url_for("report", session_id=session_id))
+    
+    except Exception as e:
+        app.logger.error(f"Error marking audit as complete: {e}")
+        return jsonify({"error": f"Failed to mark audit as complete: {str(e)}"}), 500
 
 # main loop to run the app
 if __name__ == "__main__":

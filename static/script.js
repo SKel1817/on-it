@@ -274,13 +274,45 @@ function fetchAuditSteps() {
             })
             .then((data) => {
               console.log(data.message);
-              currentStepIndex++;
-              if (currentStepIndex < combinedSteps.length) {
-                displayStep(combinedSteps[currentStepIndex]);
-              } else {
+              currentStepIndex++;              if (currentStepIndex < combinedSteps.length) {
+                displayStep(combinedSteps[currentStepIndex]);              } else {
+                console.log("AUDIT COMPLETE: Total steps in combinedSteps =", combinedSteps.length);
+                console.log("Steps completed:", combinedSteps);
+                
+                // Get the last completed step name
+                const lastStep = combinedSteps[combinedSteps.length - 1];
+                console.log("Last completed step:", lastStep);
+                
+                // Let's force a completion marker with both Step6 and the final actual step name
+                const completeMarker = {
+                  response_step: "Step6", // This is our marker for completion
+                  response_answer: `Audit completed. Final step was: ${lastStep}`,
+                  is_completion_marker: true // Special flag to tell server this marks completion
+                };
+
+                // Display completion message
                 alert("You've completed all the steps! Responses saved.");
-                // Optionally reset flags/indexes if you want to restart the flow.
-                updateProgressBar(); // Ensure progress bar shows 100%
+                
+                // Send a final request to mark the audit as complete
+                fetch("/mark_audit_complete", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(completeMarker)
+                }).then(response => response.json())
+                .then(data => {
+                  console.log("Audit marked complete:", data);
+                  
+                  // Instead of reloading the page, redirect to a different page
+                  // This prevents the resume dialog from appearing
+                  window.location.href = "/previous";
+                })
+                .catch(error => {
+                  console.error("Error marking audit complete:", error);
+                  // Even if there's an error, redirect away from the audit page
+                  window.location.href = "/previous";
+                });
               }
             })
             .catch((error) => {
@@ -324,15 +356,20 @@ function loadAudits() {
     })
     .then(data => {
       const auditList = document.getElementById("audit-list");
-      if (data.dates.length === 0) {
+      if (!data.audit_sessions || data.audit_sessions.length === 0) {
         auditList.innerHTML = "<li>No audits found.</li>";
         return;
       }
-      data.dates.forEach(date => {
+      data.audit_sessions.forEach(session => {
         const li = document.createElement("li");
+        // Add a status indicator for complete/incomplete
+        const statusIcon = session.is_complete ? 
+          '<span class="status-complete" title="Complete">✓</span>' : 
+          '<span class="status-incomplete" title="Incomplete">⏳</span>';
+          
         li.innerHTML = `
-          <span>${date}</span>
-          <button onclick="viewReport('${date}')"><i class="material-symbols-outlined">table_eye</i></button>
+          <span>${session.display_name} ${statusIcon}</span>
+          <button onclick="viewReport('${session.date}', ${session.session_id})"><i class="material-symbols-outlined">table_eye</i></button>
         `;
         auditList.appendChild(li);
       });
@@ -345,14 +382,18 @@ function loadAudits() {
 }
 
 // Redirect to the report page with the selected date - then redirect
-function viewReport(date) {
+function viewReport(date, session_id = 1) {
   const formattedDate = new Date(date).toISOString().split("T")[0];
-  window.location.href = `/report?date=${encodeURIComponent(formattedDate)}`;
+  window.location.href = `/report?date=${encodeURIComponent(formattedDate)}&session_id=${session_id}`;
 }
 
 // Load the report for a specific date - load logic
 function loadReport(date) {
-  fetch(`/get_report_data?date=${encodeURIComponent(date)}`)
+  // Get session_id from URL if present
+  const urlParams = new URLSearchParams(window.location.search);
+  const session_id = urlParams.get('session_id') || 1;
+  
+  fetch(`/get_report_data?date=${encodeURIComponent(date)}&session_id=${session_id}`)
     .then(response => {
       if (!response.ok) throw new Error("Failed to load report data.");
       return response.json();
@@ -389,13 +430,16 @@ function loadReport(date) {
 }
 
 // Download the PDF - finally download
-function downloadPDF(date) {
-  if (!date) {
-    alert("Date is missing. Please select a valid audit date.");
+function downloadPDF(date, sessionId) {
+  if (!sessionId) {
+    console.error("Session ID is missing. Cannot download the correct report.");
+    alert("Session ID is missing. Please try again.");
     return;
   }
 
-  fetch(`/generate_pdf?date=${encodeURIComponent(date)}`)
+  console.log(`Downloading PDF for date: ${date}, sessionId: ${sessionId}`);
+
+  fetch(`/generate_pdf?date=${encodeURIComponent(date)}&session_id=${sessionId}`)
     .then(response => {
       if (!response.ok) throw new Error("Failed to download PDF.");
       return response.blob();
@@ -403,7 +447,7 @@ function downloadPDF(date) {
     .then(blob => {
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `audit_${date.replace(/-/g, "_")}.pdf`;
+      link.download = `audit_${date.replace(/-/g, "_")}_session${sessionId}.pdf`;
       link.click();
     })
     .catch(error => {
@@ -480,3 +524,353 @@ function fetchFrameworks() {
 
 
 // Initialize the page don in each html file
+
+// Check for incomplete audit when loading the audit page
+function checkForIncompleteAudit() {
+  fetch("/check_incomplete_audit", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Check if there's a valid incomplete audit with actual responses
+      // AND ensure that a Step6 entry (completion marker) doesn't exist
+      const hasStep6 = data.responses && data.responses.some(response => response.step === 'Step6');
+      
+      if (data.incomplete_audit && 
+          data.responses && 
+          data.responses.length > 0 && 
+          data.completed_steps > 0 &&
+          !hasStep6) {
+        // Create a modal or prompt to ask if the user wants to resume
+        createResumeModal(data);
+      } else {
+        // Either no incomplete audit or audit has a Step6 marker (completed)
+        fetchAuditSteps();
+      }
+    })
+    .catch(error => {
+      console.error("Error checking for incomplete audit:", error);
+      // If there's an error, just proceed with a normal audit
+      fetchAuditSteps();
+    });
+}
+
+// Create a modal to prompt user to resume their audit
+function createResumeModal(auditData) {
+  // Create modal container
+  const modalContainer = document.createElement("div");
+  modalContainer.className = "resume-modal-container";
+  modalContainer.style.position = "fixed";
+  modalContainer.style.top = "0";
+  modalContainer.style.left = "0";
+  modalContainer.style.width = "100%";
+  modalContainer.style.height = "100%";
+  modalContainer.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+  modalContainer.style.display = "flex";
+  modalContainer.style.justifyContent = "center";
+  modalContainer.style.alignItems = "center";
+  modalContainer.style.zIndex = "1000";
+
+  // Create modal content
+  const modalContent = document.createElement("div");
+  modalContent.className = "resume-modal-content";
+  modalContent.style.backgroundColor = "white";
+  modalContent.style.padding = "20px";
+  modalContent.style.borderRadius = "5px";
+  modalContent.style.maxWidth = "500px";
+  modalContent.style.width = "80%";
+  modalContent.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+
+  // Create modal header
+  const modalHeader = document.createElement("h2");
+  modalHeader.textContent = "Resume Previous Audit";
+  modalHeader.style.marginTop = "0";
+  modalHeader.style.color = "#333";
+
+  // Create modal description
+  const modalDesc = document.createElement("p");
+  modalDesc.innerHTML = `You have an incomplete audit from <strong>${auditData.date}</strong>. 
+                        You've completed <strong>${auditData.completed_steps}</strong> out of 
+                        <strong>${auditData.total_steps}</strong> steps 
+                        (${auditData.progress_percentage}% complete).`;
+
+  // Create button container
+  const buttonContainer = document.createElement("div");
+  buttonContainer.style.display = "flex";
+  buttonContainer.style.justifyContent = "space-between";
+  buttonContainer.style.marginTop = "20px";
+
+  // Create resume button
+  const resumeButton = document.createElement("button");
+  resumeButton.textContent = "Resume Audit";
+  resumeButton.className = "resume-button";
+  resumeButton.style.backgroundColor = "#4CAF50";
+  resumeButton.style.color = "white";
+  resumeButton.style.padding = "10px 15px";
+  resumeButton.style.border = "none";
+  resumeButton.style.borderRadius = "4px";
+  resumeButton.style.cursor = "pointer";
+  resumeButton.style.fontWeight = "bold";
+  resumeButton.addEventListener("click", function() {
+    resumeAudit(auditData);
+    modalContainer.remove();
+  });
+
+  // Create new audit button
+  const newButton = document.createElement("button");
+  newButton.textContent = "Start New Audit";
+  newButton.className = "new-audit-button";
+  newButton.style.backgroundColor = "#f44336";
+  newButton.style.color = "white";
+  newButton.style.padding = "10px 15px";
+  newButton.style.border = "none";
+  newButton.style.borderRadius = "4px";
+  newButton.style.cursor = "pointer";
+  newButton.style.fontWeight = "bold";
+  newButton.addEventListener("click", function() {
+    fetchAuditSteps();
+    modalContainer.remove();
+  });
+
+  // Add buttons to button container
+  buttonContainer.appendChild(resumeButton);
+  buttonContainer.appendChild(newButton);
+
+  // Add elements to modal content
+  modalContent.appendChild(modalHeader);
+  modalContent.appendChild(modalDesc);
+  modalContent.appendChild(buttonContainer);
+
+  // Add modal content to modal container
+  modalContainer.appendChild(modalContent);
+
+  // Add modal to body
+  document.body.appendChild(modalContainer);
+}
+
+// Resume the audit from where the user left off
+function resumeAudit(auditData) {
+  // First load all the audit steps
+  fetch("/get_audit_steps")
+    .then((response) => response.json())
+    .then((data) => {
+      const steps = data.CybersecurityAudit;
+      const stepKeys = Object.keys(steps);
+      
+      // Mapping for decision radio buttons for Step1 and Step2
+      const step1Mapping = {
+        servers: "Step1a",
+        applications: "Step1b",
+        workstations: "Step1c",
+        cloudServices: "Step1d",
+        devices: "Step1e",
+        networkArchitecture: "Step1f",
+      };
+      
+      const step2Mapping = {
+        servers: "Step2a",
+        applications: "Step2b",
+        workstations: "Step2c",
+        cloudServices: "Step2d",
+        devices: "Step2e",
+        networkArchitecture: "Step2f",
+      };
+
+      // Get the session_id from auditData if available
+      const session_id = auditData.session_id;
+
+      // Function to display a step - this is a duplicate of the one in fetchAuditSteps
+      // But we need it here since we're in a different scope
+      function displayStep(stepKey) {
+        const step = steps[stepKey];
+        document.getElementById("stepName").textContent = stepKey;
+        document.getElementById("instruction").textContent = step.Instruction;
+        document.getElementById("explanation").textContent = step.Explanation;
+
+        // Display example output
+        const exampleDiv = document.getElementById("example");
+        exampleDiv.innerHTML = "<strong>Example:</strong><br>";
+        
+        // Check the type of Example data and handle accordingly
+        const example = step.Example;
+        if (example) {
+          if (typeof example === 'object' && example !== null) {
+            // It's an object, so iterate through its properties
+            for (const [key, value] of Object.entries(example)) {
+              exampleDiv.innerHTML += `${key}: ${value}<br>`;
+            }
+          } else if (typeof example === 'string') {
+            // It's a string, just display it directly
+            exampleDiv.innerHTML += example;
+          } else {
+            // For any other type, stringify it
+            exampleDiv.innerHTML += JSON.stringify(example);
+          }
+        } else {
+          exampleDiv.innerHTML += "No example available";
+        }
+
+        // Clear the input field
+        document.getElementById("auditInput").value = "";
+
+        // For decision steps (Step1 or Step2) show radio options
+        const radioOptions = document.getElementById("radioOptions");
+        if (stepKey === "Step1" || stepKey === "Step2") {
+          radioOptions.style.display = "block";
+          document.getElementById("auditInput").style.display = "none";
+        } else {
+          radioOptions.style.display = "none";
+          document.getElementById("auditInput").style.display = "block";
+        }
+        
+        // Update progress bar
+        updateProgressBar();
+      }
+      
+      // Process previous responses to reconstruct the combined steps
+      // First, determine if there were Step1 selections
+      const previousResponses = auditData.responses;
+      const step1Responses = previousResponses.filter(response => response.step.startsWith("Step1"));
+      
+      if (step1Responses.length > 0) {
+        // There were Step1 responses, reconstruct the combinedSteps array
+        decisionComplete = true;
+        
+        // Extract the selected Step1 substeps
+        const selectedSteps1 = step1Responses.map(response => response.step);
+        
+        // Compute corresponding Step2 substeps
+        const selectedSteps2 = selectedSteps1.map(step => step.replace("Step1", "Step2"));
+        
+        // Filter out decision steps and their substeps from remaining steps
+        const decisionSubSteps = Object.values(step1Mapping).concat(Object.values(step2Mapping));
+        const remainingSteps = stepKeys.filter(key => 
+          key !== "Step1" && key !== "Step2" && !decisionSubSteps.includes(key)
+        );
+        
+        // Reconstruct the combined steps array
+        combinedSteps = selectedSteps1.concat(selectedSteps2).concat(remainingSteps);
+      } else {
+        // No Step1 responses yet, just use all steps
+        combinedSteps = stepKeys;
+        decisionComplete = false;
+      }
+      
+      // Determine which step to resume from - next step after the last completed one
+      const lastStep = auditData.last_step;
+      let nextStepIndex = 0;
+      
+      if (lastStep) {
+        const lastStepIndex = combinedSteps.indexOf(lastStep);
+        if (lastStepIndex !== -1) {
+          nextStepIndex = lastStepIndex + 1;
+          
+          // If we're at the end, start from Step1 again
+          if (nextStepIndex >= combinedSteps.length) {
+            nextStepIndex = 0;
+          }
+        }
+      }
+      
+      // Set the current step index
+      currentStepIndex = nextStepIndex;
+      
+      // Display the current step
+      displayStep(combinedSteps[currentStepIndex]);
+      
+      // Set up the Next button event handler
+      document.getElementById("nextButton").addEventListener("click", () => {
+        // Get current step from the UI
+        const currentStep = document.getElementById("stepName").textContent;
+
+        // If we're at the decision step ("Step1") and haven't processed it yet
+        if (currentStep === "Step1" && !decisionComplete) {
+          const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
+          let selectedSteps1 = [];
+          selectedRadios.forEach((radio) => {
+            const selectedName = radio.name;
+            const selectedValue = radio.value;
+            if (selectedValue === "Yes" && step1Mapping[selectedName]) {
+              selectedSteps1.push(step1Mapping[selectedName]);
+            }
+          });
+
+          if (selectedSteps1.length > 0) {
+            // Automatically compute corresponding Step2 substeps by replacing "Step1" with "Step2"
+            const selectedSteps2 = selectedSteps1.map(step => step.replace("Step1", "Step2"));
+            // Build remaining steps:
+            // Filter out decision steps and their substeps (both for Step1 and Step2)
+            const decisionSubSteps = Object.values(step1Mapping).concat(Object.values(step2Mapping));
+            const remainingSteps = stepKeys.filter(key => key !== "Step1" && key !== "Step2" && !decisionSubSteps.includes(key));
+            // Combined branch: first process the selected Step1 substeps, then the corresponding Step2 substeps, then any remaining steps.
+            combinedSteps = selectedSteps1.concat(selectedSteps2).concat(remainingSteps);
+            decisionComplete = true;
+            currentStepIndex = 0;
+            displayStep(combinedSteps[currentStepIndex]);
+          } else {
+            alert("Please select at least one option with 'Yes' for Step1 to proceed.");
+          }
+        } else {
+          // For non-decision steps (or after processing the decision), save the response and move to the next step.
+          const userInput = document.getElementById("auditInput").value.trim();
+          if (!userInput) {
+            alert("Please enter a response before proceeding.");
+            return;
+          }
+          // Determine the current branch (we are using combinedSteps here)
+          const stepName = combinedSteps[currentStepIndex];
+          const response = {
+            response_step: stepName,
+            response_answer: userInput,
+            session_id: session_id // Include the session_id in the response
+          };
+
+          fetch("/save_response", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(response),
+            })
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error("Failed to save response.");
+              }
+              return res.json();
+            })
+            .then((data) => {
+              console.log(data.message);
+              currentStepIndex++;
+              if (currentStepIndex < combinedSteps.length) {
+                displayStep(combinedSteps[currentStepIndex]);
+              } else {
+                alert("You've completed all the steps! Responses saved.");
+                
+                // Instead of staying on the page, force a reload after a short delay
+                // This ensures the next time the audit page is visited, it won't show
+                // an incomplete audit since we've already completed this one
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1500);
+                
+                updateProgressBar(); // Ensure progress bar shows 100%
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Failed to save the response. Please try again.");
+            });
+        }
+      });
+      
+      console.log("Audit resumed successfully from step:", combinedSteps[currentStepIndex]);
+    })
+    .catch((error) => {
+      console.error("Error loading audit steps for resuming:", error);
+      // If there's an error, fall back to starting a new audit
+      fetchAuditSteps();
+    });
+}

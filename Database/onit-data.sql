@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `onit`.`audit_response_table` (
   `response_step` VARCHAR(45) NOT NULL,
   `response_answer` LONGTEXT NOT NULL COMMENT 'This table might change, right now this is how the JSON file is set up. This will all depend on how Sarah ends up doing stuff, but either way we can still have this set up and based off each step handle the data differently',
   `user_table_iduser_table` INT NOT NULL,
+  `session_id` INT DEFAULT 1,
   PRIMARY KEY (`idaudit_response`, `user_table_iduser_table`),
   INDEX `fk_audit_response_user_table_idx` (`user_table_iduser_table` ASC) VISIBLE,
   CONSTRAINT `fk_audit_response_user_table`
