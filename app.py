@@ -830,7 +830,7 @@ def get_user_data():
         print(f"Error getting user data: {e}")
         return jsonify({"error": "Failed to get user data"}), 500
 
-# Add new endpoint for marking an audit as complete
+# Modify the mark_audit_complete endpoint to redirect to the report page after marking the audit as complete
 @app.route("/mark_audit_complete", methods=["POST"])
 @login_required
 def mark_audit_complete():
@@ -871,12 +871,8 @@ def mark_audit_complete():
         cur.close()
         conn.close()
         
-        return jsonify({
-            "success": True, 
-            "message": "Audit marked as complete", 
-            "session_id": session_id,
-            "date": today
-        })
+        # Redirect to the report page with the session_id
+        return redirect(url_for("report", session_id=session_id))
     
     except Exception as e:
         app.logger.error(f"Error marking audit as complete: {e}")
