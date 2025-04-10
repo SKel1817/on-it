@@ -389,7 +389,7 @@ function loadReport(date) {
 }
 
 // Download the PDF - finally download
-function downloadPDF(date) {
+function downloadPDF(date, userId) {
   if (!date) {
     alert("Date is missing. Please select a valid audit date.");
     return;

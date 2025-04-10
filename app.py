@@ -1,13 +1,14 @@
 from flask import Flask, flash, redirect, render_template, request, jsonify, send_file, session, url_for
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import subprocess
 from dotenv import load_dotenv
 import mariadb
 from mariadb import Error
 import bcrypt
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+import secrets
 
 # Ideal workflow w/ current JSON logic no database:
 # - Javascript requests flask API
@@ -105,6 +106,8 @@ def ensure_file_exists():
         with open(RESPONSES_FILE, "w") as f:
             json.dump([], f)
 # API Database queries -------------------------------------------------------------
+
+
 # User Logic Start ------------------
 # user login -- To be done
 @app.route("/login-user", methods=["POST"])
@@ -250,11 +253,9 @@ def create_user():
         hashed_password = bcrypt.hashpw(data["password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
         # Insert user into the database
-        cur.execute("""
-            INSERT INTO user_table (first_name, last_name, username, email, password, familarity_with_audits, role, business_indicator)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-            (data["first_name"], data["last_name"], data["username"], data["email"], hashed_password,
-                data["familarity_with_audits"], role, business_indicator))
+        cur.execute("""INSERT INTO user_table (first_name, last_name, username, email, password, familarity_with_audits, role, business_indicator) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (data["first_name"], data["last_name"], data["username"], data["email"], hashed_password,
+                     data["familarity_with_audits"], role, business_indicator))
 
         conn.commit()
         cur.close()
@@ -420,13 +421,22 @@ def get_audit_dates():
         print(f"Error fetching audit dates: {e}")
         return jsonify({"error": "Failed to load audit dates."}), 500
 
-# API for fetching report data -- modify once database is set up (will be API for report) -- TO DO
+# API for fetching report data -- modified to support token authentication
 @app.route("/get_report_data", methods=["GET"])
 def get_report_data():
     try:
         date = request.args.get("date")
         if not date:
             return jsonify({"error": "Date is required"}), 400
+        
+        # Check for token-based authentication
+        token = request.args.get("token")
+        if token and token in report_tokens:
+            user_id = report_tokens[token]["user_id"]
+        elif current_user.is_authenticated:
+            user_id = current_user.id
+        else:
+            return jsonify({"error": "Authentication required"}), 401
 
         conn = get_db_connection()
         if conn is None:
@@ -437,7 +447,7 @@ def get_report_data():
             SELECT response_step, response_answer
             FROM audit_response_table
             WHERE DATE(date) = ? AND user_table_iduser_table = ?
-        """, (date, current_user.id))
+        """, (date, user_id))
         responses = [{"step": row[0], "answer": row[1]} for row in cur.fetchall()]
 
         cur.execute("""
@@ -521,6 +531,50 @@ def get_frameworks():
 # End of API Database queries -------------------------------------------------------------
 
 
+# Token storage for report access
+report_tokens = {}
+
+# Generate a temporary token for report access
+def generate_report_token(user_id, expiry_minutes=5):
+    token = secrets.token_urlsafe(32)
+    expiry_time = datetime.now() + timedelta(minutes=expiry_minutes)
+    report_tokens[token] = {"user_id": user_id, "expiry": expiry_time}
+    return token
+
+# Add a token-authenticated report route
+@app.route("/report-with-token")
+def report_with_token():
+    token = request.args.get("token")
+    date = request.args.get("date")
+    if not token or token not in report_tokens:
+        return redirect(url_for("login"))
+    
+    token_data = report_tokens[token]
+    # Check if token has expired
+    if datetime.now() > token_data["expiry"]:
+        del report_tokens[token]  # Remove expired token
+        return redirect(url_for("login"))
+    
+    # Retrieve user data for the token
+    user_id = token_data["user_id"]
+    user = load_user(user_id)
+    if not user:
+        return redirect(url_for("login"))
+    
+    # Render the report template with the user data and date
+    return render_template("report.html", current_user=user, report_date=date)
+
+# Add an endpoint to generate a token for PDF generation
+@app.route("/get_report_token", methods=["POST"])
+def get_report_token():
+    data = request.json
+    user_id = data.get('user_id')
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
+    
+    token = generate_report_token(user_id)
+    return jsonify({"token": token})
+
 # function for generating the pdf 
 @app.route("/generate_pdf", methods=["GET"])
 def generate_pdf():
@@ -569,6 +623,7 @@ def search_page():
 
 # pages logic
 @app.route("/")
+
 def index():
     return render_template("index.html")
 
@@ -628,6 +683,53 @@ def troubleshooting():
 def changePassword():
     return render_template("changePassword.html")
 
+# Add an endpoint to get user data by ID for report generation
+@app.route("/get_user_data", methods=["GET"])
+def get_user_data():
+    try:
+        user_id = request.args.get("userId")
+        token = request.args.get("token")
+        
+        # Validate the token if provided
+        if token:
+            if token not in report_tokens:
+                return jsonify({"error": "Invalid token"}), 401
+            token_data = report_tokens[token]
+            if datetime.now() > token_data["expiry"]:
+                del report_tokens[token]
+                return jsonify({"error": "Token expired"}), 401
+        
+        if not user_id:
+            return jsonify({"error": "User ID required"}), 400
+            
+        # Load user data from database
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT first_name, last_name, role
+            FROM user_table
+            WHERE iduser_table = ?
+        """, (user_id,))
+        
+        user_data = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        if not user_data:
+            return jsonify({"error": "User not found"}), 404
+            
+        return jsonify({
+            "firstName": user_data[0],
+            "lastName": user_data[1],
+            "role": user_data[2]
+        }), 200
+        
+    except Exception as e:
+        print(f"Error getting user data: {e}")
+        return jsonify({"error": "Failed to get user data"}), 500
 
 # main loop to run the app
 if __name__ == "__main__":
