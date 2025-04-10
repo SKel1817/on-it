@@ -2,6 +2,10 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const util = require('util');
+
+// Convert fs.readFile to return a Promise
+const readFile = util.promisify(fs.readFile);
 
 // Function to make HTTP requests using native Node.js modules
 async function getAuthToken(userId) {
@@ -134,129 +138,49 @@ async function generatePDF(date, userId) {
     const page = await browser.newPage();
    
     // Enable console logging from the browser
-    page.on('console', msg => console.log(`PAGE CONSOLE: ${msg.text()}`));    // Generate HTML content for the report
-    const reportHTML = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cybersecurity Audit Report</title>
-        <style>
-            /* Report Styling */
-            body {
-                font-family: 'Times New Roman', Times, serif;
-                margin: 0;
-                padding: 20px;
-                background-color: #FFFFFF;
-                color: #000000;
-                line-height: 1.6;
-            }
-            
-            #report-container {
-                max-width: 1000px;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: #fff;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            }
-            
-            h1 {
-                color: #143F6E;
-                text-align: center;
-                font-size: 24px;
-                margin-bottom: 20px;
-                border-bottom: 2px solid #A5D6A7;
-                padding-bottom: 10px;
-            }
-            
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 20px 0;
-            }
-            
-            th, td {
-                border: 1px solid #ddd;
-                padding: 10px;
-                text-align: left;
-            }
-            
-            th {
-                background-color: #143F6E;
-                color: white;
-            }
-            
-            tr:nth-child(even) {
-                background-color: #f2f2f2;
-            }
-            
-            #audit-header {
-                margin-bottom: 30px;
-            }
-            
-            #audit-header td {
-                border: none;
-                font-weight: bold;
-                padding: 5px 10px;
-            }
-            
-            .section-title {
-                color: #143F6E;
-                margin-top: 30px;
-                border-left: 5px solid #A5D6A7;
-                padding-left: 10px;
-            }
-            
-            @media print {
-                body {
-                    padding: 0;
-                }
-                #report-container {
-                    box-shadow: none;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div id="report-container">
-            <h1>Cybersecurity Audit Report</h1>
-            <table id="audit-header">
-                <tr>
-                    <td><strong>Date:</strong> ${date}</td>
-                    <td><strong>Auditor:</strong> ${userData.firstName} ${userData.lastName}</td>
-                    <td><strong>Department:</strong> ${userData.role || 'N/A'}</td>
-                </tr>
-            </table>
-
-            <h2 class="section-title">Audit Steps</h2>
-            <table id="audit-steps">
-                <thead>
-                    <tr>
-                        <th>Step Name</th>
-                        <th>Instruction</th>
-                        <th>Response</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${reportData.responses.length > 0 ? 
-                        reportData.responses.map(item => `
-                            <tr>
-                                <td>${item.step || 'N/A'}</td>
-                                <td>${reportData.steps[item.step]?.Instruction || 'Instruction not available'}</td>
-                                <td>${item.answer || 'No response provided'}</td>
-                            </tr>
-                        `).join('') : 
-                        '<tr><td colspan="3">No data found for this date.</td></tr>'
-                    }
-                </tbody>
-            </table>
-        </div>
-    </body>
-    </html>
-    `;
-
-    // Set the HTML content directly
+    page.on('console', msg => console.log(`PAGE CONSOLE: ${msg.text()}`));    // Read the HTML template file and CSS file
+    const htmlTemplate = await readFile(path.join(__dirname, 'templates', 'report.html'), 'utf8');
+    const cssContent = await readFile(path.join(__dirname, 'static', 'report-style.css'), 'utf8');
+    
+    // Generate the report content table rows for the report
+    const reportRows = reportData.responses.length > 0 ? 
+        reportData.responses.map(item => `
+            <tr>
+                <td>${item.step || 'N/A'}</td>
+                <td>${reportData.steps[item.step]?.Instruction || 'Instruction not available'}</td>
+                <td>${item.answer || 'No response provided'}</td>
+            </tr>
+        `).join('') : 
+        '<tr><td colspan="3">No data found for this date.</td></tr>';
+    
+    // Create a modified version of the HTML template with our dynamic content
+    let reportHTML = htmlTemplate;
+    
+    // Remove Flask/Jinja template variables and replace with our values
+    reportHTML = reportHTML.replace('{{ url_for(\'index\') }}', '#');
+    reportHTML = reportHTML.replace(/\{\{\s*url_for\('[^']+'\)\s*\}\}/g, '#');
+    reportHTML = reportHTML.replace(/\{\%\s*if[^]*?\{\%\s*endif\s*\%\}/gs, ''); // Remove all {% if %} blocks
+    
+    // Insert our user data
+    reportHTML = reportHTML.replace('<span id="report-date"></span>', `<span id="report-date">${date}</span>`);
+    reportHTML = reportHTML.replace('<span id="auditor-name">{{ current_user.first_name }} {{ current_user.last_name }}</span>', 
+                                    `<span id="auditor-name">${userData.firstName} ${userData.lastName}</span>`);
+    reportHTML = reportHTML.replace('<span id="department-name">{{ current_user.role }}</span>', 
+                                    `<span id="department-name">${userData.role || 'N/A'}</span>`);
+    reportHTML = reportHTML.replace('<span id="department-name">N/A</span>', 
+                                    `<span id="department-name">${userData.role || 'N/A'}</span>`);
+    
+    // Insert report data rows
+    reportHTML = reportHTML.replace('<!-- Steps will be dynamically inserted here -->', reportRows);
+    
+    // Replace relative CSS paths with inline CSS
+    reportHTML = reportHTML.replace('<link rel="stylesheet" href="../static/report-style.css">', 
+                                   `<style>${cssContent}</style>`);
+                                   
+    // Remove script tags to prevent any JavaScript execution
+    reportHTML = reportHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    
+    // Set the modified HTML content directly
     await page.setContent(reportHTML, { waitUntil: 'networkidle0' });
 
     // Generate the PDF
