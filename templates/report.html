@@ -77,8 +77,7 @@
       <tbody id="steps-body">
         <!-- Steps will be dynamically inserted here -->
       </tbody>
-    </table>
-    <button id="download-pdf" onclick="downloadPDF(document.getElementById('report-date').textContent, '{{ current_user.id }}')">
+    </table>      <button id="download-pdf" data-session-id="{{ session_id }}" onclick="downloadPDF(document.getElementById('report-date').textContent, parseInt(this.getAttribute('data-session-id')))">
       Download Report
     </button>
   </div>  <script>

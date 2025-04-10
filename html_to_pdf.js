@@ -105,8 +105,25 @@ async function makeGetRequest(path) {
     });
 }
 
-async function generatePDF(date, userId) {
-    // First get an authentication token
+async function generatePDF(date, userIdParam) {
+    // Log the received userIdParam for debugging
+    console.log(`Received userIdParam: ${userIdParam}`);
+
+    // Extract session_id from userId if it contains both (format: "userId-sessionId")
+    let userId = userIdParam;
+    let sessionId = null; // Default to null
+
+    if (userIdParam.includes('-')) {
+        const parts = userIdParam.split('-');
+        userId = parts[0];  // Extract just the user ID part
+        sessionId = parts[1];  // Extract the session ID part
+        console.log(`Extracted userId=${userId} and sessionId=${sessionId} from parameter`);
+    } else {
+        console.error("Invalid userIdParam format. Expected 'userId-sessionId'.");
+        throw new Error("Invalid userIdParam format");
+    }
+
+    // First get an authentication token using just the userId part
     const tokenResponse = await getAuthToken(userId);
     if (!tokenResponse.token) {
         throw new Error("Failed to get authentication token");
@@ -126,8 +143,12 @@ async function generatePDF(date, userId) {
     // Fetch report data
     let reportData;
     try {
-        reportData = await makeGetRequest(`/get_report_data?token=${token}&date=${encodeURIComponent(date)}`);
-        console.log(`Got report data with ${reportData.responses.length} entries`);
+        // Use the sessionId that was already extracted at the beginning of the function
+        if (!sessionId) {
+            throw new Error("Session ID is missing");
+        }
+        reportData = await makeGetRequest(`/get_report_data?token=${token}&date=${encodeURIComponent(date)}&session_id=${sessionId}`);
+        console.log(`Got report data with ${reportData.responses.length} entries for session ${sessionId}`);
     } catch (error) {
         console.error('Failed to get report data:', error);
         throw new Error("Failed to get report data");

@@ -290,41 +290,47 @@ def check_incomplete_audit():
         cur.execute("SELECT COUNT(*) FROM audit_steps_table")
         total_steps = cur.fetchone()[0]
         
-        # Get the most recent incomplete audit date (if any)
-        # An audit is considered incomplete if the number of responses is less than the total steps
+        # Get the most recent incomplete audit session
+        # An audit session is considered incomplete if it doesn't contain a Step6 response
         cur.execute("""
-            SELECT DATE(date) as audit_date, COUNT(*) as steps_completed
+            SELECT DATE(date) as audit_date, COUNT(*) as steps_completed, session_id
             FROM audit_response_table
             WHERE user_table_iduser_table = ?
-            GROUP BY DATE(date)
+            AND (date, session_id) NOT IN (
+                SELECT date, session_id
+                FROM audit_response_table
+                WHERE user_table_iduser_table = ?
+                AND response_step = 'Step6'
+            )
+            GROUP BY DATE(date), session_id
             HAVING COUNT(*) < ?
-            ORDER BY date DESC
-            LIMIT 1
-        """, (current_user.id, total_steps))
+            ORDER BY date DESC, session_id DESC
+            LIMIT 1        """, (current_user.id, current_user.id, total_steps))
         
         incomplete_audit = cur.fetchone()
         
         if incomplete_audit:
             audit_date = incomplete_audit[0].strftime("%Y-%m-%d")
             completed_steps = incomplete_audit[1]
+            session_id = incomplete_audit[2]
             
-            # Get the most recent step that was completed
+            # Get the most recent step that was completed in this session
             cur.execute("""
                 SELECT response_step
                 FROM audit_response_table
-                WHERE user_table_iduser_table = ? AND DATE(date) = ?
+                WHERE user_table_iduser_table = ? AND DATE(date) = ? AND session_id = ?
                 ORDER BY date DESC
                 LIMIT 1
-            """, (current_user.id, audit_date))
+            """, (current_user.id, audit_date, session_id))
             
             last_step = cur.fetchone()[0]
             
-            # Get all responses for this date to restore the audit state
+            # Get all responses for this specific session to restore the audit state
             cur.execute("""
                 SELECT response_step, response_answer
                 FROM audit_response_table
-                WHERE user_table_iduser_table = ? AND DATE(date) = ?
-            """, (current_user.id, audit_date))
+                WHERE user_table_iduser_table = ? AND DATE(date) = ? AND session_id = ?
+            """, (current_user.id, audit_date, session_id))
             
             responses = [{"step": row[0], "answer": row[1]} for row in cur.fetchall()]
             
@@ -410,13 +416,55 @@ def get_audit_dates():
             return jsonify({"error": "Database connection failed"}), 500
 
         cur = conn.cursor()
-        cur.execute("SELECT DISTINCT DATE(date) FROM onit.audit_response_table WHERE user_table_iduser_table = ?", (current_user.id,))
+        
+        # Query to get unique date-session combinations and check if each session has a Step6 (complete)
+        cur.execute("""
+            SELECT 
+                DATE(a.date) as audit_date, 
+                a.session_id,
+                EXISTS (
+                    SELECT 1 
+                    FROM audit_response_table 
+                    WHERE user_table_iduser_table = ? 
+                    AND DATE(date) = DATE(a.date) 
+                    AND session_id = a.session_id 
+                    AND response_step = 'Step6'
+                ) as is_complete
+            FROM audit_response_table a
+            WHERE a.user_table_iduser_table = ?
+            GROUP BY DATE(a.date), a.session_id
+            ORDER BY DATE(a.date) DESC, a.session_id DESC
+        """, (current_user.id, current_user.id))
+        
         rows = cur.fetchall()
-        dates = [row[0].strftime("%Y-%m-%d") for row in rows]
+        audit_sessions = []
+        # For backward compatibility with existing code
+        dates = []
+        
+        for row in rows:
+            date_str = row[0].strftime("%Y-%m-%d")
+            session_id = row[1]
+            is_complete = bool(row[2])
+            
+            # Add to dates array for backward compatibility
+            if date_str not in dates:
+                dates.append(date_str)
+            
+            # Format as "2025-04-10" for single sessions, "2025-04-10 (Session 2)" for multiple
+            display_name = date_str
+            if session_id > 1:
+                display_name = f"{date_str} (Session {session_id})"
+                
+            audit_sessions.append({
+                "date": date_str,
+                "session_id": session_id,
+                "display_name": display_name,
+                "is_complete": is_complete
+            })
 
         cur.close()
         conn.close()
-        return jsonify({"dates": dates})
+        return jsonify({"audit_sessions": audit_sessions, "dates": dates})
     except Exception as e:
         print(f"Error fetching audit dates: {e}")
         return jsonify({"error": "Failed to load audit dates."}), 500
@@ -440,14 +488,19 @@ def get_report_data():
 
         conn = get_db_connection()
         if conn is None:
-            return jsonify({"error": "Database connection failed"}), 500
+            return jsonify({"error": "Database connection failed"}), 500        # Get session_id from request parameters, default to 1
+        session_id = request.args.get("session_id", 1)
+        try:
+            session_id = int(session_id)
+        except (ValueError, TypeError):
+            session_id = 1
 
         cur = conn.cursor()
         cur.execute("""
             SELECT response_step, response_answer
             FROM audit_response_table
-            WHERE DATE(date) = ? AND user_table_iduser_table = ?
-        """, (date, user_id))
+            WHERE DATE(date) = ? AND user_table_iduser_table = ? AND session_id = ?
+        """, (date, user_id, session_id))
         responses = [{"step": row[0], "answer": row[1]} for row in cur.fetchall()]
 
         cur.execute("""
@@ -477,11 +530,42 @@ def save_response():
         if conn is None:
             return jsonify({"error": "Database connection failed"}), 500
 
+        # Get or create session_id for the current date
+        session_id = data.get("session_id")
+        if not session_id:
+            # Check if we need to create a new session for today
+            cur = conn.cursor()
+            today = datetime.now().strftime("%Y-%m-%d")
+            
+            # Find the latest session_id for today
+            cur.execute("""
+                SELECT MAX(session_id) FROM audit_response_table 
+                WHERE user_table_iduser_table = ? AND DATE(date) = ?
+            """, (current_user.id, today))
+            
+            result = cur.fetchone()
+            if result and result[0] is not None:
+                session_id = result[0]
+                
+                # Check if this session has a Step6 (which means it's complete)
+                cur.execute("""
+                    SELECT 1 FROM audit_response_table
+                    WHERE user_table_iduser_table = ? AND DATE(date) = ? 
+                    AND session_id = ? AND response_step = 'Step6'
+                """, (current_user.id, today, session_id))
+                
+                if cur.fetchone():
+                    # This session is complete, create a new one
+                    session_id = result[0] + 1
+            else:
+                # First session of the day
+                session_id = 1
+        
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO audit_response_table (date, response_step, response_answer, user_table_iduser_table)
-            VALUES (NOW(), ?, ?, ?)
-        """, (data["response_step"], data["response_answer"], current_user.id))
+            INSERT INTO audit_response_table (date, response_step, response_answer, user_table_iduser_table, session_id)
+            VALUES (NOW(), ?, ?, ?, ?)
+        """, (data["response_step"], data["response_answer"], current_user.id, session_id))
 
         conn.commit()
         cur.close()
@@ -587,8 +671,21 @@ def generate_pdf():
         if not user_id:
             return jsonify({"error": "User ID is missing"}), 400
 
-        # Call Puppeteer to generate the PDF
-        subprocess.run(["node", PUPPETEER_SCRIPT, date, str(user_id)], check=True)
+        # Get the session_id from request parameters
+        session_id = request.args.get("session_id")
+        print(f"Raw session_id from request.args: {request.args.get('session_id')}")
+        if not session_id:
+            print("session_id parameter is missing in the request.")
+            return jsonify({"error": "Session ID parameter is missing"}), 400
+
+        print(f"Extracted session_id from request: {session_id}")
+
+        # Format the parameter as "userId-sessionId" to pass both values to the script
+        user_param = f"{user_id}-{session_id}"
+        print(f"Formatted user_param: {user_param}")
+
+        # Call Puppeteer to generate the PDF with the combined parameter
+        subprocess.run(["node", PUPPETEER_SCRIPT, date, user_param], check=True)
 
         return send_file(OUTPUT_PDF, as_attachment=True)
     except subprocess.CalledProcessError as e:
@@ -665,7 +762,9 @@ def settings():
 @app.route("/report")
 @login_required
 def report():
-    return render_template("report.html", current_user=current_user)
+    # Extract session_id from request parameters
+    session_id = request.args.get("session_id", "1")  # Default to 1 if not provided
+    return render_template("report.html", current_user=current_user, session_id=session_id)
 
 @app.route("/previous")
 def previous_audits():
@@ -730,6 +829,58 @@ def get_user_data():
     except Exception as e:
         print(f"Error getting user data: {e}")
         return jsonify({"error": "Failed to get user data"}), 500
+
+# Add new endpoint for marking an audit as complete
+@app.route("/mark_audit_complete", methods=["POST"])
+@login_required
+def mark_audit_complete():
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "Invalid data"}), 400
+
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        # Get the current session ID or create one
+        cur = conn.cursor()
+        today = datetime.now().strftime("%Y-%m-%d")
+        
+        # Find the latest session_id for today
+        cur.execute("""
+            SELECT MAX(session_id) FROM audit_response_table 
+            WHERE user_table_iduser_table = ? AND DATE(date) = ?
+        """, (current_user.id, today))
+        
+        result = cur.fetchone()
+        session_id = 1
+        if result and result[0] is not None:
+            session_id = result[0]
+        
+        # First, add the Step6 completion marker
+        cur.execute("""
+            INSERT INTO audit_response_table (date, response_step, response_answer, user_table_iduser_table, session_id)
+            VALUES (NOW(), 'Step6', 'Audit completed', ?, ?)
+        """, (current_user.id, session_id))
+        
+        # Log completion for debugging
+        app.logger.info(f"Marked audit as complete for user {current_user.id}, session {session_id}")
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return jsonify({
+            "success": True, 
+            "message": "Audit marked as complete", 
+            "session_id": session_id,
+            "date": today
+        })
+    
+    except Exception as e:
+        app.logger.error(f"Error marking audit as complete: {e}")
+        return jsonify({"error": f"Failed to mark audit as complete: {str(e)}"}), 500
 
 # main loop to run the app
 if __name__ == "__main__":

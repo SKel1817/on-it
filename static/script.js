@@ -274,13 +274,45 @@ function fetchAuditSteps() {
             })
             .then((data) => {
               console.log(data.message);
-              currentStepIndex++;
-              if (currentStepIndex < combinedSteps.length) {
-                displayStep(combinedSteps[currentStepIndex]);
-              } else {
+              currentStepIndex++;              if (currentStepIndex < combinedSteps.length) {
+                displayStep(combinedSteps[currentStepIndex]);              } else {
+                console.log("AUDIT COMPLETE: Total steps in combinedSteps =", combinedSteps.length);
+                console.log("Steps completed:", combinedSteps);
+                
+                // Get the last completed step name
+                const lastStep = combinedSteps[combinedSteps.length - 1];
+                console.log("Last completed step:", lastStep);
+                
+                // Let's force a completion marker with both Step6 and the final actual step name
+                const completeMarker = {
+                  response_step: "Step6", // This is our marker for completion
+                  response_answer: `Audit completed. Final step was: ${lastStep}`,
+                  is_completion_marker: true // Special flag to tell server this marks completion
+                };
+
+                // Display completion message
                 alert("You've completed all the steps! Responses saved.");
-                // Optionally reset flags/indexes if you want to restart the flow.
-                updateProgressBar(); // Ensure progress bar shows 100%
+                
+                // Send a final request to mark the audit as complete
+                fetch("/mark_audit_complete", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(completeMarker)
+                }).then(response => response.json())
+                .then(data => {
+                  console.log("Audit marked complete:", data);
+                  
+                  // Instead of reloading the page, redirect to a different page
+                  // This prevents the resume dialog from appearing
+                  window.location.href = "/previous";
+                })
+                .catch(error => {
+                  console.error("Error marking audit complete:", error);
+                  // Even if there's an error, redirect away from the audit page
+                  window.location.href = "/previous";
+                });
               }
             })
             .catch((error) => {
@@ -324,15 +356,20 @@ function loadAudits() {
     })
     .then(data => {
       const auditList = document.getElementById("audit-list");
-      if (data.dates.length === 0) {
+      if (!data.audit_sessions || data.audit_sessions.length === 0) {
         auditList.innerHTML = "<li>No audits found.</li>";
         return;
       }
-      data.dates.forEach(date => {
+      data.audit_sessions.forEach(session => {
         const li = document.createElement("li");
+        // Add a status indicator for complete/incomplete
+        const statusIcon = session.is_complete ? 
+          '<span class="status-complete" title="Complete">✓</span>' : 
+          '<span class="status-incomplete" title="Incomplete">⏳</span>';
+          
         li.innerHTML = `
-          <span>${date}</span>
-          <button onclick="viewReport('${date}')"><i class="material-symbols-outlined">table_eye</i></button>
+          <span>${session.display_name} ${statusIcon}</span>
+          <button onclick="viewReport('${session.date}', ${session.session_id})"><i class="material-symbols-outlined">table_eye</i></button>
         `;
         auditList.appendChild(li);
       });
@@ -345,14 +382,18 @@ function loadAudits() {
 }
 
 // Redirect to the report page with the selected date - then redirect
-function viewReport(date) {
+function viewReport(date, session_id = 1) {
   const formattedDate = new Date(date).toISOString().split("T")[0];
-  window.location.href = `/report?date=${encodeURIComponent(formattedDate)}`;
+  window.location.href = `/report?date=${encodeURIComponent(formattedDate)}&session_id=${session_id}`;
 }
 
 // Load the report for a specific date - load logic
 function loadReport(date) {
-  fetch(`/get_report_data?date=${encodeURIComponent(date)}`)
+  // Get session_id from URL if present
+  const urlParams = new URLSearchParams(window.location.search);
+  const session_id = urlParams.get('session_id') || 1;
+  
+  fetch(`/get_report_data?date=${encodeURIComponent(date)}&session_id=${session_id}`)
     .then(response => {
       if (!response.ok) throw new Error("Failed to load report data.");
       return response.json();
@@ -389,13 +430,16 @@ function loadReport(date) {
 }
 
 // Download the PDF - finally download
-function downloadPDF(date, userId) {
-  if (!date) {
-    alert("Date is missing. Please select a valid audit date.");
+function downloadPDF(date, sessionId) {
+  if (!sessionId) {
+    console.error("Session ID is missing. Cannot download the correct report.");
+    alert("Session ID is missing. Please try again.");
     return;
   }
 
-  fetch(`/generate_pdf?date=${encodeURIComponent(date)}`)
+  console.log(`Downloading PDF for date: ${date}, sessionId: ${sessionId}`);
+
+  fetch(`/generate_pdf?date=${encodeURIComponent(date)}&session_id=${sessionId}`)
     .then(response => {
       if (!response.ok) throw new Error("Failed to download PDF.");
       return response.blob();
@@ -403,7 +447,7 @@ function downloadPDF(date, userId) {
     .then(blob => {
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `audit_${date.replace(/-/g, "_")}.pdf`;
+      link.download = `audit_${date.replace(/-/g, "_")}_session${sessionId}.pdf`;
       link.click();
     })
     .catch(error => {
@@ -491,11 +535,19 @@ function checkForIncompleteAudit() {
     })
     .then(response => response.json())
     .then(data => {
-      if (data.incomplete_audit) {
+      // Check if there's a valid incomplete audit with actual responses
+      // AND ensure that a Step6 entry (completion marker) doesn't exist
+      const hasStep6 = data.responses && data.responses.some(response => response.step === 'Step6');
+      
+      if (data.incomplete_audit && 
+          data.responses && 
+          data.responses.length > 0 && 
+          data.completed_steps > 0 &&
+          !hasStep6) {
         // Create a modal or prompt to ask if the user wants to resume
         createResumeModal(data);
       } else {
-        // No incomplete audit, just start a new one
+        // Either no incomplete audit or audit has a Step6 marker (completed)
         fetchAuditSteps();
       }
     })
@@ -626,6 +678,9 @@ function resumeAudit(auditData) {
         devices: "Step2e",
         networkArchitecture: "Step2f",
       };
+
+      // Get the session_id from auditData if available
+      const session_id = auditData.session_id;
 
       // Function to display a step - this is a duplicate of the one in fetchAuditSteps
       // But we need it here since we're in a different scope
@@ -769,7 +824,8 @@ function resumeAudit(auditData) {
           const stepName = combinedSteps[currentStepIndex];
           const response = {
             response_step: stepName,
-            response_answer: userInput
+            response_answer: userInput,
+            session_id: session_id // Include the session_id in the response
           };
 
           fetch("/save_response", {
@@ -792,7 +848,14 @@ function resumeAudit(auditData) {
                 displayStep(combinedSteps[currentStepIndex]);
               } else {
                 alert("You've completed all the steps! Responses saved.");
-                // Optionally reset flags/indexes if you want to restart the flow.
+                
+                // Instead of staying on the page, force a reload after a short delay
+                // This ensures the next time the audit page is visited, it won't show
+                // an incomplete audit since we've already completed this one
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1500);
+                
                 updateProgressBar(); // Ensure progress bar shows 100%
               }
             })
